@@ -9,5 +9,4 @@ import { NavigationComponent } from './navigation/navigation.component';
   styleUrl: './app.scss'
 })
 export class App {
-  protected readonly title = signal('CodeClique');
 }

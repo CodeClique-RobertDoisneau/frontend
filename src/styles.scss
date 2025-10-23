@@ -7,13 +7,27 @@
 @use '@angular/material' as mat;
 @use '_theme-colors' as codeclique-palette;
 
+@font-face {
+  font-family: 'Rubik';
+  font-style: normal;
+  src: url('../public/fonts/Rubik-VariableFont_wght.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Rubik';
+  font-style: italic;
+  src: url('../public/fonts/Rubik-Italic-VariableFont_wght.ttf') format('truetype');
+}
+
 html {
   @include mat.theme((
     color: (
       primary: codeclique-palette.$primary-palette,
       tertiary: codeclique-palette.$tertiary-palette,
     ),
-    typography: Roboto,
+    typography: (
+      plain-family: Roboto,
+      brand-family: Rubik,
+    ),
     density: 0,
   ));
 }
