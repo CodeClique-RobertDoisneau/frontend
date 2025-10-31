@@ -68,7 +68,10 @@ export class CodeBlock {
   async copy(): Promise<void> {
     try {
       const editor = this.editorRef?.nativeElement;
-      await navigator.clipboard.writeText(editor.value);
+      if (editor) {
+        this.code.set(editor.value);
+      }
+      await navigator.clipboard.writeText(this.code());
     } catch (err) {
       console.error('Failed to copy code:', err);
     }
