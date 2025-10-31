@@ -1,0 +1,60 @@
+<div class="course-viewer">
+  <div class="loader-section">
+    <div class="upload-section">
+      <input
+        type="file"
+        accept=".md,.markdown"
+        (change)="onFileSelected($event)"
+        #fileInput
+        hidden
+      />
+      <button
+        matButton="tonal"
+        color="primary"
+        (click)="fileInput.click()"
+        [disabled]="isLoading()"
+      >
+        <mat-icon>upload_file</mat-icon>
+        Upload Markdown
+      </button>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-container">
+        <mat-progress-spinner mode="indeterminate" diameter="50" />
+        @if (isPyodideLoading()) {
+          <p class="loading-text">Loading Python environment...</p>
+        } @else if (isLoadingFile()) {
+          <p class="loading-text">Processing markdown file...</p>
+        }
+      </div>
+    }
+
+    @if (pyodideError()) {
+      <div class="error-message pyodide-error">
+        <mat-icon>error</mat-icon>
+        <span>Failed to load Python environment: {{ pyodideError() }}</span>
+      </div>
+    }
+
+    @if (fileError()) {
+      <div class="error-message file-error">
+        <mat-icon>error</mat-icon>
+        <span>{{ fileError() }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="markdown-content">
+    @for (segment of getMarkdownSegments(); track $index) {
+      @if (segment.type === 'html') {
+        <div [innerHTML]="segment.content"></div>
+      } @else if (segment.type === 'code') {
+        <app-code-block
+          [initialCode]="segment.content"
+          [language]="segment.lang">
+        </app-code-block>
+      }
+    }
+  </div>
+</div>

@@ -33,7 +33,11 @@
     "@angular/platform-server": "^20.3.0",
     "@angular/router": "^20.3.0",
     "@angular/ssr": "^20.3.6",
+    "dompurify": "^3.3.0",
     "express": "^5.1.0",
+    "highlight.js": "^11.11.1",
+    "marked": "^16.4.1",
+    "marked-katex-extension": "^5.1.5",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

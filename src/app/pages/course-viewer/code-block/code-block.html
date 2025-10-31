@@ -1,0 +1,55 @@
+<!-- Minimal view for non-Python languages -->
+@if (!(language() === "python")) {
+  <div class="code-block-minimal">
+    <div class="code-overlay">
+      <span class="language-label">{{ language() || 'text' }}</span>
+      <div class="button-group">
+        <button matIconButton (click)="copy()" matTooltip="Copy code">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+    </div>
+    <pre class="code-display"><code>{{ code() }}</code></pre>
+  </div>
+}
+
+<!-- Full interactive view for Python -->
+@else {
+  <div class="code-block-interactive">
+    <div class="code-overlay">
+      <div class="button-group">
+        <button matIconButton (click)="copy()" matTooltip="Copy code">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+        <button matIconButton (click)="reset()" [disabled]="isRunning()" matTooltip="Reset code">
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button matIconButton color="primary" (click)="run()" [disabled]="isRunning()" class="run-button">
+          <mat-icon>play_arrow</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <textarea #editor class="code-editor" spellcheck="false" [value]="code()"
+    oninput='this.style.height = "";this.style.height = this.scrollHeight + "px"'></textarea>
+
+    @if (output()) {
+      <div class="python-output">
+        <div class="output-header">
+          <span>Out:</span>
+        </div>
+        <pre class="output-content">{{ output() }}</pre>
+      </div>
+    }
+
+    @if (error()) {
+      <div class="python-error">
+        <div class="error-header">
+          <mat-icon>error</mat-icon>
+          <span>Error</span>
+        </div>
+        <pre class="error-content">{{ error() }}</pre>
+      </div>
+    }
+  </div>
+}

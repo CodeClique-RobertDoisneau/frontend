@@ -4,6 +4,7 @@
 
 .sidenav {
   width: 200px;
+  // border-right: 1px solid var(--mat-sys-outline-variant);
 }
 
 .sidenav .mat-toolbar {
@@ -14,8 +15,18 @@
   }
 }
 
+.sidenav .mat-mdc-nav-list {
+  padding: 8px;
+}
+
 .mat-toolbar.mat-primary {
   position: sticky;
   top: 0;
   z-index: 1;
+  margin-bottom: 1em;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+mat-sidenav-content {
+  min-height: 100vh;
 }

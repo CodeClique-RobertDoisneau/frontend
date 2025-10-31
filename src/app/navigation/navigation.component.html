@@ -5,20 +5,20 @@
       [opened]="(isHandset$ | async) === false">
     <mat-toolbar>
       <img src="img/CodeClique.svg" alt="App logo" class="logo">
-      CodeClique
+      <h1>CodeClique</h1>
     </mat-toolbar>
     <mat-nav-list>
-      <a matButton href="/">
-        <mat-icon>home</mat-icon>
-        Home
+      <a mat-list-item routerLink="/">
+        <mat-icon matListItemIcon>home</mat-icon>
+        <span matListItemTitle>Accueil</span>
       </a>
-      <a matButton href="/">
-        <mat-icon>person</mat-icon>
-        Mon profil
+      <a mat-list-item routerLink="/profile">
+        <mat-icon matListItemIcon>person</mat-icon>
+        <span matListItemTitle>Mon profil</span>
       </a>
-      <a matButton href="/">
-        <mat-icon>school</mat-icon>
-        Mes cours
+      <a mat-list-item routerLink="/courses">
+        <mat-icon matListItemIcon>school</mat-icon>
+        <span matListItemTitle>Mes cours</span>
       </a>
     </mat-nav-list>
   </mat-sidenav>
@@ -26,14 +26,15 @@
     <mat-toolbar color="primary">
       @if (isHandset$ | async) {
         <button
-          type="button"
+        type="button"
           aria-label="Toggle sidenav"
           matIconButton
           (click)="drawer.toggle()">
           <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
         </button>
       }
-      <span>CodeClique</span>
+      <span>Title</span>
     </mat-toolbar>
+    <router-outlet />
   </mat-sidenav-content>
 </mat-sidenav-container>

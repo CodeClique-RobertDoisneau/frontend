@@ -1,0 +1,36 @@
+.code-block-minimal {
+  position: relative;
+  .code-overlay {
+    .language-label {
+      position: absolute;
+      right: 0; top: 0;
+      color: var(--mat-sys-on-primary);
+      background-color: var(--mat-sys-primary);
+      border-radius: 5px;
+      padding: 0 0.25em;
+      margin: 0.5em;
+    }
+    .button-group {
+      position: absolute;
+      right: 0; bottom: 0;
+    }
+  }
+}
+
+.code-block-interactive {
+  position: relative;
+  .code-overlay {
+    .button-group {
+      position: absolute;
+      right: 0; top: 0;
+    }
+  }
+  .python-output {
+    display: flex;
+    .output-header { padding: 1em 1em 1em 0; }
+    .output-content { margin: 0; }
+  }
+  .python-error {
+    color: var(--mat-sys-error);
+  }
+}
