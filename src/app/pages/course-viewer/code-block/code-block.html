@@ -29,8 +29,7 @@
     @if (error()) {
       <div class="python-error">
         <div class="error-header">
-          <mat-icon>error</mat-icon>
-          <span>Error</span>
+          <span>Error:</span>
         </div>
         <pre class="error-content">{{ error() }}</pre>
       </div>
@@ -43,11 +42,9 @@
   <div class="code-block-minimal">
     <div class="code-overlay">
       <span class="language-label">{{ language() || 'text' }}</span>
-      <div class="button-group">
-        <button matIconButton (click)="copy()" matTooltip="Copy code">
-          <mat-icon>content_copy</mat-icon>
-        </button>
-      </div>
+      <button matIconButton (click)="copy()" matTooltip="Copy code">
+        <mat-icon>content_copy</mat-icon>
+      </button>
     </div>
 
     <code-editor [(ngModel)]="code" [languages]="languages" [language]="language()" readonly="true" setup="minimal" />

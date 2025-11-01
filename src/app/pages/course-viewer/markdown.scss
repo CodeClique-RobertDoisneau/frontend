@@ -1,9 +1,6 @@
 /* Markdown */
 .markdown-content {
-  background-color: var(--mat-sys-surface-container);
-  border-radius: 24px;
-  padding: 1em;
-  margin: 2em;
+  margin: 1em;
 
   /* Headings */
   h1, h2, h3, h4, h5, h6 {
@@ -77,18 +74,16 @@
     border-radius: 5px;
   }
 
-  pre, code-editor {
+  pre{
     font-family: 'Roboto Mono';
     font-size: 1rem;
     background-color: var(--mat-sys-surface);
     border-radius: 10px;
     border: 1px solid var(--mat-sys-outline);
+    padding: 0.75em;
     overflow-x: auto;
     white-space: pre-wrap;
   }
-
-  pre { padding: 0.75em; }
-  code-editor { padding: 0.25rem 0; }
 
   /* Blockquotes */
   blockquote {

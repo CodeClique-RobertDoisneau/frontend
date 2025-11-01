@@ -5,7 +5,7 @@ Ce court document Markdown est conçu pour tester le **rendu du code Python**, d
 ## I / Bases
 
 ```python
-print("Hello, world!")  # Commentaire simple
+print("Hello world!")  # Commentaire simple
 ```
 
 Code en ligne : `a = b + c ** 2`
@@ -36,7 +36,7 @@ for i, objet in enumerate(objets, 1):
 
 ## IV / Images et liens
 
-Image en ligne (exemple de chemin relatif) :
+Image en ligne :
 
 ![Logo Python](https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg)
 
@@ -62,22 +62,35 @@ def diviser(a, b):
 print(diviser(5, 0))
 ```
 
-## VII / Émojis et mise en forme mixte
+## VII / Autres langages
+
+```java
+public class Main {
+  public static void main(String[] args) {
+    System.out.println("Hello world!");
+  }
+}
+```
+
+```bash
+echo "Hello world!"
+```
+
+## VIII / Émojis et mise en forme mixte
 
 **Gras**, *italique*, ~~barré~~ et `code en ligne`
 
 Math en ligne : $ f(x) = x^2 + 1 $
 
-## VIII / Rendu HTML
+## IX / Rendu HTML
 
-<button>Bouton basique</button>
+<button>Bouton activé</button>
+<button disabled>Bouton désactivé</button>
 
-## IX / Autres langages
+<div style="border:3px solid #356774ff; border-radius: 10px; padding: 1em; background: #a1c6ceff;">
+  <p>
+    <strong>Carte d'information</strong>
+  </p>
+  <p>Ce bloc illustre un exemple de contenu HTML intégré dans du Markdown.</p>
+</div>
 
-```java
-public class Main {
-  public static void main(String[] args) {
-    System.out.println("Bonjour le monde");
-  }
-}
-```

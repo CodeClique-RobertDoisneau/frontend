@@ -1,31 +1,14 @@
 <div class="course-viewer">
   <div class="loader-section">
-    <div class="upload-section">
-      <input
-        type="file"
-        accept=".md,.markdown"
-        (change)="onFileSelected($event)"
-        #fileInput
-        hidden
-      />
-      <button
-        matButton="tonal"
-        color="primary"
-        (click)="fileInput.click()"
-        [disabled]="isLoading()"
-      >
-        <mat-icon>upload_file</mat-icon>
-        Upload Markdown
-      </button>
-    </div>
+    <h1>Chargeur de cours en markdown</h1>
 
     @if (isLoading()) {
       <div class="loading-container">
         <mat-progress-spinner mode="indeterminate" diameter="50" />
         @if (isPyodideLoading()) {
-          <p class="loading-text">Loading Python environment...</p>
+          <h4 class="loading-text">Loading Python environment...</h4>
         } @else if (isLoadingFile()) {
-          <p class="loading-text">Processing markdown file...</p>
+          <h4 class="loading-text">Processing markdown file...</h4>
         }
       </div>
     }
@@ -43,6 +26,14 @@
         <span>{{ fileError() }}</span>
       </div>
     }
+
+    <div class="upload-section">
+      <input type="file" accept=".md,.markdown" (change)="onFileSelected($event)" #fileInput hidden />
+      <button matButton="tonal" color="primary" (click)="fileInput.click()" [disabled]="isLoading()">
+        <mat-icon>upload_file</mat-icon>
+        Upload Markdown
+      </button>
+    </div>
   </div>
 
   <div class="markdown-content">
