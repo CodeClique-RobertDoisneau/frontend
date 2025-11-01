@@ -1,13 +1,14 @@
 import { Component, signal, computed, input, inject, effect, ViewChild, ElementRef } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PyodideService } from '../../../services/pyodide/pyodide';
-// import hljs, { AutoHighlightResult } from 'highlight.js';
+import { FormsModule } from '@angular/forms';
+import { CodeEditor } from '@acrodata/code-editor';
+import { languages } from '@codemirror/language-data';
 
 @Component({
   selector: 'app-code-block',
-  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [MatButtonModule, MatIconModule, FormsModule, CodeEditor],
   templateUrl: './code-block.html',
   styleUrl: './code-block.scss',
 })
@@ -15,12 +16,12 @@ export class CodeBlock {
   @ViewChild('editor') editorRef: ElementRef | undefined;
 
   readonly initialCode = input.required<string>();
-  readonly language = input<string>();
+  readonly languages = languages;
+  readonly language = input('');
 
   readonly code = signal('');
-  // readonly highlightedCode = computed(() => {hljs.highlightAuto(this.code())});
   readonly output = signal('');
-  readonly error = signal<string | null>(null);
+  readonly error = signal('');
   readonly isRunning = signal(false);
 
   readonly canRun = computed(() => !this.isRunning() && this.code().trim().length > 0);
@@ -36,11 +37,9 @@ export class CodeBlock {
 
     this.isRunning.set(true);
     this.output.set('');
-    this.error.set(null);
+    this.error.set('');
 
     try {
-      const editor = this.editorRef?.nativeElement;
-      this.code.set(editor.value);
       const result = await this.pyodideService.execute(this.code());
 
       if (result.error) {
@@ -57,20 +56,12 @@ export class CodeBlock {
 
   reset(): void {
     this.code.set(this.initialCode());
-
-    const editor = this.editorRef?.nativeElement;
-    editor.value = this.code();
-
     this.output.set('');
-    this.error.set(null);
+    this.error.set('');
   }
 
   async copy(): Promise<void> {
     try {
-      const editor = this.editorRef?.nativeElement;
-      if (editor) {
-        this.code.set(editor.value);
-      }
       await navigator.clipboard.writeText(this.code());
     } catch (err) {
       console.error('Failed to copy code:', err);

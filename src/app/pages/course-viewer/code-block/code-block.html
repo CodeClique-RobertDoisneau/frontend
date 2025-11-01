@@ -1,20 +1,5 @@
-<!-- Minimal view for non-Python languages -->
-@if (!(language() === "python")) {
-  <div class="code-block-minimal">
-    <div class="code-overlay">
-      <span class="language-label">{{ language() || 'text' }}</span>
-      <div class="button-group">
-        <button matIconButton (click)="copy()" matTooltip="Copy code">
-          <mat-icon>content_copy</mat-icon>
-        </button>
-      </div>
-    </div>
-    <pre class="code-display"><code>{{ code() }}</code></pre>
-  </div>
-}
-
 <!-- Full interactive view for Python -->
-@else {
+@if (language() === "python") {
   <div class="code-block-interactive">
     <div class="code-overlay">
       <div class="button-group">
@@ -30,8 +15,7 @@
       </div>
     </div>
 
-    <textarea #editor class="code-editor" spellcheck="false" [value]="code()"
-    oninput='this.style.height = "";this.style.height = this.scrollHeight + "px"'></textarea>
+    <code-editor [(ngModel)]="code" [languages]="languages" language="python" setup="minimal" />
 
     @if (output()) {
       <div class="python-output">
@@ -51,5 +35,22 @@
         <pre class="error-content">{{ error() }}</pre>
       </div>
     }
+  </div>
+}
+
+<!-- Minimal view for other languages -->
+@else {
+  <div class="code-block-minimal">
+    <div class="code-overlay">
+      <span class="language-label">{{ language() || 'text' }}</span>
+      <div class="button-group">
+        <button matIconButton (click)="copy()" matTooltip="Copy code">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <code-editor [(ngModel)]="code" [languages]="languages" [language]="language()" readonly="true" setup="minimal" />
+
   </div>
 }

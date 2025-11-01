@@ -1,0 +1,83 @@
+# 🐍 Mini-cours Python (Test de rendu)
+
+Ce court document Markdown est conçu pour tester le **rendu du code Python**, des **formules mathématiques**, des **images** et des **cas particuliers**.
+
+## I / Bases
+
+```python
+print("Hello, world!")  # Commentaire simple
+```
+
+Code en ligne : `a = b + c ** 2`
+
+## II / Variables et mathématiques
+
+Python attribue les types de variables dynamiquement :
+
+```python
+x, y = 5, 3
+aire = x * y
+print(aire)
+```
+
+Formule mathématique :
+
+$$ E = mc^2, \quad \text{et} \quad \int_0^{2\pi} \sin(x),dx = 0 $$
+
+## III / Listes et boucles
+
+```python
+objets = ["fusée", "capteur", "moteur"]
+for i, objet in enumerate(objets, 1):
+    print(f"{i}. {objet}")
+```
+
+> Bloc de citation : *« Python est simple, mais puissant. »* — Guido van Rossum
+
+## IV / Images et liens
+
+Image en ligne (exemple de chemin relatif) :
+
+![Logo Python](https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg)
+
+Exemple de lien : [Documentation officielle de Python](https://docs.python.org/3/)
+
+## V / Tableau
+
+| Nom   | Type                       | Exemple   |
+| ----- | -------------------------- | --------- |
+| int   | Entier                     | `42`      |
+| float | Nombre à virgule flottante | `3.14`    |
+| str   | Chaîne de caractères       | `"fusée"` |
+
+## VI / Fonctions et exceptions
+
+```python
+def diviser(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return float('inf')
+
+print(diviser(5, 0))
+```
+
+## VII / Émojis et mise en forme mixte
+
+**Gras**, *italique*, ~~barré~~ et `code en ligne`
+
+Math en ligne : $ f(x) = x^2 + 1 $
+
+## VIII / Rendu HTML
+
+<button>Bouton basique</button>
+
+## IX / Autres langages
+
+```java
+public class Main {
+  public static void main(String[] args) {
+    System.out.println("Bonjour le monde");
+  }
+}
+```
