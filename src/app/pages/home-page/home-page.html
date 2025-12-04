@@ -1,1 +1,57 @@
-<p>home-page works!</p>
+<div class="home-container">
+  <header class="hero-section">
+    <div class="hero-content">
+      <h1>Bienvenue sur CodeClique</h1>
+      <p class="subtitle">La plateforme d'apprentissage pour les étudiants du lycée Robert Doisneau.</p>
+      <p class="description">
+        CodeClique est votre espace pour apprendre, partager et progresser ensemble. 
+        Accédez à des cours interactifs, suivez des parcours personnalisés et rejoignez une communauté passionnée.
+      </p>
+      <div class="hero-actions">
+        <button mat-raised-button color="primary" routerLink="/courses">Découvrir les cours</button>
+        <button mat-stroked-button color="primary" routerLink="/login">Se connecter</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="features-section">
+    <h2>Accès Rapide</h2>
+    <div class="features-grid">
+      <mat-card class="feature-card" routerLink="/parcours">
+        <mat-card-header>
+          <div mat-card-avatar class="feature-icon-container">
+            <mat-icon>map</mat-icon>
+          </div>
+          <mat-card-title>Parcours</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Suivez des chemins d'apprentissage structurés pour maîtriser de nouvelles compétences.</p>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="feature-card" routerLink="/courses">
+        <mat-card-header>
+          <div mat-card-avatar class="feature-icon-container">
+            <mat-icon>school</mat-icon>
+          </div>
+          <mat-card-title>Cours</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Explorez notre catalogue de cours interactifs sur divers langages et technologies.</p>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="feature-card" routerLink="/login">
+        <mat-card-header>
+          <div mat-card-avatar class="feature-icon-container">
+            <mat-icon>login</mat-icon>
+          </div>
+          <mat-card-title>Connexion</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Connectez-vous pour suivre votre progression et accéder à votre espace personnel.</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </section>
+</div>
