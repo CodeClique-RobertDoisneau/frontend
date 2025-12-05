@@ -1,7 +1,6 @@
 code-editor {
   font-family: 'Roboto Mono';
   font-size: 1rem;
-  background-color: var(--mat-sys-surface);
   border-radius: 10px;
   border: 1px solid var(--mat-sys-outline);
   margin: 1em 0;
@@ -33,7 +32,12 @@ code-editor {
   .python-output {
     display: flex;
     .output-header { padding: 1em 1em 1em 0; }
-    .output-content { margin: 0; }
+    .output-content {
+      margin: 0;
+      border-radius: 10px;
+      border: 1px solid var(--mat-sys-outline);
+      padding: 1rem;
+    }
   }
   .python-error {
     color: var(--mat-sys-error);

@@ -4,7 +4,6 @@
 
 .sidenav {
   width: 200px;
-  // border-right: 1px solid var(--mat-sys-outline-variant);
 }
 
 .sidenav .mat-toolbar {
@@ -21,12 +20,22 @@
 
 .mat-toolbar.mat-primary {
   position: sticky;
+  display: flex;
   top: 0;
   z-index: 1;
   margin-bottom: 1em;
   border-bottom: 1px solid var(--mat-sys-outline-variant);
 }
 
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
 mat-sidenav-content {
   min-height: 100vh;
 }
+
+.main-container {
+  padding: 1em;
+}
+

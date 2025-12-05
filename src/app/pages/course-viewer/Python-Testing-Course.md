@@ -82,15 +82,3 @@ echo "Hello world!"
 
 Math en ligne : $ f(x) = x^2 + 1 $
 
-## IX / Rendu HTML
-
-<button>Bouton activé</button>
-<button disabled>Bouton désactivé</button>
-
-<div style="border:3px solid #356774ff; border-radius: 10px; padding: 1em; background: #a1c6ceff;">
-  <p>
-    <strong>Carte d'information</strong>
-  </p>
-  <p>Ce bloc illustre un exemple de contenu HTML intégré dans du Markdown.</p>
-</div>
-

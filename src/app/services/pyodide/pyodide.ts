@@ -1,17 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-
-declare global {
-  interface Window {
-    loadPyodide: (config?: any) => Promise<PyodideInterface>;
-  }
-}
-
-export interface PyodideInterface {
-  runPython(code: string): any;
-  runPythonAsync(code: string): Promise<any>;
-  loadPackage(packages: string | string[]): Promise<void>;
-  globals: any;
-}
+import { loadPyodide, PyodideAPI } from 'pyodide';
 
 export interface ExecutionResult {
   output: string;
@@ -19,86 +7,45 @@ export interface ExecutionResult {
 }
 
 @Injectable({ providedIn: 'root' })
-export class PyodideService {
-  readonly isLoading = signal(false);
-  readonly isReady = signal(false);
-  readonly error = signal<string | null>(null);
-  readonly instance = signal<PyodideInterface | null>(null);
+export class Pyodide {
+  private pyodideInstance: PyodideAPI | null = null;
+  private loadingSignal = signal<boolean>(false);
+  private errorSignal = signal<string>('');
 
-  private pyodidePromise: Promise<PyodideInterface> | null = null;
+  public readonly loading = this.loadingSignal.asReadonly();
+  public readonly error = this.errorSignal.asReadonly();
+  
+  async load(): Promise<PyodideAPI | null> {
+    if (this.pyodideInstance) {
+      return this.pyodideInstance;
+    }
+    this.loadingSignal.set(true);
 
-  async load(): Promise<PyodideInterface> {
-    if (this.pyodidePromise) return this.pyodidePromise;
-
-    this.isLoading.set(true);
-    this.error.set(null);
-
-    this.pyodidePromise = this.loadPyodideFromCDN()
-      .then(pyodide => {
-        pyodide.runPython(`
-          import sys
-          from io import StringIO
-          sys.stdout = StringIO()
-        `);
-        this.instance.set(pyodide);
-        this.isReady.set(true);
-        return pyodide;
-      })
-      .catch(err => {
-        const message = err instanceof Error ? err.message : String(err);
-        this.error.set(message);
-        this.isReady.set(false);
-        throw err;
-      })
-      .finally(() => this.isLoading.set(false));
-
-    return this.pyodidePromise;
-  }
-
-  private loadPyodideFromCDN(): Promise<PyodideInterface> {
-    return new Promise((resolve, reject) => {
-      if (window.loadPyodide) {
-        resolve(window.loadPyodide());
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
-      script.async = true;
-
-      script.onload = () => {
-        if (window.loadPyodide) {
-          resolve(window.loadPyodide({
-            indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/'
-          }));
-        } else {
-          reject(new Error('Failed to load Pyodide'));
-        }
-      };
-
-      script.onerror = () => reject(new Error('Failed to load Pyodide script'));
-
-      document.head.appendChild(script);
-    });
+    try {
+      this.pyodideInstance = await loadPyodide();
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error loading Pyodide';
+      this.errorSignal.set(errorMsg);
+    } finally {
+      this.loadingSignal.set(false);
+    }
+    return this.pyodideInstance;
   }
 
   async execute(code: string): Promise<ExecutionResult> {
-    const pyodide = this.instance();
-    if (!pyodide) {
-      return { output: '', error: 'Pyodide not initialized' };
+    if (!this.pyodideInstance) {
+      return { output: '', error: 'Pyodide is not loaded or loading' };
     }
+    const pyodide = await this.pyodideInstance;
 
     try {
-      // Reset stdout
-      pyodide.runPython('sys.stdout = StringIO()');
-
+      // Redirect stdout to arr
+      const arr: string[] = [];
+      pyodide.setStdout({ batched: (msg) => arr.push(msg) });
       // Execute code
-      const result = await pyodide.runPythonAsync(code);
-      const stdout = pyodide.runPython('sys.stdout.getvalue()') as string;
+      await pyodide.runPythonAsync(code);
 
-      const output = [stdout, result].filter(Boolean).join('\n').trim();
-
-      return { output: output || '(no output)' };
+      return { output: arr.join('') || '(no output)' };
     } catch (err) {
       const error = err instanceof Error ? err.message : String(err);
       return { output: '', error };

@@ -27,11 +27,23 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/pyodide",
+                "output": "/assets/pyodide",
+                "ignore": [
+                  "**/*.md",
+                  "**/*.html",
+                  "**/*.d.ts",
+                  "**/*.whl"
+                ]
               }
             ],
             "styles": [
               "src/styles.scss"
-            ]
+            ],
+            "externalDependencies": ["pyodide"]
           },
           "configurations": {
             "production": {

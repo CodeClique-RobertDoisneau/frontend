@@ -34,7 +34,25 @@
         </button>
       }
       <span>Title</span>
+      <span class="toolbar-spacer"></span>
+      <button matIconButton aria-label="Theme toggle button" (click)="theming.toggle()">
+        <mat-icon>
+          @switch (theming.theme()) {
+            @case ('light') {
+              light_mode
+            }
+            @case ('dark') {
+              dark_mode
+            }
+            @default {
+              brightness_auto
+            }
+          }
+        </mat-icon>
+      </button>
     </mat-toolbar>
-    <router-outlet />
+    <div class="main-container">
+      <router-outlet />
+    </div>
   </mat-sidenav-content>
 </mat-sidenav-container>

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { NotebookViewerComponent } from './notebook-viewer-component';
+import { CourseViewer } from './course-viewer';
 
-describe('NotebookViewerComponent', () => {
-  let component: NotebookViewerComponent;
-  let fixture: ComponentFixture<NotebookViewerComponent>;
+describe('CourseViewer', () => {
+  let component: CourseViewer;
+  let fixture: ComponentFixture<CourseViewer>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NotebookViewerComponent]
+      imports: [CourseViewer]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(NotebookViewerComponent);
+    fixture = TestBed.createComponent(CourseViewer);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

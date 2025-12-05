@@ -5,27 +5,32 @@
     @if (isLoading()) {
       <div class="loading-container">
         <mat-progress-spinner mode="indeterminate" diameter="50" />
-        @if (isPyodideLoading()) {
+        @if (fileLoading()) {
+          <h4 class="loading-text">Fetching markdown file...</h4>
+        }
+        @if (pyodideLoading()) {
           <h4 class="loading-text">Loading Python environment...</h4>
-        } @else if (isLoadingFile()) {
-          <h4 class="loading-text">Processing markdown file...</h4>
         }
       </div>
     }
 
-    @if (pyodideError()) {
-      <div class="error-message pyodide-error">
-        <mat-icon>error</mat-icon>
-        <span>Failed to load Python environment: {{ pyodideError() }}</span>
+    @if (gotError()) {
+      <div class="error-container">
+        @if (fileError()) {
+          <div class="error-message">
+            <mat-icon>error</mat-icon>
+            <span>Failed to fetch markdown file: {{ fileError() }}</span>
+          </div>
+        }
+        @if (pyodideError()) {
+          <div class="error-message">
+            <mat-icon>error</mat-icon>
+            <span>Failed to load Python environment: {{ pyodideError() }}</span>
+          </div>
+        }
       </div>
-    }
+    } 
 
-    @if (fileError()) {
-      <div class="error-message file-error">
-        <mat-icon>error</mat-icon>
-        <span>{{ fileError() }}</span>
-      </div>
-    }
 
     <div class="upload-section">
       <input type="file" accept=".md,.markdown" (change)="onFileSelected($event)" #fileInput hidden />
@@ -36,16 +41,9 @@
     </div>
   </div>
 
-  <div class="markdown-content">
-    @for (segment of getMarkdownSegments(); track $index) {
-      @if (segment.type === 'html') {
-        <div [innerHTML]="segment.content"></div>
-      } @else if (segment.type === 'code') {
-        <app-code-block
-          [initialCode]="segment.content"
-          [language]="segment.lang">
-        </app-code-block>
-      }
-    }
-  </div>
+  <remark [markdown]="markdown()"  [processor]="processor">
+    <app-code-block *remarkTemplate="'code'; let node" [initialCode]="node.value" [language]="node.lang" />
+    <remark-katex *remarkTemplate="'math'; let node" [expr]="node.value" />
+    <remark-katex *remarkTemplate="'inlineMath'; let node" [expr]="node.value" />
+  </remark>
 </div>

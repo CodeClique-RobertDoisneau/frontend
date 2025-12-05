@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { RouterOutlet, RouterLink } from '@angular/router';
+import { Theming } from '@services/theming/theming';
 
 @Component({
   selector: 'app-navigation',
@@ -27,6 +28,7 @@ import { RouterOutlet, RouterLink } from '@angular/router';
 })
 export class NavigationComponent {
   private breakpointObserver = inject(BreakpointObserver);
+  public theming = inject(Theming);
 
   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
     .pipe(

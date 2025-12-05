@@ -1,4 +1,4 @@
-FROM node:20-alpine AS dev
+FROM node:20-alpine
 
 ENV NODE_ENV=development
 
@@ -12,4 +12,4 @@ COPY . .
 
 EXPOSE 80
 
-CMD ["npm", "start", "--", "--host=0.0.0.0"]
+CMD ["npm", "start", "--", "--host=0.0.0.0", "--port=80"]

@@ -1,10 +1,12 @@
 import { Component, signal, computed, input, inject, effect, ViewChild, ElementRef } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { PyodideService } from '../../../services/pyodide/pyodide';
-import { FormsModule } from '@angular/forms';
 import { CodeEditor } from '@acrodata/code-editor';
 import { languages } from '@codemirror/language-data';
+
+import { Pyodide } from '@services/pyodide/pyodide';
 
 @Component({
   selector: 'app-code-block',
@@ -14,22 +16,21 @@ import { languages } from '@codemirror/language-data';
 })
 export class CodeBlock {
   @ViewChild('editor') editorRef: ElementRef | undefined;
+  private readonly pyodideService = inject(Pyodide);
+  protected languages = languages;
 
-  readonly initialCode = input.required<string>();
-  readonly languages = languages;
-  readonly language = input('');
-
-  readonly code = signal('');
-  readonly output = signal('');
-  readonly error = signal('');
-  readonly isRunning = signal(false);
-
+  initialCode = input<string>('');
+  language = input<string>('');
+  
+  readonly code = signal<string>('');
+  readonly output = signal<string>('');
+  readonly error = signal<string>('');
+  readonly isRunning = signal<boolean>(false);
+  
   readonly canRun = computed(() => !this.isRunning() && this.code().trim().length > 0);
 
-  private readonly pyodideService = inject(PyodideService);
-
   constructor() {
-    effect( () => this.code.set(this.initialCode()) );
+    effect(() => this.code.set(this.initialCode()) );
   }
 
   async run(): Promise<void> {
