@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:krypton-alpine
 
 ENV NODE_ENV=development
 

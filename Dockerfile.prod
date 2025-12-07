@@ -1,5 +1,5 @@
 # Stage 1: Build the Angular application
-FROM node:20-alpine AS build
+FROM node:krypton-alpine AS build
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Serve with Nginx
-FROM nginx:alpine AS serve
+FROM nginx:mainline-alpine AS serve
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
