@@ -1,22 +1,42 @@
 import { Routes } from '@angular/router';
-import { HomePage } from './pages/home-page/home-page'
+import { Home } from './features/home/home'
 
 export const routes: Routes = [
   {
     path: '',
-    component: HomePage,
+    component: Home,
   },
-  // {
-  //   path: 'profile',
-  //   loadComponent: () => import('./pages/profile-page/profile-page').then(m => m.ProfilePage)
-  // },
   {
     path: 'courses',
-    loadComponent: () => import('./pages/course-viewer/course-viewer').then(m => m.CourseViewer)
+    loadComponent: () => import('./features/course/course').then(m => m.Course)
   },
+  {
+    path: 'exercises',
+    loadComponent: () => import('./features/exercise/exercise').then(m => m.Exercise)
+  },
+  {
+    path: 'chapters',
+    loadComponent: () => import('./features/chapter/chapter').then(m => m.Chapter)
+  },
+  {
+    path: 'free-code',
+    loadComponent: () => import('./features/free-code/free-code').then(m => m.FreeCode)
+  },
+  {
+    path: 'privacy-policy',
+    loadComponent: () => import('./features/privacy-policy/privacy-policy').then(m => m.PrivacyPolicy)
+  },
+  {
+    path: 'settings',
+    loadComponent: () => import('./features/settings/settings').then(m => m.Settings)
+  },
+  {
+    path: 'profile',
+    loadComponent: () => import('./features/profile/profile').then(m => m.Profile)
+  }
   // {
   //   path: 'admin',
-  //   loadComponent: () => import('./pages/admin-page/admin-page').then(m => m.AdminPage)
+  //   loadComponent: () => import('./features/admin/admin').then(m => m.Admin)
   // },
 ];
 

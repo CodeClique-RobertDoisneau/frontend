@@ -8,8 +8,8 @@
     "baseUrl": "src",
     "paths": {
       "@services/*": ["app/services/*"],
-      "@pages/*": ["app/pages/*"],
-      "@common/*": ["app/common/*"]
+      "@pages/*": ["app/features/*"],
+      "@common/*": ["app/shared/*"]
     }
   },
   "include": [

@@ -11,17 +11,18 @@ import remarkGfm from 'remark-gfm';
 import { RemarkModule, KatexComponent } from 'ngx-remark';
 
 import { Pyodide } from '@services/pyodide/pyodide';
-import { CodeBlock } from '@common/code-block/code-block';
+import { CodeBlock } from 'app/shared/components/code-block/code-block';
+
 
 @Component({
-  selector: 'app-course-viewer',
+  selector: 'app-markdown-viewer',
   imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, RemarkModule, CodeBlock, KatexComponent],
-  templateUrl: './course-viewer.html',
-  styleUrls: ['./course-viewer.scss', './markdown.scss'],
+  templateUrl: './markdown-viewer.html',
+  styleUrls: ['./markdown-viewer.scss', './markdown.scss'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CourseViewer {
+export class MarkdownViewer {
   private readonly pyodide = inject(Pyodide);
 
   markdown = signal<string>('');

@@ -3,12 +3,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-
 @Component({
-  selector: 'app-home-page',
+  selector: 'app-home',
   imports: [MatButtonModule, MatCardModule, MatIconModule, RouterLink],
-  templateUrl: './home-page.html',
-  styleUrl: './home-page.scss'
+  templateUrl: './home.html',
+  styleUrl: './home.scss',
 })
-export class HomePage {
+export class Home {
+
 }
