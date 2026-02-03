@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CodeEditor } from '@acrodata/code-editor';
 import { languages } from '@codemirror/language-data';
 
-import { Pyodide } from '@services/pyodide/pyodide';
+import { Pyodide } from '@shared/services/pyodide/pyodide';
 
 @Component({
   selector: 'app-code-block',

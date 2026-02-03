@@ -9,7 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { RouterOutlet, RouterLink } from '@angular/router';
-import { Theming } from '@services/theming/theming';
+import { Footer } from '@shared/components/footer/footer';
+import { Theming } from '@shared/services/theming/theming';
 
 @Component({
   selector: 'app-navigation',
@@ -24,6 +25,7 @@ import { Theming } from '@services/theming/theming';
     AsyncPipe,
     RouterOutlet,
     RouterLink,
+    Footer,
   ]
 })
 export class NavigationComponent {

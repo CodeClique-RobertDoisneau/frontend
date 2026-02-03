@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { Home } from './features/home/home'
+import { Home } from '@features/home/home'
 
 export const routes: Routes = [
   {
@@ -7,37 +7,21 @@ export const routes: Routes = [
     component: Home,
   },
   {
-    path: 'courses',
-    loadComponent: () => import('./features/course/course').then(m => m.Course)
+    path: 'free-python-ide',
+    loadComponent: () => import('./features/free-python-ide/free-python-ide').then(m => m.FreePythonIde)
   },
   {
-    path: 'exercises',
-    loadComponent: () => import('./features/exercise/exercise').then(m => m.Exercise)
-  },
-  {
-    path: 'chapters',
-    loadComponent: () => import('./features/chapter/chapter').then(m => m.Chapter)
-  },
-  {
-    path: 'free-code',
-    loadComponent: () => import('./features/free-code/free-code').then(m => m.FreeCode)
-  },
-  {
-    path: 'privacy-policy',
-    loadComponent: () => import('./features/privacy-policy/privacy-policy').then(m => m.PrivacyPolicy)
+    path: 'profile',
+    loadComponent: () => import('./features/profile/profile').then(m => m.Profile)
   },
   {
     path: 'settings',
     loadComponent: () => import('./features/settings/settings').then(m => m.Settings)
   },
   {
-    path: 'profile',
-    loadComponent: () => import('./features/profile/profile').then(m => m.Profile)
+    path: 'privacy-policy',
+    loadComponent: () => import('./features/privacy-policy/privacy-policy').then(m => m.PrivacyPolicy)
   }
-  // {
-  //   path: 'admin',
-  //   loadComponent: () => import('./features/admin/admin').then(m => m.Admin)
-  // },
 ];
 
 // { path: 'user/:id/:social-media', component: SocialMediaFeed },

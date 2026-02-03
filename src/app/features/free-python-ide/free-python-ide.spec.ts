@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FreeCode } from './free-code';
+import { FreePythonIde } from './free-python-ide';
 
-describe('FreeCode', () => {
-  let component: FreeCode;
-  let fixture: ComponentFixture<FreeCode>;
+describe('FreePythonIde', () => {
+  let component: FreePythonIde;
+  let fixture: ComponentFixture<FreePythonIde>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FreeCode]
+      imports: [FreePythonIde]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(FreeCode);
+    fixture = TestBed.createComponent(FreePythonIde);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

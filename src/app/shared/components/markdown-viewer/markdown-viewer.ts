@@ -10,7 +10,7 @@ import remarkMath from 'remark-math';
 import remarkGfm from 'remark-gfm';
 import { RemarkModule, KatexComponent } from 'ngx-remark';
 
-import { Pyodide } from '@services/pyodide/pyodide';
+import { Pyodide } from '@shared/services/pyodide/pyodide';
 import { CodeBlock } from 'app/shared/components/code-block/code-block';
 
 

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+
 @Component({
   selector: 'app-course',
   imports: [],
@@ -7,5 +8,4 @@ import { Component } from '@angular/core';
 })
 export class Course {
 
-}import { share } from 'rxjs';
-
+}

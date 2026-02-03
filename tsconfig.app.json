@@ -7,9 +7,8 @@
     "types": [],
     "baseUrl": "src",
     "paths": {
-      "@services/*": ["app/services/*"],
-      "@pages/*": ["app/features/*"],
-      "@common/*": ["app/shared/*"]
+      "@shared/*": ["app/shared/*"],
+      "@features/*": ["app/features/*"]
     }
   },
   "include": [
