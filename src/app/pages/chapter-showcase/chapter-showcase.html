@@ -1,0 +1,12 @@
+<div class="admin-controls">
+  
+  <button class="btn-role-toggle" (click)="toggleRole()">
+    {{ isAdmin ? '👑 Mode Admin' : '🎓 Mode Élève' }}
+  </button>
+
+</div>
+
+<app-chapter-menu 
+  [chapter]="testChapter" 
+  [isAdmin]="isAdmin">
+</app-chapter-menu>

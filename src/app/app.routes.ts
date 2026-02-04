@@ -6,6 +6,10 @@ export const routes: Routes = [
     path: '',
     component: HomePage,
   },
+  {
+    path: 'chapter-menu',
+    loadComponent: () => import('./pages/chapter-showcase/chapter-showcase').then(m => m.ChapterShowcaseComponent)
+  },
   // {
   //   path: 'profile',
   //   loadComponent: () => import('./pages/profile-page/profile-page').then(m => m.ProfilePage)
