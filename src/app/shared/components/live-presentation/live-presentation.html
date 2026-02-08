@@ -1,0 +1,39 @@
+<div class="presentation-container" #presentationContainer>
+    <div class="slide-content" [class.fullscreen]="isFullscreen()">
+        @if (rawMarkdown()) {
+        <remark [markdown]="currentSlide()" [processor]="processor">
+            <app-code-block *remarkTemplate="'code'; let node" [initialCode]="node.value" [language]="node.lang" />
+            <remark-katex *remarkTemplate="'math'; let node" [expr]="node.value" />
+            <remark-katex *remarkTemplate="'inlineMath'; let node" [expr]="node.value" />
+        </remark>
+        } @else {
+        <div class="empty-state">
+            <input type="file" #fileInput style="display: none" (change)="onFileSelected($event)" accept=".md">
+            <button mat-raised-button color="accent" (click)="fileInput.click()">Sélectionner un fichier</button>
+        </div>
+        }
+
+        <div class="screen-toggle">
+            @if (!isFullscreen()) {
+            <mat-icon (click)="SwitchScreenSize()" color="inherit">fit_screen</mat-icon>
+            } @else {
+            <mat-icon (click)="SwitchScreenSize()" color="inherit">close_fullscreen</mat-icon>
+            }
+        </div>
+    </div>
+
+
+    <mat-card appearance="outlined" class="controls-card">
+        <div class="controls-layout">
+            <mat-icon (click)="prev()" color="inherit">arrow_back</mat-icon>
+
+            <div class="progress-container">
+                <mat-progress-bar mode="determinate"
+                    [value]="slides().length > 0 ? ((currentSlideIndex() + 1) / slides().length) * 100 : 0">
+                </mat-progress-bar>
+            </div>
+
+            <mat-icon (click)="next()" color="inherit">arrow_forward</mat-icon>
+        </div>
+    </mat-card>
+</div>

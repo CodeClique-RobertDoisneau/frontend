@@ -1,0 +1,46 @@
+.chapter-layout {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    /* Main content takes flex space, sidebar is fixed */
+    gap: 1.5rem;
+    padding: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        min-width: 0;
+        /* Prevents long code blocks from breaking layout */
+
+        .presentation-zone {
+            width: 100%;
+            /* The presentation inner component will handle the 16/9 ratio */
+        }
+
+        .notions-zone {
+            flex: 1;
+        }
+    }
+
+    .right-sidebar {
+        position: sticky;
+        top: 1.5rem;
+        height: fit-content;
+        width: fit-content;
+    }
+}
+
+.list_notion {
+    width: 100%;
+}
+
+mat-card {
+    margin: 1rem 0;
+}
+
+
+mat-card-header {
+    padding: 1rem;
+}
