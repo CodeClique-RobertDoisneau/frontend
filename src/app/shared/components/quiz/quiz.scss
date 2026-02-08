@@ -10,8 +10,30 @@
 }
 
 
-
 .one-question {
 
     margin-bottom: 2rem;
+
+}
+
+
+.correction {
+    border-radius: 0.5rem;
+
+}
+
+
+
+.correction.false {
+    padding-right: 0.6rem;
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+    background-color: rgba(255, 33, 33, 0.338);
+}
+
+
+
+.correction.true {
+    padding-right: 0.6rem;
+    background-color: rgba(0, 255, 0, 0.338);
 }

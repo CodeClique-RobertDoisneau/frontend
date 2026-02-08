@@ -1,8 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+
+
+
 @Component({
   selector: 'app-quiz',
   imports: [MatCheckboxModule, MatRadioModule, MatIconModule, MatButtonModule],
@@ -10,57 +14,67 @@ import { MatButtonModule } from '@angular/material/button';
   styleUrl: './quiz.scss',
 })
 export class Quiz {
+  http = inject(HttpClient);
+  cdr = inject(ChangeDetectorRef);
 
-  quiz_mode = true;
 
-  items = [
-    {
-      question: "Quel est le résultat de l’expression suivante en Python ?",
-      options: [
-        "print(a)",
-        "print('a')",
-        "print(aa)",
-      ],
-      multriple_answers: false
-    },
-    {
-      question: "Quel est le résultat de l’expression suivante en Python ?",
-      options: [
-        "a=a+1",
-        "a+=1"
-      ],
-      multiple_answers: true
-    }
-
-  ]
-
+  //Initialisation of variables
+  quiz_mode: string = "loading";
+  items: any[] = [];
   user_answer: boolean[][] = [];
+  real_answer: boolean[][] = [];
   result_verification: string[][] = [];
 
-  real_answer = [
-    [true, false, false],
-    [true, true]
-  ]
 
-  ngOnInit() {
-    this.user_answer = this.items.map(item => new Array(item.options.length).fill(false));
+  //API
+  fetchQuestions() {
+    this.http.get<any[]>('http://localhost/api/getquiz').subscribe({
+      next: (data) => {
+        this.items = data;
+        this.user_answer = this.items.map(item => new Array(item.options.length).fill(false));
+        this.quiz_mode = "answering";
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error fetching quiz data:', err);
+      }
+    });
   }
 
-  check_quiz() {
-    this.quiz_mode = false;
-    this.result_verification = [];
-
-    for (let i = 0; i < this.user_answer.length; i++) {
-      const row = [];
-      for (let j = 0; j < this.user_answer[i].length; j++) {
-        if (this.user_answer[i][j] !== this.real_answer[i][j]) {
-          row.push('❌');
-        } else {
-          row.push('✅');
-        }
+  giveAndFetchAnswers() {
+    this.http.post<any>('http://localhost/api/postStudentQuiz', this.user_answer).subscribe({
+      next: (data) => {
+        this.real_answer = data.real_answer;
+        this.quiz_mode = "correction";
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error fetching quiz data:', err);
       }
-      this.result_verification.push(row);
+    });
+  }
+
+
+  //A l'initialisation
+  ngOnInit() {
+    this.fetchQuestions();
+  }
+
+  //Quand on verifie le quiz
+  check_quiz() {
+    this.giveAndFetchAnswers();
+  }
+
+  update_user_answer(questionIndex: number, optionIndex: number) {
+    const isMultiple = this.items[questionIndex].multiple_answers === true;
+
+    if (isMultiple) {
+      this.user_answer[questionIndex][optionIndex] = !this.user_answer[questionIndex][optionIndex];
+    } else {
+      this.user_answer[questionIndex].fill(false);
+      this.user_answer[questionIndex][optionIndex] = true;
     }
+    this.cdr.markForCheck();
   }
 
 }

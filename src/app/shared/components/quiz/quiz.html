@@ -1,8 +1,15 @@
-<h1>Quiz time</h1>
+<!---------------------------MODE QUIZ------------------------------->
+@if (quiz_mode == "loading") {
+<p>Chargement...</p>
+}
+
+
+
+
 
 <!---------------------------MODE QUIZ------------------------------->
-@if (quiz_mode == true) {
-@for (item of items; track item.question) {
+@if (quiz_mode == "answering") {
+@for (item of items; track item.question; let i = $index) {
 <div class="quiz-card">
     <div class="quiz-title">
         <mat-icon matListItemIcon>quiz</mat-icon>
@@ -12,14 +19,15 @@
 
     <div class="one-question">
         @if (item.multiple_answers == true) {
-        @for (option of item.options; track $index) {
-        <mat-checkbox>{{option}}</mat-checkbox>
+        @for (option of item.options; track $index; let j = $index) {
+        <mat-checkbox [checked]="user_answer[i][j]" (change)="update_user_answer(i, j)">{{option}}</mat-checkbox>
         <br />
         }
         } @else {
 
-        @for (option of item.options; track $index) {
-        <mat-radio-button value="1">{{option}}</mat-radio-button>
+        @for (option of item.options; track $index; let j = $index) {
+        <mat-radio-button [checked]="user_answer[i][j]"
+            (change)="update_user_answer(i, j)">{{option}}</mat-radio-button>
         <br />
         }
         }
@@ -33,9 +41,13 @@
 </button>
 
 }
-<!---------------------------MODE QUIZ------------------------------->
-@if (quiz_mode == false) {
-@for (item of items; track item.question) {
+
+
+
+
+<!---------------------------MODE ANSWER------------------------------->
+@if (quiz_mode == "correction") {
+@for (item of items; track item.question; let i = $index) {
 <div class="quiz-card">
     <div class="quiz-title">
         <mat-icon matListItemIcon>quiz</mat-icon>
@@ -45,14 +57,22 @@
 
     <div class="one-question">
         @if (item.multiple_answers == true) {
-        @for (option of item.options; track $index) {
-        <mat-checkbox [disabled]="true" class="correction true">{{option}}</mat-checkbox>
+        @for (option of item.options; track $index; let j = $index) {
+        <div class="correction" [class.true]="user_answer[i][j] === real_answer[i][j]"
+            [class.false]="user_answer[i][j] !== real_answer[i][j]">
+            <mat-checkbox [disabled]="true" [checked]="real_answer[i][j]">{{option}}</mat-checkbox>
+        </div>
+
         <br />
         }
         } @else {
 
-        @for (option of item.options; track $index) {
-        <mat-radio-button value="1" [disabled]="true" class="correction false">{{option}}</mat-radio-button>
+        @for (option of item.options; track $index; let j = $index) {
+        <div class="correction" [class.true]="user_answer[i][j] === real_answer[i][j]"
+            [class.false]="user_answer[i][j] !== real_answer[i][j]">
+            <mat-radio-button value="1" [disabled]="true" [checked]="real_answer[i][j]">{{option}}</mat-radio-button>
+        </div>
+
         <br />
         }
         }
