@@ -1,0 +1,26 @@
+.example-card {
+    margin: 1rem;
+    width: 15rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+.example-card h3 {
+    font-size: large;
+}
+
+.example-card p {
+    font-size: large;
+}
+
+
+.example-card mat-card-content {
+    width: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
