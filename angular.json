@@ -77,7 +77,8 @@
               "buildTarget": "CodeClique:build:production"
             },
             "development": {
-              "buildTarget": "CodeClique:build:development"
+              "buildTarget": "CodeClique:build:development",
+              "allowedHosts": ["frontend"]
             }
           },
           "defaultConfiguration": "development"
