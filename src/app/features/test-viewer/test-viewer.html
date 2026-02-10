@@ -1,0 +1,31 @@
+<div class="course-viewer">
+  <div class="loader-section">
+    <h1>Chargeur de cours en markdown</h1>
+
+    @if (fileLoading()) {
+      <div class="loading-container">
+        <mat-progress-spinner mode="indeterminate" diameter="50" />
+        <h4 class="loading-text">Fetching markdown file...</h4>
+      </div>
+    }
+
+    @if (fileError()) {
+      <div class="error-container">
+        <div class="error-message">
+          <mat-icon>error</mat-icon>
+          <span>Failed to fetch markdown file: {{ fileError() }}</span>
+        </div>
+      </div>
+    }
+
+    <div class="upload-section">
+      <input type="file" accept=".md,.markdown" (change)="onFileSelected($event)" #fileInput hidden />
+      <button matButton="tonal" color="primary" (click)="fileInput.click()" [disabled]="fileLoading()">
+        <mat-icon>upload_file</mat-icon>
+        Upload Markdown
+      </button>
+    </div>
+  </div>
+
+  <app-markdown-viewer [markdown]="markdown()"></app-markdown-viewer>
+</div>

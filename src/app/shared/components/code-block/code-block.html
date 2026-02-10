@@ -1,0 +1,52 @@
+<!-- Full interactive view for Python -->
+@if (language() === "python") {
+  <div class="code-block-interactive">
+    <div class="code-overlay">
+      <div class="button-group">
+        <button matIconButton (click)="copy()" matTooltip="Copy code">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+        <button matIconButton (click)="reset()" [disabled]="isRunning()" matTooltip="Reset code">
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button matIconButton color="primary" (click)="run()" [disabled]="!canRun()" class="run-button">
+          <mat-icon>play_arrow</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <code-editor [(ngModel)]="code" [languages]="languages" [theme]="theming.resolvedTheme()" language="python" />
+
+    @if (output()) {
+      <div class="python-output">
+        <div class="output-header">
+          <span>Out:</span>
+        </div>
+        <pre class="output-content">{{ output() }}</pre>
+      </div>
+    }
+
+    @if (error()) {
+      <div class="python-error">
+        <div class="error-header">
+          <span>Error:</span>
+        </div>
+        <pre class="error-content">{{ error() }}</pre>
+      </div>
+    }
+  </div>
+}
+
+<!-- Minimal view for other languages -->
+@else {
+  <div class="code-block-minimal">
+    <div class="code-overlay">
+      <span class="language-label">{{ language() || 'text' }}</span>
+      <button matIconButton (click)="copy()" matTooltip="Copy code">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+    </div>
+
+    <code-editor [(ngModel)]="code" [languages]="languages" [theme]="theming.resolvedTheme()" [language]="language()" readonly="true" setup="minimal" />
+  </div>
+}

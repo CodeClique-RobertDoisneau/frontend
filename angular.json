@@ -2,7 +2,8 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "analytics": false
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -43,7 +44,10 @@
             "styles": [
               "src/styles.scss"
             ],
-            "externalDependencies": ["pyodide"]
+            "externalDependencies": [
+              "pyodide"
+            ],
+            "webWorkerTsConfig": "tsconfig.worker.json"
           },
           "configurations": {
             "production": {
@@ -76,13 +80,17 @@
               "buildTarget": "CodeClique:build:production"
             },
             "development": {
-              "buildTarget": "CodeClique:build:development"
+              "buildTarget": "CodeClique:build:development",
+              "allowedHosts": ["frontend"]
             }
           },
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "webWorkerTsConfig": "tsconfig.worker.json"
+          }
         }
       }
     }

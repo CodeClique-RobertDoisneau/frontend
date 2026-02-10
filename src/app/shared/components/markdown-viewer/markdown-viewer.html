@@ -1,0 +1,6 @@
+<remark [markdown]="markdown()"  [processor]="processor">
+  <app-code-block *remarkTemplate="'code'; let node" [initialCode]="node.value" [language]="node.lang" />
+  <remark-katex *remarkTemplate="'math'; let node" [expr]="node.value" />
+  <remark-katex *remarkTemplate="'inlineMath'; let node" [expr]="node.value" />
+  <app-outline *remarkTemplate="'outline'; let node" [outlineType]="node.attributes.outlineType ?? 'AIDE'" [content]="node" />
+</remark>
