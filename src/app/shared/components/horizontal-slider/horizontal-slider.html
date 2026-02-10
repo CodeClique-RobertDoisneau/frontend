@@ -1,0 +1,18 @@
+<div class="slider-container">
+  <div class="buttons-wrapper">
+    <button matIconButton class="nav-btn left" (click)="scrollLeft()" aria-label="Précédent">
+      <mat-icon>arrow_circle_left</mat-icon>
+    </button>
+    <button matIconButton class="nav-btn right" (click)="scrollRight()" aria-label="Suivant">
+      <mat-icon>arrow_circle_right</mat-icon>
+    </button>
+  </div>
+
+  <div class="slider-content" #sliderContent>
+    @for (item of items(); track item.id) {
+      <app-chapter-card [item]="item" class="slider-item"></app-chapter-card>
+    } @empty {
+      <p class="empty-msg">Aucun contenu à afficher pour le moment.</p>
+    }
+  </div>
+</div>

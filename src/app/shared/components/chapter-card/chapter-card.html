@@ -1,0 +1,17 @@
+<mat-card class="example-card" appearance="outlined">
+  <mat-card-header>
+    <div mat-card-avatar class="example-header-image"></div>
+    <mat-card-title>{{ item()?.title }}</mat-card-title>
+    <span class="material-symbols-outlined menu-icon"> </span>
+    <mat-card-subtitle>{{ item()?.niveau }}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <p>
+      {{ item()?.description }}
+    </p>
+  </mat-card-content>
+  <mat-card-actions>
+    <button matButton="outlined">Plan</button>
+    <button matButton="filled">Continuer</button>
+  </mat-card-actions>
+</mat-card>

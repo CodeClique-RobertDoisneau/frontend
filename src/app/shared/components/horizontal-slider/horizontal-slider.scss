@@ -1,0 +1,50 @@
+.slider-container {
+  position: relative;
+  margin: 20px 0;
+  overflow: hidden;
+
+  // Cache les boutons par défaut, ils apparaissent au survol du container
+  &:hover {
+    .nav-btn {
+      opacity: 1;
+    }
+  }
+}
+
+.slider-content {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory; // L'effet "aimant"
+  padding: 0 8%; // Marge sur les côtés pour voir la carte suivante dépasser
+  scrollbar-width: none; // Cache la barre sur Firefox
+
+  &::-webkit-scrollbar {
+    display: none; // Cache la barre sur Chrome/Safari
+  }
+}
+
+.slider-item {
+  // Fixe la largeur de chaque carte
+  width: 300px;
+
+  // Important : empêche la carte de rétrécir pour tenir dans l'écran (flexbox)
+  flex: 0 0 auto;
+
+  // Optionnel : alignement pour le scroll fluide
+  scroll-snap-align: start;
+}
+
+.buttons-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: absolute;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-btn {
+  z-index: 2;
+}
