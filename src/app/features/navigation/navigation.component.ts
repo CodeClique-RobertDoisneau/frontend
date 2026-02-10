@@ -1,14 +1,26 @@
-import { Component, inject, signal } from '@angular/core';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { Component, inject } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import {
+  Router,
+  ActivatedRoute,
+  RouterOutlet,
+  RouterLink,
+  NavigationEnd
+} from '@angular/router';
+
+
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
+
 import { Observable } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
-import { RouterOutlet, RouterLink } from '@angular/router';
+import { filter, map, shareReplay } from 'rxjs/operators';
+import { toSignal } from '@angular/core/rxjs-interop';
+
+
 import { Footer } from '@shared/components/footer/footer';
 import { Theming } from '@shared/services/theming/theming';
 
@@ -30,7 +42,23 @@ import { Theming } from '@shared/services/theming/theming';
 })
 export class NavigationComponent {
   private breakpointObserver = inject(BreakpointObserver);
-  public theming = inject(Theming);
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
+  theming = inject(Theming);
+
+  title = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd), 
+      map(() => {
+        let route = this.activatedRoute.root;
+        while (route.firstChild) {
+          route = route.firstChild;
+        }
+        return route.snapshot.title || 'CodeClique';
+      })
+    ),
+    { initialValue: 'CodeClique' }
+  );
 
   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
     .pipe(

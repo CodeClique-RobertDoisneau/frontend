@@ -1,4 +1,4 @@
-import { Component, signal, computed, input, inject, effect, ViewChild, ElementRef } from '@angular/core';
+import { Component, signal, computed, input, inject, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -7,6 +7,7 @@ import { CodeEditor } from '@acrodata/code-editor';
 import { languages } from '@codemirror/language-data';
 
 import { Pyodide } from '@shared/services/pyodide/pyodide';
+import { Theming } from '@shared/services/theming/theming';
 
 @Component({
   selector: 'app-code-block',
@@ -14,23 +15,24 @@ import { Pyodide } from '@shared/services/pyodide/pyodide';
   templateUrl: './code-block.html',
   styleUrl: './code-block.scss',
 })
-export class CodeBlock {
+export class CodeBlock implements OnInit {
   @ViewChild('editor') editorRef: ElementRef | undefined;
-  private readonly pyodideService = inject(Pyodide);
-  protected languages = languages;
+  pyodide = inject(Pyodide);
+  theming = inject(Theming);
+  languages = languages;
 
   initialCode = input<string>('');
   language = input<string>('');
   
-  readonly code = signal<string>('');
-  readonly output = signal<string>('');
-  readonly error = signal<string>('');
-  readonly isRunning = signal<boolean>(false);
+  code = signal<string>('');
+  output = signal<string>('');
+  error = signal<string>('');
+  isRunning = signal<boolean>(false);
   
-  readonly canRun = computed(() => !this.isRunning() && this.code().trim().length > 0);
+  canRun = computed(() => !this.isRunning() && this.code().trim().length > 0 && this.pyodide.isReady());
 
-  constructor() {
-    effect(() => this.code.set(this.initialCode()) );
+  ngOnInit() {
+    this.code.set(this.initialCode());
   }
 
   async run(): Promise<void> {
@@ -41,15 +43,13 @@ export class CodeBlock {
     this.error.set('');
 
     try {
-      const result = await this.pyodideService.execute(this.code());
-
-      if (result.error) {
-        this.error.set(result.error);
-      } else {
-        this.output.set(result.output);
-      }
+      // Pass a callback to handle the streaming output
+      await this.pyodide.run(this.code(), (text) => {
+        // Update signal as data arrives
+        this.output.update(current => current + text + '\n');
+      });
     } catch (err) {
-      this.error.set(err instanceof Error ? err.message : String(err));
+      this.error.set(String(err));
     } finally {
       this.isRunning.set(false);
     }

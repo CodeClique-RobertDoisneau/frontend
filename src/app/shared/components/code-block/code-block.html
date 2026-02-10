@@ -9,13 +9,13 @@
         <button matIconButton (click)="reset()" [disabled]="isRunning()" matTooltip="Reset code">
           <mat-icon>refresh</mat-icon>
         </button>
-        <button matIconButton color="primary" (click)="run()" [disabled]="isRunning()" class="run-button">
+        <button matIconButton color="primary" (click)="run()" [disabled]="!canRun()" class="run-button">
           <mat-icon>play_arrow</mat-icon>
         </button>
       </div>
     </div>
 
-    <code-editor [(ngModel)]="code" [languages]="languages" language="python" />
+    <code-editor [(ngModel)]="code" [languages]="languages" [theme]="theming.resolvedTheme()" language="python" />
 
     @if (output()) {
       <div class="python-output">
@@ -47,7 +47,6 @@
       </button>
     </div>
 
-    <code-editor [(ngModel)]="code" [languages]="languages" [language]="language()" readonly="true" setup="minimal" />
-
+    <code-editor [(ngModel)]="code" [languages]="languages" [theme]="theming.resolvedTheme()" [language]="language()" readonly="true" setup="minimal" />
   </div>
 }

@@ -155,11 +155,8 @@ remark {
   input[type="checkbox"]:checked {
     background-color: var(--mat-sys-primary);
   }
-}
 
-.pyodide-block {
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: 8px;
-  margin: 1em 0;
-  overflow: hidden;
+  // .math-expression {
+  //   text-align: center;
+  // }
 }

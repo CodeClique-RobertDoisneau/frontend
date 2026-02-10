@@ -44,7 +44,10 @@
             "styles": [
               "src/styles.scss"
             ],
-            "externalDependencies": ["pyodide"]
+            "externalDependencies": [
+              "pyodide"
+            ],
+            "webWorkerTsConfig": "tsconfig.worker.json"
           },
           "configurations": {
             "production": {
@@ -84,7 +87,10 @@
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "webWorkerTsConfig": "tsconfig.worker.json"
+          }
         }
       }
     }

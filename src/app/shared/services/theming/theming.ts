@@ -1,4 +1,4 @@
-import { Injectable, signal, effect } from '@angular/core';
+import { Injectable, signal, effect, computed } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',
@@ -9,6 +9,13 @@ export class Theming {
 
   public readonly theme = this.themeSignal.asReadonly();
   public readonly contrast = this.contrastSignal.asReadonly();
+  public readonly resolvedTheme = computed(() => {
+    const val = this.themeSignal();
+    if (val === 'auto') {
+      return this.mediaQuery.matches ? 'dark' : 'light';
+    }
+    return val;
+  });
 
   private mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
@@ -29,13 +36,13 @@ export class Theming {
         localStorage.removeItem('theme');
         theme = this.mediaQuery.matches ? 'dark' : 'light';
       }
-      document.body.style.colorScheme = theme;
+      document.documentElement.style.colorScheme = theme;
       let contrast = this.contrastSignal();
       if (this.contrastSignal() === 'default') {
         localStorage.removeItem('contrast');
         contrast = 'medium';
       }
-      // document.body.style.setProperty('color-contrast', contrast);
+      // document.documentElement.style.setProperty('color-contrast', contrast);
     });
   }
 

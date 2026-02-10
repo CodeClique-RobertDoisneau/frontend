@@ -39,3 +39,23 @@ mat-sidenav-content {
   padding: 1em;
 }
 
+// Personal
+mat-sidenav {
+  border-right: 1px solid var(--mat-sys-outline-variant);
+} 
+
+.sidenav-layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+mat-nav-list {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.vertical-fill {
+  flex: 1;
+}
