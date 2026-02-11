@@ -7,43 +7,39 @@
 
   @for (part of chapter().parts; track part.id) {
     
-    <div class="part-card">
-      
-      <div class="part-header" (click)="togglePart(part)">
-        
-        <div class="circle-icon">A</div> 
-        
-        <h3>{{ part.title }}</h3>
-        
-        <span class="chevron" [class.open]="part.isOpen">▼</span>
-      
-      </div>
+    <mat-expansion-panel [expanded]="part.isOpen"> 
+      <mat-expansion-panel-header>
+        <mat-panel-title> {{ part.title }} </mat-panel-title>
+        <mat-panel-description> {{ part.description }} </mat-panel-description>
+      </mat-expansion-panel-header>
 
-      @if (part.isOpen) {
-        <div class="items-list">
-          
-          @for (item of part.items; track item.id) {
+      <mat-list>
+        @for (item of part.items; track item.id) {
+          <mat-list-item>
             <div class="item-row">
-              
-              <span class="item-title">{{ item.title }}</span>
-
-              <span class="badge" [class]="item.type.toLowerCase()">
-                {{ item.type }}
-              </span>
-
-                <div class="actions">
-                    <button class="btn-icon play" title="Lancer">▶</button> 
-                    
-                    @if (isAdmin()) {
-                        <button class="btn-icon edit" title="Modifier">✏️</button> 
-                        <button class="btn-icon delete" title="Supprimer">🗑️</button> 
-                    }
-                </div>
-
+              <span class ="item-title">{{ item.title }}</span>
+              <div class="right-info">
+                <span class="item-type">{{ item.type }}</span>
+                <button matIconButton class="small-btn"> <mat-icon>play_circle</mat-icon> </button>
+                @if (isAdmin()) {
+                  <button matIconButton class="small-btn"> <mat-icon>delete</mat-icon> </button>
+                  <button matIconButton class="small-btn"> <mat-icon>edit</mat-icon> </button>
+                }
+              </div>
             </div>
-          }
-
-        </div>
-      } </div>
+          </mat-list-item>
+          
+        }
+      </mat-list>
+    </mat-expansion-panel>
+    <p class="petite-marge"> </p>
   }
+  
+</div>
+
+<div class="right-progress">
+  <p>Cours</p>
+  <mat-progress-bar mode="determinate" value="40">Cours</mat-progress-bar>
+  <p>Exercice</p>
+  <mat-progress-bar mode="determinate" value="60">Exercice </mat-progress-bar>
 </div>

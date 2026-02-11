@@ -1,189 +1,71 @@
-// --- NOUVEAU : LA BARRE D'OUTILS ADMIN ---
-.admin-controls {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 30px;
-  padding: 10px;
-  
-  .btn-role-toggle {
-    background-color: #334155; // Gris foncé pro (style "Dev Tools")
-    color: white;
-    border: none;
-    padding: 10px 24px;
-    border-radius: 50px; // Bouton arrondi
-    font-family: Rubik, sans-serif;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    &:hover {
-      background-color: #475569;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-    }
-
-    &:active {
-      transform: translateY(0);
-    }
-  }
+.main-header h1 {
+	color: var(--Schemes-Primary, #36618E);
+	font-family: Rubik;
+	font-size: 48px;
+	font-style: normal;
+	font-weight: 700;
+	line-height: normal;
+  margin-bottom: 0.1em;
 }
-
-// --- TON CODE EXISTANT (Vérifié et propre) ---
-.chapter-container {
-  max-width: 800px;
-  margin: 0 auto;
+.main-header p {
+  color: var(--Schemes-Secondary, #625B71);
+  font-family: Rubik;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  margin-bottom: 1em;
 }
-
 .main-header {
-  margin-bottom: 30px;
-  text-align: center; // J'ai centré le titre principal pour faire joli
-
-  h1 {
-    color: var(--Schemes-Primary, #36618E);
-    font-family: Rubik, sans-serif;
-    font-size: 48px;
-    font-weight: 700;
-    margin-top: 0;
-    margin-bottom: 10px;
-  }
-
-  p {
-    color: #666;
-    font-size: 1.1rem;
-    line-height: 1.5;
-    max-width: 600px;
-    margin: 0 auto;
-  }
+  margin-bottom: 3em;
 }
 
-.part-card {
-  background: white;
-  border: 1px solid #e0e0e0;
+
+.chapter-container {
+  max-width: 850px;
+  width: 100%;
+  margin-right: auto;
+}
+
+.right-progress {
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 200px;
+}
+
+.right-info {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  gap: 8px;
+}
+
+.petite-marge {
+  margin-bottom: 0.5em;
+}
+
+.item-type {
+  background-color: #eee;
+  padding: 2px 8px;
   border-radius: 12px;
-  margin-bottom: 24px;
-  overflow: hidden; 
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-
-  // --- HEADER DE LA NOTION ---
-  .part-header {
-    display: flex;
-    align-items: center;
-    padding: 20px;
-    background-color: #f9f9f9;
-    cursor: pointer;
-    user-select: none;
-    transition: background-color 0.2s;
-
-    &:hover {
-      background-color: #f0f0f0;
-    }
-
-    .circle-icon {
-      width: 40px;
-      height: 40px;
-      background-color: #dbeafe;
-      color: #1e40af;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      margin-right: 15px;
-      font-family: sans-serif;
-    }
-
-    h3 {
-      flex: 1;
-      margin: 0;
-      font-size: 1.1rem;
-      color: #333;
-    }
-
-    .chevron {
-      font-size: 0.8rem;
-      color: #888;
-      transition: transform 0.3s ease;
-      
-      &.open {
-        transform: rotate(180deg);
-      }
-    }
-  }
-
-  // --- LISTE DES ITEMS ---
-  .items-list {
-    background: white;
-    animation: fadeIn 0.3s ease-out;
-  }
+  font-size: 12px;
+  color: #666;
 }
 
-// --- LIGNE D'UN ITEM ---
 .item-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 15px 20px;
-  border-bottom: 1px solid #f0f0f0;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: #fafafa;
-  }
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  .item-title {
-    flex: 2;
-    color: #444;
-    font-weight: 500;
-  }
-
-  .badge {
-    padding: 4px 12px;
-    border-radius: 20px;
-    border: 1px solid #ddd;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    min-width: 80px;
-    text-align: center;
-    margin: 0 15px;
-    
-    // Couleurs dynamiques
-    &.cours { color: #36618E; border-color: #36618E; background: #f0f7ff; }
-    &.quiz { color: #d97706; border-color: #d97706; background: #fffbeb; }
-    &.exercice { color: #059669; border-color: #059669; background: #ecfdf5; }
-  }
-
-  .actions {
-    display: flex;
-    gap: 12px;
-
-    .btn-icon {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 1.1rem;
-      opacity: 0.7;
-      transition: all 0.2s;
-      padding: 4px;
-
-      &:hover { opacity: 1; transform: scale(1.15); }
-
-      &.play { color: #36618E; }
-      &.edit { color: #f59e0b; }
-      &.delete { color: #ef4444; }
-    }
-  }
+  width: 100%;
+  gap: 12px;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+.item-title {
+  flex: 1;
 }
+
+
+
+
+
