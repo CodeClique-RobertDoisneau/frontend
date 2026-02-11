@@ -1,17 +1,40 @@
-.quiz-title {
+.horizontal {
     display: flex;
     flex-direction: row;
-    align-items: center;
-    gap: 10px;
+    gap: 1rem;
 
-    h3 {
-        margin: 0;
+    p,
+    h3,
+    mat-icon {
+        align-self: center;
     }
+}
+
+.quiz-container {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
 }
 
 
 
-.one-question {
+.correction {
+    border-radius: 0.5rem;
 
-    margin-bottom: 2rem;
+}
+
+
+
+.correction.wrong {
+    padding-right: 0.6rem;
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+    background-color: rgba(255, 33, 33, 0.338);
+}
+
+
+
+.correction.correct {
+    padding-right: 0.6rem;
+    background-color: rgba(0, 255, 0, 0.338);
 }
