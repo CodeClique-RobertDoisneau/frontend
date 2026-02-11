@@ -81,7 +81,7 @@
             },
             "development": {
               "buildTarget": "CodeClique:build:development",
-              "allowedHosts": ["frontend"]
+              "allowedHosts": ["localhost", "frontend"]
             }
           },
           "defaultConfiguration": "development"
