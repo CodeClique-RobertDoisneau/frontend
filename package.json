@@ -21,7 +21,7 @@
     ]
   },
   "private": true,
-  "packageManager": "npm@11.6.4",
+  "packageManager": "npm@11.8.0",
   "dependencies": {
     "@acrodata/code-editor": "^0.6.0",
     "@angular/cdk": "^21.0.1",
@@ -38,6 +38,7 @@
     "ngx-remark": "^0.2.1",
     "pyodide": "^0.29.0",
     "remark": "^15.0.1",
+    "remark-directive": "^4.0.0",
     "remark-gfm": "^4.0.1",
     "remark-math": "^6.0.0",
     "rxjs": "~7.8.0",

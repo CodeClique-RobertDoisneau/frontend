@@ -44,7 +44,10 @@
             "styles": [
               "src/styles.scss"
             ],
-            "externalDependencies": ["pyodide"]
+            "externalDependencies": [
+              "pyodide"
+            ],
+            "webWorkerTsConfig": "tsconfig.worker.json"
           },
           "configurations": {
             "production": {
@@ -77,13 +80,17 @@
               "buildTarget": "CodeClique:build:production"
             },
             "development": {
-              "buildTarget": "CodeClique:build:development"
+              "buildTarget": "CodeClique:build:development",
+              "allowedHosts": ["localhost", "frontend"]
             }
           },
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "webWorkerTsConfig": "tsconfig.worker.json"
+          }
         }
       }
     }

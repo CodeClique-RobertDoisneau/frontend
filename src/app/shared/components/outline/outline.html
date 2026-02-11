@@ -1,0 +1,18 @@
+<div [class]="outlineType()" class="outline_div">
+    <div>
+        @if (outlineType()=="AIDE") {
+        <button mat-icon-button>
+            <div class="tittle_button">
+                <mat-icon>chevron_forward</mat-icon>
+                <h2>{{ outlineType() }}</h2>
+            </div>
+        </button>
+        }
+        @else {
+        <h2>{{ outlineType() }}</h2> 
+        }     
+    </div>
+    
+    <p><ng-content></ng-content></p>
+    
+</div>
