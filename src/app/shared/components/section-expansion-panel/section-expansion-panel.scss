@@ -1,0 +1,119 @@
+    .section-panel {
+      margin-bottom: 16px;
+      border-radius: 12px !important;
+      overflow: hidden;
+      background: var(--mat-sys-surface-container-low);
+      
+      &.mat-expanded {
+        background: var(--mat-sys-surface);
+      }
+    }
+
+    .panel-header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin-right: 16px; /* Added gap between content and arrow */
+    }
+
+    .header-info {
+      flex: 1;
+      padding-right: 16px; 
+    }
+
+    .section-title {
+      font-family: 'Rubik', sans-serif;
+      font-weight: 500;
+      font-size: 1.1rem;
+    }
+
+    .progress-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      min-width: 100px;
+    }
+
+    .mini-progress {
+      width: 80px;
+      height: 6px;
+      border-radius: 3px;
+      margin-top: 4px;
+    }
+
+    .progress-text {
+      font-size: 0.75rem;
+      color: var(--mat-sys-outline);
+    }
+
+    .loading-state, .error-state, .empty-state {
+      padding: 24px;
+      text-align: center;
+      color: var(--mat-sys-on-surface-variant);
+    }
+    
+    .item-link {
+       border-radius: 8px;
+       margin: 4px 0;
+       &:hover {
+         background-color: var(--mat-sys-surface-container-highest);
+       }
+    }
+    
+
+
+    .meta-container {
+      display: grid;
+      grid-template-columns: 90px 100px; /* Fixed columns for alignment */
+      align-items: center;
+      gap: 16px;
+    }
+
+    mat-chip-set {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    mat-chip {
+      --mdc-chip-label-text-size: 0.75rem;
+      --mdc-chip-container-height: 24px;
+      font-weight: 500;
+      width: 100%; /* Ensure chip fills the centering container if needed, or just let it center */
+      justify-content: center;
+      
+      &.easy {
+        --mdc-chip-elevated-container-color: #e8f5e9;
+        --mdc-chip-label-text-color: #2e7d32;
+        --mdc-chip-disabled-container-color: #e8f5e9;
+        --mdc-chip-disabled-label-text-color: #2e7d32;
+      }
+      &.medium {
+        --mdc-chip-elevated-container-color: #fff3e0;
+        --mdc-chip-label-text-color: #ef6c00;
+        --mdc-chip-disabled-container-color: #fff3e0;
+        --mdc-chip-disabled-label-text-color: #ef6c00;
+      }
+      &.hard {
+        --mdc-chip-elevated-container-color: #ffebee;
+        --mdc-chip-label-text-color: #c62828;
+        --mdc-chip-disabled-container-color: #ffebee;
+        --mdc-chip-disabled-label-text-color: #c62828;
+      }
+    }
+
+    .item-status {
+      font-size: 0.75rem;
+      padding: 4px 0; /* Removing horizontal padding as we rely on width */
+      width: 100%;
+      text-align: center;
+      border-radius: 12px; /* Pill shape */
+      background-color: var(--mat-sys-surface-variant);
+      white-space: nowrap;
+      
+      &.completed {
+        background-color: var(--mat-sys-primary-container);
+        color: var(--mat-sys-on-primary-container);
+      }
+    }

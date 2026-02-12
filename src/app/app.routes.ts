@@ -23,6 +23,16 @@ export const routes: Routes = [
     loadComponent: () => import('@features/courses-catalog/courses-catalog').then(m => m.CoursesCatalog)
   },
   {
+    title: 'Chapitre',
+    path: 'chapter/:id',
+    loadComponent: () => import('@features/chapter-showcase/chapter-showcase').then(m => m.ChapterShowcase)
+  },
+  {
+    title: 'Cours',
+    path: 'course/:id',
+    loadComponent: () => import('@features/course/course').then(m => m.Course)
+  },
+  {
     title: 'Markdown Render Testing',
     path: 'test-viewer',
     loadComponent: () => import('@features/test-viewer/test-viewer').then(m => m.TestViewer)
@@ -51,5 +61,6 @@ export const routes: Routes = [
     title: 'Page non trouvée',
     path: '**',
     redirectTo: '/error/404'
-  }
+  },
+
 ];
