@@ -1,0 +1,45 @@
+.chart-section {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    padding: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: 1024px) {
+        flex-direction: column;
+    }
+
+    &>section {
+        flex: 1;
+        min-width: 0;
+        padding: 1.5rem;
+    }
+}
+
+.features-section {
+    padding: 1rem;
+
+    h2 {
+        margin-bottom: 1.5rem;
+        padding-left: 0.5rem;
+    }
+}
+
+.hero-section {
+    background-color: var(--mat-sys-surface-container-low);
+    padding: 1rem;
+    text-align: center;
+
+    .hero-content {
+        max-width: 800px;
+        margin: 0 auto;
+
+        h1 {
+            font-family: 'Rubik', sans-serif;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--mat-sys-primary);
+        }
+    }
+}
