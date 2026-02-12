@@ -1,0 +1,58 @@
+<div class="presentation-container" #presentationContainer>
+    @if (!rawMarkdown() || fileLoading() || fileError()) {
+    <div class="loader-section">
+        <h1 class="loader-title">Chargeur de cours en markdown</h1>
+
+        @if (fileLoading()) {
+        <div class="loading-container">
+            <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+            <h4 class="loading-text">Fetching markdown file...</h4>
+        </div>
+        }
+
+        @if (fileError()) {
+        <div class="error-container">
+            <div class="error-message">
+                <mat-icon>error</mat-icon>
+                <span>Failed to fetch markdown file: {{ fileError() }}</span>
+            </div>
+        </div>
+        }
+
+        <div class="upload-section">
+            <input type="file" accept=".md,.markdown" (change)="onFileSelected($event)" #fileInput hidden />
+            <button mat-flat-button color="primary" (click)="fileInput.click()" [disabled]="fileLoading()">
+                <mat-icon>upload_file</mat-icon>
+                Upload Markdown
+            </button>
+        </div>
+    </div>
+    } @else {
+    <div class="slide-content" [class.fullscreen]="isFullscreen()">
+        <app-markdown-viewer [markdown]="currentMarkdown()" [packages]="packages()" [pyodide]="pyodide()" />
+
+        <div class="screen-toggle">
+            <mat-icon (click)="SwitchScreenSize()" color="inherit">
+                {{ isFullscreen() ? 'close_fullscreen' : 'fit_screen' }}
+            </mat-icon>
+        </div>
+    </div>
+
+    <mat-card appearance="outlined" class="controls-card">
+        <div class="controls-layout">
+            <mat-icon (click)="prev()" color="inherit" [style.opacity]="currentSlideIndex() === 0 ? 0.3 : 1"
+                [style.pointer-events]="currentSlideIndex() === 0 ? 'none' : 'auto'">arrow_back</mat-icon>
+
+            <div class="progress-container">
+                <mat-progress-bar mode="determinate"
+                    [value]="slides().length > 0 ? ((currentSlideIndex() + 1) / slides().length) * 100 : 0">
+                </mat-progress-bar>
+            </div>
+
+            <mat-icon (click)="next()" color="inherit"
+                [style.opacity]="currentSlideIndex() === slides().length - 1 ? 0.3 : 1"
+                [style.pointer-events]="currentSlideIndex() === slides().length - 1 ? 'none' : 'auto'">arrow_forward</mat-icon>
+        </div>
+    </mat-card>
+    }
+</div>
