@@ -1,0 +1,38 @@
+:host {
+  display: contents; // Necessary for subgrid to "see" the parent grid
+}
+
+.chapter-card {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+}
+
+mat-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 16px;
+}
+
+mat-card-header  { grid-row: 1; }
+mat-card-content { grid-row: 2; }
+mat-card-actions { grid-row: 3; }
+
+// Skeleton animation
+.chapter-card.skeleton {
+  opacity: 0.7;
+  background: linear-gradient(
+    90deg, 
+    var(--mat-sys-surface) 25%, 
+    var(--mat-sys-surface-container-high) 50%, 
+    var(--mat-sys-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.5s infinite;
+}
+
+@keyframes skeleton-pulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
