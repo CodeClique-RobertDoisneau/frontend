@@ -5,13 +5,12 @@
     </button>
   </div>
 
-  <ng-container *ngIf="chapterData; else loading">
+  @if (chapterData) {
     <app-chapter-menu 
       [chapter]="chapterData" 
       [isAdmin]="isAdmin">
     </app-chapter-menu>
-  </ng-container>
-  <ng-template #loading>
+  } @else {
     <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
-  </ng-template>
+  }
 </div>
