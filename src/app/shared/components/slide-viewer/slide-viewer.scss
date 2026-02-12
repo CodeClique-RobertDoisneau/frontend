@@ -1,0 +1,167 @@
+.presentation-container {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    /* Adapt to slide height */
+    width: 100%;
+
+    color: var(--mat-sys-on-surface);
+    box-sizing: border-box;
+    overflow: hidden;
+
+    &:fullscreen {
+        background-color: var(--mat-sys-surface-container-low);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+
+    .slide-content {
+        background-color: var(--mat-sys-surface-container);
+        aspect-ratio: 16 / 9;
+        width: 100%;
+        height: auto;
+        border-radius: 12px;
+
+        display: flex;
+        flex-direction: column;
+
+        overflow-y: auto;
+        /* Scroll strictly inside the slide frame if content exceeds 16/9 */
+        padding: 3rem;
+        /* More breathing room */
+        box-sizing: border-box;
+
+
+        position: relative;
+
+        &.fullscreen {
+            height: 100%;
+            width: 100%;
+            border-radius: 0;
+            max-width: none;
+        }
+
+        .screen-toggle {
+            position: absolute;
+            bottom: 0.4rem;
+            right: 1rem;
+            cursor: pointer;
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+
+        /* Typography for markdown content */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            color: var(--mat-sys-primary);
+            margin-bottom: 2rem;
+            text-align: left;
+            font-size: 3rem;
+        }
+
+        p,
+        li {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--mat-sys-on-surface-variant);
+            max-width: 800px;
+        }
+
+        ul,
+        ol {
+            margin-bottom: 1rem;
+            text-align: left;
+            /* Keep lists left aligned usually */
+            display: inline-block;
+            /* Center the block itself */
+        }
+
+        /* Wrap katex if needed */
+        .katex-display {
+            margin: 2rem 0;
+            font-size: 1.5em;
+        }
+
+        .loader-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+            background: var(--mat-sys-surface-container-high);
+            border-radius: 16px;
+            border: 2px dashed var(--mat-sys-outline-variant);
+            text-align: center;
+            min-height: 400px;
+            gap: 2rem;
+
+            .loader-title {
+                margin: 0;
+                font-size: 2rem;
+                color: var(--mat-sys-primary);
+            }
+
+            .loading-container,
+            .error-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .loading-text {
+                margin: 0;
+                color: var(--mat-sys-on-surface-variant);
+            }
+
+            .error-message {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                color: var(--mat-sys-error);
+                background: var(--mat-sys-error-container);
+                padding: 1rem;
+                border-radius: 8px;
+            }
+
+            .upload-section {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    }
+
+    .controls-card {
+        margin-top: 2rem;
+        /* Detached from slide */
+        border: 1px solid var(--mat-sys-outline-variant);
+        border-radius: 12px;
+        padding: 0.5rem 1.5rem;
+
+        /* Thin bar */
+        width: 100%;
+        box-sizing: border-box;
+
+        .controls-layout {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            width: 100%;
+
+            .progress-container {
+                flex: 1;
+                display: flex;
+                align-items: center;
+            }
+        }
+    }
+}
