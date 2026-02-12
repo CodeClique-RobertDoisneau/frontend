@@ -1,0 +1,30 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.chapter-accordion {
+  .mat-expansion-panel {
+    background: transparent;
+    box-shadow: none;
+    
+    &.mat-expanded {
+      background: var(--mat-sys-surface-container-low);
+    }
+  }
+
+  .mat-expansion-panel-header {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 500;
+    gap: 1rem;
+  }
+}
+
+.mat-mdc-list-item-activated {
+  background-color: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  border-radius: 16px;
+  margin: 0 8px;
+  width: calc(100% - 16px);
+}

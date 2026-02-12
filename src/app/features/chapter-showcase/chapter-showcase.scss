@@ -1,12 +1,80 @@
-.chapter-showcase {
-  position: relative;
+:host {
+  display: block;
+  min-height: 100vh;
 }
 
-.admin-controls {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 1;
+.showcase-container {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.loading-container, .error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  gap: 16px;
+  color: var(--mat-sys-on-surface-variant);
+  
+  .error-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.hero-section {
+  position: relative;
+  background: var(--mat-sys-surface-variant);
+  padding: 100px 24px 80px;
+  color: var(--mat-sys-primary);
+  
+  .hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+  }
+}
+
+.back-fab {
+  position: absolute;
+  top: 32px;
+  left: 32px;
+  z-index: 10;
+}
+
+.chapter-title {
+  font-family: 'Rubik', sans-serif;
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0 0 16px;
+  line-height: 1.1;
+  color: inherit;
+  
+  display: inline-block;
+}
+
+.chapter-description {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto 32px;
+  color: inherit;
+  opacity: 0.9;
+}
+
+.meta-chips {
+  display: flex;
+  justify-content: center;
+}
+
+.menu-container {
+  max-width: 900px;
+  width: 100%;
+  margin: -40px auto 48px; /* Negative margin to overlap hero */
+  padding: 0 24px;
+  box-sizing: border-box;
+  z-index: 10;
 }

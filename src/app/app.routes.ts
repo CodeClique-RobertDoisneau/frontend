@@ -8,11 +8,6 @@ export const routes: Routes = [
     component: Landing,
   },
   {
-    title: 'chapter 1',
-    path: 'chapter/1',
-    loadComponent: () => import('@features/chapter-showcase/chapter-showcase').then(m => m.ChapterShowcaseComponent)
-  },
-  {
     title: 'Dashboard',
     path: 'dashboard',
     loadComponent: () => import('@features/dashboard/dashboard').then(m => m.Dashboard)
@@ -26,6 +21,16 @@ export const routes: Routes = [
     title: 'Catalogue des cours',
     path: 'courses',
     loadComponent: () => import('@features/courses-catalog/courses-catalog').then(m => m.CoursesCatalog)
+  },
+  {
+    title: 'Chapitre',
+    path: 'chapter/:id',
+    loadComponent: () => import('@features/chapter-showcase/chapter-showcase').then(m => m.ChapterShowcase)
+  },
+  {
+    title: 'Cours',
+    path: 'course/:id',
+    loadComponent: () => import('@features/course/course').then(m => m.Course)
   },
   {
     title: 'Markdown Render Testing',
