@@ -9,7 +9,7 @@
       </p>
       <div class="hero-actions">
         <button mat-raised-button color="primary" routerLink="/courses">Découvrir les cours</button>
-        <button mat-stroked-button color="primary" routerLink="/login">Se connecter</button>
+        <button mat-stroked-button color="primary" routerLink="/login" disabled>Se connecter</button>
       </div>
     </div>
   </header>
@@ -17,7 +17,7 @@
   <section class="features-section">
     <h2>Accès Rapide</h2>
     <div class="features-grid">
-      <mat-card class="feature-card" routerLink="/parcours">
+      <mat-card class="feature-card">
         <mat-card-header>
           <div mat-card-avatar class="feature-icon-container">
             <mat-icon>map</mat-icon>
@@ -29,7 +29,7 @@
         </mat-card-content>
       </mat-card>
 
-      <mat-card class="feature-card" routerLink="/courses">
+      <mat-card class="feature-card">
         <mat-card-header>
           <div mat-card-avatar class="feature-icon-container">
             <mat-icon>school</mat-icon>
@@ -41,7 +41,7 @@
         </mat-card-content>
       </mat-card>
 
-      <mat-card class="feature-card" routerLink="/login">
+      <mat-card class="feature-card">
         <mat-card-header>
           <div mat-card-avatar class="feature-icon-container">
             <mat-icon>login</mat-icon>

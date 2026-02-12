@@ -60,9 +60,9 @@ export class SectionExpansionPanel {
   }
 
   getDifficultyLabel(difficulty: number): string {
-    if (difficulty <= 1) return 'Easy';
-    if (difficulty === 2) return 'Medium';
-    return 'Hard';
+    if (difficulty <= 1) return 'Facile';
+    if (difficulty === 2) return 'Moyen';
+    return 'Difficile';
   }
 
   getDifficultyClass(difficulty: number): string {

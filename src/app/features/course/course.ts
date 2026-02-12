@@ -12,6 +12,7 @@ import { MatTreeModule, MatTreeNestedDataSource } from '@angular/material/tree';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Location } from '@angular/common';
 import { CustomPaginatorIntl } from '@shared/providers/custom-paginator-intl';
+import { Pyodide } from '@shared/services/pyodide/pyodide';
 
 interface TocNode {
   name: string;
@@ -32,10 +33,11 @@ interface TocNode {
   templateUrl: './course.html',
   styleUrl: './course.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [{ provide: MatPaginatorIntl, useClass: CustomPaginatorIntl }]
+  providers: [Pyodide, { provide: MatPaginatorIntl, useClass: CustomPaginatorIntl }]
 })
 export class Course {
   readonly id = input.required<string>(); // Item ID from route
+  pyodide = inject(Pyodide);
 
   private courseService = inject(CourseService);
   private location = inject(Location);

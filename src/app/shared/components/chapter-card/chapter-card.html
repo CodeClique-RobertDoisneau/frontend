@@ -24,14 +24,12 @@
     </mat-card-header>
 
     <mat-card-content>
-      <p>
-        {{ chapter.description }}
-      </p>
+      <p>{{ chapter.description }}</p>
     </mat-card-content>
 
     <mat-card-actions>
-      <button matButton="outlined">Plan</button>
-      <button matButton="filled">Continuer</button>
+      <a matButton="outlined" [href]="'/chapter/' + chapter.id" >Voir</a>
+      <a matButton="filled" [href]="" disabled>Continuer</a>
     </mat-card-actions>
   </mat-card>
 } @else if (chapterInfo.error()) {
