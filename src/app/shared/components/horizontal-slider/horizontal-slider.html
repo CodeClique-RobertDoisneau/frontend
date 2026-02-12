@@ -1,18 +1,19 @@
-<div class="slider-container">
-  <div class="buttons-wrapper">
-    <button matIconButton class="nav-btn left" (click)="scrollLeft()" aria-label="Précédent">
-      <mat-icon>arrow_circle_left</mat-icon>
+<div class="slider-wrapper">
+  @if (showLeftArrow()) {
+    <button matIconButton class="nav-btn left" (click)="scroll(-400)">
+      <mat-icon>chevron_left</mat-icon>
     </button>
-    <button matIconButton class="nav-btn right" (click)="scrollRight()" aria-label="Suivant">
-      <mat-icon>arrow_circle_right</mat-icon>
-    </button>
-  </div>
+  }
 
-  <div class="slider-content" #sliderContent>
+  <div class="slider-content" #sliderContent (scroll)="onScroll($event)">
     @for (chapter of chapters.value(); track chapter.id) {
-    <app-chapter-card [id]="chapter.id" class="slider-item"></app-chapter-card>
-    } @empty {
-    <p class="empty-msg">Aucun contenu à afficher pour le moment.</p>
+      <app-chapter-card [id]="chapter.id" class="slider-item" />
     }
   </div>
+
+  @if (showRightArrow()) {
+    <button matIconButton class="nav-btn right" (click)="scroll(400)">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  }
 </div>

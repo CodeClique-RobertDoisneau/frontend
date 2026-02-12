@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { httpResource } from '@angular/common/http';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 
 export interface ChapterInfo {
@@ -25,19 +24,13 @@ export interface SectionInfo {
 
 @Component({
   selector: 'app-chapter-card',
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatProgressBarModule],
+  imports: [CommonModule, MatCardModule, MatButtonModule],
   templateUrl: './chapter-card.html',
   styleUrl: './chapter-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChapterCard {
-  //id du chapitre
   id = input<number>();
 
-  apiPath = computed(() => {
-    const id = this.id();
-    return id ? `http://localhost/api/chapter/${id}/` : undefined;
-  });
-
-  chapterInfo = httpResource<ChapterInfo>(() => this.apiPath());
+  chapterInfo = httpResource<ChapterInfo>(() => this.id() ? `http://localhost/api/chapter/${this.id()}/` : undefined);
 }

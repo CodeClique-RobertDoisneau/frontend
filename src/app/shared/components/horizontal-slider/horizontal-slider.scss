@@ -1,55 +1,44 @@
-.slider-container {
+.slider-wrapper {
   position: relative;
-  margin: 20px 0;
-  overflow: hidden;
-  min-height: 3rem; //Sert dans le cas du @empty
+  display: flex;
+  align-items: center;
+  width: 100%;
 
-  // Cache les boutons par défaut, ils apparaissent au survol du container
-  &:hover {
-    .nav-btn {
-      opacity: 1;
+  .nav-btn {
+    position: absolute;
+    z-index: 10;
+    background-color: var(--mat-sys-surface-container-highest);
+    transition: opacity 0.3s ease;
+    
+    &.left { left: 10px; }
+    &.right { right: 10px; }
+    
+    &:hover {
+      transform: scale(1.1);
+      transition: transform 0.2s ease-in-out;
     }
   }
 }
 
 .slider-content {
-  display: flex;
-  gap: 12px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 280px;
+  grid-template-rows: auto 1fr auto;
+  
+  gap: 1.5rem;
   overflow-x: auto;
   scroll-behavior: smooth;
-  scroll-snap-type: x mandatory; // L'effet "aimant"
-  padding: 0 8%; // Marge sur les côtés pour voir la carte suivante dépasser
-  scrollbar-width: none; // Cache la barre sur Firefox
+  scroll-snap-type: x mandatory;
+  padding: 20px 0;
 
-  &::-webkit-scrollbar {
-    display: none; // Cache la barre sur Chrome/Safari
-  }
-
-  .empty-msg {
-    margin: auto;
-  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
 }
 
 .slider-item {
-  // Fixe la largeur de chaque carte
-  width: 300px;
-
-  // Important : empêche la carte de rétrécir pour tenir dans l'écran (flexbox)
   flex: 0 0 auto;
-
-  // Optionnel : alignement pour le scroll fluide
-  scroll-snap-align: start;
-}
-
-.buttons-wrapper {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  position: absolute;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.nav-btn {
-  z-index: 2;
+  scroll-snap-align: center;
+  width: 280px;
 }
