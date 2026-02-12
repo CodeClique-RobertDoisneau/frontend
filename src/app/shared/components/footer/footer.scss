@@ -1,0 +1,95 @@
+:host {
+    display: block;
+    background-color: var(--mat-sys-surface-container);
+    color: var(--mat-sys-on-surface);
+    border-top: 1px solid var(--mat-sys-outline-variant);
+    padding: 4rem 2rem;
+    margin-top: 5rem;
+}
+
+.content-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 4rem;
+
+    @media (max-width: 950px) {
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+    }
+
+    @media (max-width: 600px) {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+}
+
+.footer-title {
+    font-family: 'Rubik', sans-serif;
+    color: var(--mat-sys-primary);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+    margin-bottom: 2rem;
+}
+
+.footer-subtitle {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: var(--mat-sys-secondary);
+}
+
+.footer-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+
+    @media (max-width: 600px) {
+        align-items: center;
+    }
+}
+
+.heart-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    color: var(--mat-sys-error);
+}
+
+.copyright {
+    margin-top: 2rem;
+    font-size: 0.85rem;
+    opacity: 0.7;
+}
+
+.brand-display {
+    margin-top: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .big-logo {
+        height: 5rem;
+        width: auto;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+            transform: scale(1.05);
+        }
+    }
+
+    .big-logo-text {
+        margin: 0;
+        font-family: 'Rubik', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--mat-sys-on-surface);
+        line-height: 1;
+    }
+}
