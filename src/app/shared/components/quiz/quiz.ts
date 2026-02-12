@@ -37,7 +37,7 @@ export type QuizResult = [boolean[], string][];
 
 
 export class QuizComponent {
-  quizResource = httpResource<ItemResponse>(() => `http://localhost/api/item/7/`);
+  quizResource = httpResource<ItemResponse>(() => `/api/item/7/`);
 
   userAnswers = signal<boolean[][]>([]);
   quizSubmitted = signal(false);
@@ -99,8 +99,8 @@ export class QuizComponent {
     if (!this.quizSubmitted()) return undefined;
     console.log("ON A ENVOYÉ")
     return {
-      //url: `http://localhost/api/postStudentQuiz`,
-      url: `http://localhost/api/item/6/`,
+      //url: `/api/postStudentQuiz`,
+      url: `/api/item/6/`,
       //method: 'POST',
       method: 'GET',
       //body: { answers: this.userAnswers() }

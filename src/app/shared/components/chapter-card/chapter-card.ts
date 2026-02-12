@@ -32,5 +32,5 @@ export interface SectionInfo {
 export class ChapterCard {
   id = input<number>();
 
-  chapterInfo = httpResource<ChapterInfo>(() => this.id() ? `http://localhost/api/chapter/${this.id()}/` : undefined);
+  chapterInfo = httpResource<ChapterInfo>(() => this.id() ? `/api/chapter/${this.id()}/` : undefined);
 }
