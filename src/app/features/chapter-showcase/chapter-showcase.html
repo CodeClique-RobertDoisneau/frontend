@@ -1,17 +1,16 @@
 <div class="chapter-showcase">
   <div class="admin-controls">
     <button mat-stroked-button (click)="toggleRole()">
-      {{ isAdmin ? '👑 Mode Admin' : '🎓 Mode Élève' }}
+      {{ isAdmin() ? '👑 Mode Admin' : '🎓 Mode Élève' }}
     </button>
   </div>
 
-  <ng-container *ngIf="chapterData; else loading">
+  @if (chapterData()) {
     <app-chapter-menu 
-      [chapter]="chapterData" 
-      [isAdmin]="isAdmin">
+      [chapter]="chapterData()!" 
+      [isAdmin]="isAdmin()">
     </app-chapter-menu>
-  </ng-container>
-  <ng-template #loading>
+  } @else {
     <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
-  </ng-template>
+  }
 </div>

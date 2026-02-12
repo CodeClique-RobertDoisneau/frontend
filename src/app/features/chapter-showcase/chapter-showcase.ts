@@ -1,36 +1,12 @@
-import { of } from 'rxjs'; // pour simuler une réponse de l'API (à retirer une fois le backend prêt)
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HttpClient } from '@angular/common/http';
 import { ChapterMenu, Chapter } from '../chapter-menu/chapter-menu';
+import { forkJoin, map, of, switchMap } from 'rxjs';
 
-const MOCK_DJANGO_RESPONSE = {
-  id: 1,
-  title: "Chapitre 1 : Les Variables",
-  description: "Les variables sont des conteneurs pour stocker des données.",
-  sections: [
-    {
-      id: 10,
-      isOpen: true,
-      title: "Introduction aux variables",
-      description: "les bases",
-      items: [
-        { id: 101, name: "Le concept de boîte", content: "...",type: 'Cours'},
-        { id: 102, name: "Quiz rapide", content: "...", type: 'Quiz' }
-      ]
-    },
-    {
-      id: 20,
-      title: "Les types de données",
-      description: "bla bla bla",
-      items: [
-        { id: 201, name: "Exercice : String ou Int ?", content: "...",type: 'Exercice' }
-      ]
-    }
-  ]
-};
+
 
 @Component({
   selector: 'app-chapter-showcase',
@@ -39,35 +15,49 @@ const MOCK_DJANGO_RESPONSE = {
   templateUrl: './chapter-showcase.html',
   styleUrls: ['./chapter-showcase.scss']
 })
-export class ChapterShowcaseComponent implements OnInit{
+export class ChapterShowcaseComponent {
   http = inject(HttpClient);
-  chapterData: Chapter | undefined;
-  isAdmin = false;
+  chapterData = signal<Chapter | undefined>(undefined);
+  isAdmin = signal(false);
   toggleRole() {
-    this.isAdmin = !this.isAdmin;
+    this.isAdmin.update((value) => !value);
   }
 
   ngOnInit() {
-    //this.http.get<any>('http://localhost:8000/api/chapter/1') (à décommenter une fois le backend prêt)
-    of(MOCK_DJANGO_RESPONSE) // à retirer une fois le backend prêt
-      .subscribe(response => {
-        this.chapterData = {
-          id: response.id,
-          title: response.title,
-          description: response.description,
-          parts: response.sections.map((sec: any) => ({
+    this.http.get<any>('/api/chapter/1/').pipe(
+      switchMap(chapter => {
+        const sectionRequests = (chapter.sections ?? []).map((sec: any) =>
+          this.http.get<any>(`/api/section/${sec.id}/`)
+        );
+        if (sectionRequests.length === 0) {
+          return of({ chapter, sections: [] });
+        }
+        return forkJoin(sectionRequests).pipe(
+          map(sections => ({ chapter, sections }))
+        );
+      })
+    ).subscribe({
+      next: ({ chapter, sections }: any) => {
+        this.chapterData.set({
+          id: chapter.id,
+          title: chapter.title,
+          description: chapter.description,
+          parts: (sections as any[]).map((sec: any) => ({
             id: sec.id,
             title: sec.title,
-            isOpen: sec.isOpen || false, 
-            description: sec.description,
-            items: sec.items.map((it: any) => ({
+            isOpen: true,
+            description: sec.description ?? '',
+            items: (sec.items ?? []).map((it: any) => ({
               id: it.id,
               title: it.name,
-              type: it.type,   
+              type: it.type ?? 'Cours',
             }))
           }))
-        };
-        
-      });
+        });
+      },
+      error: (err: unknown) => {
+        console.error('Chapter load failed', err);
+      }
+    });
   }
 }
