@@ -44,7 +44,7 @@ export const routes: Routes = [
   },
   {
     title: 'Erreur',
-    path: 'error/:code',
+    path: 'error/:errorCode',
     loadComponent: () => import('@features/error/error').then(m => m.Error)
   },
   { 

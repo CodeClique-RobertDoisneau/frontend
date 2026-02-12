@@ -1,4 +1,4 @@
-import { Component, input, ViewEncapsulation } from '@angular/core';
+import { Component, inject, input, OnInit, ViewEncapsulation } from '@angular/core';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,15 +17,23 @@ import { RemarkModule, KatexComponent } from 'ngx-remark';
 
 import { CodeBlock } from '@shared/components/code-block/code-block';
 import { Outline } from '@shared/components/outline/outline'
+import { Pyodide } from '@shared/services/pyodide/pyodide';
 
 @Component({
   selector: 'app-markdown-viewer',
   imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, RemarkModule, KatexComponent, CodeBlock, Outline],
   templateUrl: './markdown-viewer.html',
   styleUrls: ['./markdown-viewer.scss', './markdown.scss'],
-  encapsulation: ViewEncapsulation.None,
+  encapsulation: ViewEncapsulation.None, // Pour markdown.css
 })
-export class MarkdownViewer {
+export class MarkdownViewer implements OnInit{
+  pyodide = inject(Pyodide);
   markdown = input<string>('');
+  packages = input<string[]>([]);
+
+  ngOnInit() {
+    this.pyodide.init(this.packages());
+  }
+
   processor = unified().use(remarkParse).use(remarkGfm).use(remarkDirective).use(remarkDirectiveTransformer).use(remarkMath);
 }

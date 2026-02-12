@@ -32,7 +32,7 @@
               {
                 "glob": "**/*",
                 "input": "node_modules/pyodide",
-                "output": "/assets/pyodide",
+                "output": "/pyodide",
                 "ignore": [
                   "**/*.md",
                   "**/*.html",

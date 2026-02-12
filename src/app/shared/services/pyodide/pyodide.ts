@@ -1,103 +1,153 @@
-import { Injectable, OnDestroy, signal } from '@angular/core';
+import { effect, Injectable, OnDestroy, signal, WritableSignal } from '@angular/core';
 import { PyodideRequest, PyodideResponse } from './pyodide.worker';
 
 interface ExecutionHandler {
-  resolve: () => void;
-  reject: (error: any) => void;
   onOutput?: (text: string) => void;
+  onError?: (text: string) => void;
+  isRunning?: WritableSignal<boolean>;
+  onPlot?: (base64: string) => void;
 }
 
 @Injectable({ providedIn: 'root' })
 export class Pyodide implements OnDestroy {
+  private packages: string[] = [];
   private worker: Worker | null = null;
-  
-  // Map execution IDs to their Promise resolvers and output callbacks
-  private activeExecutions = new Map<string, ExecutionHandler>();
+  private interruptBuffer: Uint8Array | null = null;
+  private interruptRequests: string[] = [];
+  private executionHandlers = new Map<string, ExecutionHandler>();
 
-  // Signals for global state
-  readonly isReady = signal(false);
-  readonly error = signal<string | null>(null);
+  private isReadySignal = signal<boolean>(false);
+  public readonly isReady = this.isReadySignal.asReadonly();
 
-  constructor() {
-    this.initWorker();
+  public init(packages?: string[]) {
+    if (this.worker) return;
+    if (packages) this.packages = packages;
+
+    this.initWorker(this.packages);
   }
 
-  private initWorker() {
-    if (typeof Worker !== 'undefined') {
-      this.worker = new Worker(new URL('./pyodide.worker.ts', import.meta.url), { type: 'module' });
-      
-      this.worker.onerror = (err) => {
-        console.error('Pyodide Service: Worker error:', err);
-        this.error.set(`Worker error: ${err.message}`);
-      };
+  public resetWorker(packages?: string[]): void {
+    if (!this.worker) return;
+    if (packages) this.packages = packages;
 
-      this.worker.onmessage = this.handleWorkerMessage.bind(this);
-      
-      this.worker.postMessage({ type: 'INIT' });
-    } else {
-      this.error.set('Web Workers are not supported.');
-    }
+    this.worker.terminate();
+    this.worker = null;
+
+    this.interruptBuffer = null;
+    
+    this.isReadySignal.set(false);
+    this.initWorker(packages);
+
+    this.executionHandlers.forEach((handler) => {
+      handler.onError?.('Python environment reset.');
+      handler.isRunning?.set(false);
+    });
+    this.executionHandlers.clear();
   }
 
-  /**
-   * Executes Python code.
-   * @param code The Python script to run.
-   * @param onOutput Optional callback to receive stdout stream (print statements).
-   * @returns A Promise that resolves when execution completes.
-   */
-  async run(code: string, onOutput?: (text: string) => void): Promise<void> {
-    if (!this.worker || !this.isReady()) {
+  public run(
+    code: string, 
+    onOutput?: (text: string) => void,
+    onError?: (text: string) => void,
+    isRunningSignal?: WritableSignal<boolean>,
+    onPlot?: (base64: string) => void
+  ): string {
+    if (!this.worker || !this.isReadySignal()) {
       throw new Error('Pyodide is not ready yet.');
     }
 
-    const id = crypto.randomUUID();
+    if (this.interruptBuffer) {
+      this.interruptBuffer[0] = 0;
+    }
 
-    return new Promise<void>((resolve, reject) => {
-      // Store the handlers to be called when messages arrive from the worker
-      this.activeExecutions.set(id, { resolve, reject, onOutput });
+    const executionId: string = crypto.randomUUID();
+
+    const handler: ExecutionHandler = {
+      onOutput: onOutput,
+      onError: onError,
+      isRunning: isRunningSignal,
+      onPlot: onPlot
+    }
+    this.executionHandlers.set(executionId, handler);
+
+    const msg: PyodideRequest = { type: 'RUN', id: executionId, code };
+    this.worker!.postMessage(msg);
+
+    return executionId;
+  }
+
+  public interruptExecution(executionId: string): void {
+    if (this.interruptRequests.includes(executionId)) return;
+    this.interruptRequests.push(executionId);
+
+    if (this.interruptBuffer) {
+      this.interruptBuffer[0] = 2;
+    }
+
+    setTimeout(() => {
+      const handler = this.executionHandlers.get(executionId);
+      if (!handler) return;
+      handler.onError?.('Interrupt signal ignored. Restarting kernel...');
+      this.resetWorker();
+    }, 1000);
+  }
+
+  private initWorker(packages: string[] = []) {
+    try {
+      this.worker = new Worker(new URL('./pyodide.worker.ts', import.meta.url), { type: 'module' });
       
-      const msg: PyodideRequest = { type: 'RUN', id, code };
-      this.worker!.postMessage(msg);
-    });
+      try {
+        const interruptSharedBuffer = new SharedArrayBuffer(1);
+        this.interruptBuffer = new Uint8Array(interruptSharedBuffer);
+        
+        this.worker.postMessage({ type: 'INIT', buffer: interruptSharedBuffer, packages });
+      } catch {
+        console.warn('SharedArrayBuffer is not available. Interrupts will not work.');
+        this.worker.postMessage({ type: 'INIT', buffer: null, packages });
+      }
+
+      this.worker.onmessage = this.handleWorkerMessage.bind(this);      
+    } catch {
+      console.error('Web Workers are not supported.');
+    }
   }
 
   private handleWorkerMessage({ data }: { data: PyodideResponse }) {
     switch (data.type) {
       case 'READY':
-        this.isReady.set(true);
+        this.isReadySignal.set(true);
         break;
 
-      case 'RUN_STREAM_OUTPUT':
-        const streamHandler = this.activeExecutions.get(data.id);
-        if (streamHandler?.onOutput) {
-          streamHandler.onOutput(data.text);
-        }
+      case 'RUN_STDOUT':
+        this.executionHandlers.get(data.id)?.onOutput?.(data.text);
         break;
 
-      case 'RUN_COMPLETE':
-        const completeHandler = this.activeExecutions.get(data.id);
-        if (completeHandler) {
-          completeHandler.resolve();
-          this.activeExecutions.delete(data.id);
-        }
+      case 'RUN_STDERR':
+        this.executionHandlers.get(data.id)?.onError?.(data.text);
+        break;
+
+      case 'RUN_PLOT_OUTPUT':
+        this.executionHandlers.get(data.id)?.onPlot?.(data.base64);
+        break;
+
+      case 'RUN_SUCCESS':
+        this.executionHandlers.get(data.id)?.isRunning?.set(false);
+        this.executionHandlers.delete(data.id);
+        break;
+
+      case 'RUN_ERROR':
+        this.executionHandlers.get(data.id)?.onError?.(data.error);
+        this.executionHandlers.get(data.id)?.isRunning?.set(false);
+        this.executionHandlers.delete(data.id);
         break;
 
       case 'ERROR':
-        if (data.id && this.activeExecutions.has(data.id)) {
-          // Error specific to a run execution
-          const errorHandler = this.activeExecutions.get(data.id);
-          errorHandler?.reject(data.error);
-          this.activeExecutions.delete(data.id);
-        } else {
-          // Global initialization error
-          this.error.set(data.error);
-        }
+        console.error(data.error);
         break;
     }
   }
 
   ngOnDestroy() {
     this.worker?.terminate();
-    this.activeExecutions.clear();
   }
 }

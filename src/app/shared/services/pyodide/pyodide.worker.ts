@@ -1,56 +1,106 @@
 /// <reference lib="webworker" />
-import type { PyodideAPI } from 'pyodide';
+import { PyodideAPI, loadPyodide as loadPyodideType } from 'pyodide';
 
-export type PyodideRequest = 
-  | { type: 'INIT' }
+const importLink = '/pyodide/pyodide.mjs';
+
+export type PyodideRequest =
+  | { type: 'INIT'; buffer: SharedArrayBuffer; packages?: string[] }
   | { type: 'RUN'; id: string; code: string };
 
-export type PyodideResponse = 
+export type PyodideResponse =
   | { type: 'READY' }
-  | { type: 'RUN_STREAM_OUTPUT'; id: string; text: string }
-  | { type: 'RUN_COMPLETE'; id: string }
-  | { type: 'ERROR'; id?: string; error: string };
-
+  | { type: 'RUN_STDOUT'; id: string; text: string }
+  | { type: 'RUN_STDERR'; id: string; text: string }
+  | { type: 'RUN_PLOT_OUTPUT'; id: string; base64: string } 
+  | { type: 'RUN_SUCCESS'; id: string }
+  | { type: 'RUN_ERROR'; id: string; error: string }
+  | { type: 'ERROR'; error: string };
 
 let pyodide: PyodideAPI | null = null;
+let interruptBuffer: Uint8Array | null = null;
+let isMatplotlibLoaded = false;
 
 function respond(msg: PyodideResponse) {
   postMessage(msg);
 }
+
+// Helper script to extract plots, for matplotlib
+const PLOT_HELPER_SCRIPT = `
+import io, base64
+import matplotlib.pyplot as plt
+
+def _fetch_last_plot():
+    if plt.get_fignums():
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        img_str = base64.b64encode(buf.read()).decode('utf-8')
+        plt.close('all')
+        return img_str
+    return None
+`;
+
 addEventListener('message', async ({ data }: { data: PyodideRequest }) => {
   try {
     switch (data.type) {
       case 'INIT':
-        if (!pyodide) {
-          const pyodideModulePath = '/assets/pyodide/pyodide.mjs';
-          // @ts-ignore
-          const { loadPyodide } = await import(pyodideModulePath);
-          pyodide = await loadPyodide({
-            indexURL: '/assets/pyodide/'
-          });
+        const { loadPyodide } = (await import(importLink)) as { 
+          loadPyodide: typeof loadPyodideType 
+        };
+
+        const packages = data.packages || [];
+        pyodide = await loadPyodide({
+          indexURL: '/pyodide',
+          packages: packages,
+        });
+        
+        // Native Interrupt
+        if (data.buffer) {
+          interruptBuffer = new Uint8Array(data.buffer);
+          pyodide.setInterruptBuffer(interruptBuffer);
         }
+        
+        // Specific setup for Matplotlib if requested
+        if (packages.includes('matplotlib')) {
+          isMatplotlibLoaded = true;
+          pyodide.runPython(`import matplotlib; matplotlib.use("Agg")`);
+          pyodide.runPython(PLOT_HELPER_SCRIPT);
+        }
+        
         respond({ type: 'READY' });
         break;
 
       case 'RUN':
         if (!pyodide) throw new Error('Pyodide not initialized');
-        
         const { id, code } = data;
 
-        // Redirect stdout to the main thread via postMessage
+        if (interruptBuffer) interruptBuffer[0] = 0;
+        
         pyodide.setStdout({
-          batched: (text) => respond({ type: 'RUN_STREAM_OUTPUT', id, text }),
+          batched: (text) => respond({ type: 'RUN_STDOUT', id, text }),
         });
 
-        await pyodide.runPythonAsync(code);
+        pyodide.setStderr({
+          batched: (text) => respond({ type: 'RUN_STDERR', id, text }),
+        });
 
-        respond({ type: 'RUN_COMPLETE', id });
+        try {
+          await pyodide.runPythonAsync(code);
+
+          if (isMatplotlibLoaded) {
+            const fetcher = pyodide.globals["get"]("_fetch_last_plot");
+            const base64Str = fetcher();
+            if (!base64Str) return;
+            respond({ type: 'RUN_PLOT_OUTPUT', id, base64: base64Str });
+          }
+          
+          respond({ type: 'RUN_SUCCESS', id });
+        } catch (err: any) {
+          respond({ type: 'RUN_ERROR', id, error: String(err) });
+        }
         break;
     }
-  } catch (err) {
-    console.error('WORKER: Error:', err);
-    const error = err instanceof Error ? err.message : String(err);
-    const id = 'id' in data ? data.id : undefined;
-    respond({ type: 'ERROR', id, error });
+  } catch (globalErr) {
+    respond({ type: 'ERROR', error: String(globalErr) });
   }
 });

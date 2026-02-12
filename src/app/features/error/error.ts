@@ -1,4 +1,4 @@
-import { Component, input, InputSignal } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 @Component({
   selector: 'app-error',
@@ -7,5 +7,5 @@ import { Component, input, InputSignal } from '@angular/core';
   styleUrl: './error.scss',
 })
 export class Error {
-  code = input<string>('undefined');
+  errorCode = input<string>('undefined');
 }

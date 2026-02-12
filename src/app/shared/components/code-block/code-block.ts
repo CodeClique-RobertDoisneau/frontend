@@ -1,6 +1,7 @@
-import { Component, signal, computed, input, inject, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { Component, signal, input, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { CodeEditor } from '@acrodata/code-editor';
@@ -11,54 +12,68 @@ import { Theming } from '@shared/services/theming/theming';
 
 @Component({
   selector: 'app-code-block',
-  imports: [MatButtonModule, MatIconModule, FormsModule, CodeEditor],
+  imports: [MatButtonModule, MatIconModule, FormsModule, CodeEditor, MatProgressSpinnerModule],
   templateUrl: './code-block.html',
   styleUrl: './code-block.scss',
 })
 export class CodeBlock implements OnInit {
-  @ViewChild('editor') editorRef: ElementRef | undefined;
   pyodide = inject(Pyodide);
   theming = inject(Theming);
   languages = languages;
-
+  
   initialCode = input<string>('');
   language = input<string>('');
   
   code = signal<string>('');
   output = signal<string>('');
   error = signal<string>('');
-  isRunning = signal<boolean>(false);
+  plot = signal<string>('');
   
-  canRun = computed(() => !this.isRunning() && this.code().trim().length > 0 && this.pyodide.isReady());
+  executionId: string | null = null;
+  isRunning = signal<boolean>(false);
 
   ngOnInit() {
     this.code.set(this.initialCode());
   }
 
-  async run(): Promise<void> {
-    if (!this.canRun()) return;
+  run(): void {
+    if (!this.pyodide.isReady()) return;
 
     this.isRunning.set(true);
     this.output.set('');
     this.error.set('');
+    this.plot.set('');
 
-    try {
-      // Pass a callback to handle the streaming output
-      await this.pyodide.run(this.code(), (text) => {
-        // Update signal as data arrives
-        this.output.update(current => current + text + '\n');
-      });
-    } catch (err) {
-      this.error.set(String(err));
-    } finally {
-      this.isRunning.set(false);
-    }
+    this.executionId = this.pyodide.run(
+      this.code(),
+      (outText) => {
+        if (!outText) return;
+        this.output.update(current => current + outText + '\n');
+      },
+      (errText) => {
+        if (!errText) return;
+        this.error.set(errText);
+      },
+      this.isRunning,
+      (base64) => {
+        if (!base64) return;
+        this.plot.set(base64);
+      }
+    );
+  }
+
+  stop(): void {
+    if (!this.executionId) return;
+    this.pyodide.interruptExecution(this.executionId);
   }
 
   reset(): void {
-    this.code.set(this.initialCode());
+    this.stop();
     this.output.set('');
     this.error.set('');
+    this.plot.set('');
+    this.isRunning.set(false);
+    this.code.set(this.initialCode());
   }
 
   async copy(): Promise<void> {

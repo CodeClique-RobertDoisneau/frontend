@@ -6,16 +6,28 @@
         <button matIconButton (click)="copy()" matTooltip="Copy code">
           <mat-icon>content_copy</mat-icon>
         </button>
-        <button matIconButton (click)="reset()" [disabled]="isRunning()" matTooltip="Reset code">
+        <button matIconButton (click)="reset()" matTooltip="Reset code">
           <mat-icon>refresh</mat-icon>
         </button>
-        <button matIconButton color="primary" (click)="run()" [disabled]="!canRun()" class="run-button">
-          <mat-icon>play_arrow</mat-icon>
-        </button>
+        @if (!isRunning()) {
+          @if (!pyodide.isReady()) {
+            <button matIconButton disabled matTooltip="Loading python...">
+              <mat-progress-spinner diameter="24" mode="indeterminate"></mat-progress-spinner>
+            </button>
+          } @else {
+            <button matIconButton (click)="run()" matTooltip="Run code">
+              <mat-icon>play_arrow</mat-icon>
+            </button>
+          }
+        } @else {
+          <button matIconButton (click)="stop()" matTooltip="Stop execution">
+            <mat-icon>stop</mat-icon>
+          </button>
+        }
       </div>
     </div>
 
-    <code-editor [(ngModel)]="code" [languages]="languages" [theme]="theming.resolvedTheme()" language="python" />
+    <code-editor [(ngModel)]="code" [languages]="languages" [theme]="this.theming.resolvedTheme()" language="python" />
 
     @if (output()) {
       <div class="python-output">
@@ -32,6 +44,12 @@
           <span>Error:</span>
         </div>
         <pre class="error-content">{{ error() }}</pre>
+      </div>
+    }
+
+    @if (plot()) {
+      <div class="python-plot">
+        <img [src]="'data:image/png;base64,' + plot()" alt="Plot" />
       </div>
     }
   </div>

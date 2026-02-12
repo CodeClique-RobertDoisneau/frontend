@@ -82,7 +82,19 @@ echo "Hello world!"
 
 Math en ligne : $ f(x) = x^2 + 1 $
 
-## IX / Composants customs
+## IX / Librairies
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(0, 10, 1000)
+y = np.sin(x)
+
+plt.plot(x,y)
+```
+
+## X / Composants customs
 
 :::outline{outlineType="REMARQUE"}
 Il faut apprendre ses cours !
