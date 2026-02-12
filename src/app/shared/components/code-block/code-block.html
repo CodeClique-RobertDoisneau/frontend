@@ -1,5 +1,5 @@
 <!-- Full interactive view for Python -->
-@if (language() === "python") {
+@if (language() === "python" && this.pyodide()) {
   <div class="code-block-interactive">
     <div class="code-overlay">
       <div class="button-group">
@@ -10,7 +10,7 @@
           <mat-icon>refresh</mat-icon>
         </button>
         @if (!isRunning()) {
-          @if (!pyodide.isReady()) {
+          @if (!this.pyodide()?.isReady()) {
             <button matIconButton disabled matTooltip="Loading python...">
               <mat-progress-spinner diameter="24" mode="indeterminate"></mat-progress-spinner>
             </button>

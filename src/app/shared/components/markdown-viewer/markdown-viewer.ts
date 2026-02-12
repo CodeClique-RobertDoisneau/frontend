@@ -27,12 +27,13 @@ import { Pyodide } from '@shared/services/pyodide/pyodide';
   encapsulation: ViewEncapsulation.None, // Pour markdown.css
 })
 export class MarkdownViewer implements OnInit{
-  pyodide = inject(Pyodide);
+  pyodide = input<Pyodide>();
   markdown = input<string>('');
   packages = input<string[]>([]);
 
   ngOnInit() {
-    this.pyodide.init(this.packages());
+    const engine = this.pyodide();
+    engine?.init(this.packages());
   }
 
   processor = unified().use(remarkParse).use(remarkGfm).use(remarkDirective).use(remarkDirectiveTransformer).use(remarkMath);

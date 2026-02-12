@@ -7,8 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { CodeEditor } from '@acrodata/code-editor';
 import { languages } from '@codemirror/language-data';
 
-import { Pyodide } from '@shared/services/pyodide/pyodide';
 import { Theming } from '@shared/services/theming/theming';
+import { Pyodide } from '@shared/services/pyodide/pyodide';
 
 @Component({
   selector: 'app-code-block',
@@ -17,8 +17,8 @@ import { Theming } from '@shared/services/theming/theming';
   styleUrl: './code-block.scss',
 })
 export class CodeBlock implements OnInit {
-  pyodide = inject(Pyodide);
-  theming = inject(Theming);
+  theming = inject<Theming>(Theming);
+  pyodide = input<Pyodide>();
   languages = languages;
   
   initialCode = input<string>('');
@@ -37,14 +37,14 @@ export class CodeBlock implements OnInit {
   }
 
   run(): void {
-    if (!this.pyodide.isReady()) return;
+    const engine = this.pyodide();
+    if (!engine || !engine.isReady()) return;
 
-    this.isRunning.set(true);
     this.output.set('');
     this.error.set('');
     this.plot.set('');
 
-    this.executionId = this.pyodide.run(
+    this.executionId = engine.run(
       this.code(),
       (outText) => {
         if (!outText) return;
@@ -63,8 +63,9 @@ export class CodeBlock implements OnInit {
   }
 
   stop(): void {
-    if (!this.executionId) return;
-    this.pyodide.interruptExecution(this.executionId);
+    const engine = this.pyodide();
+    if (!engine || !this.executionId) return;
+    engine.interruptExecution(this.executionId);
   }
 
   reset(): void {
@@ -72,7 +73,6 @@ export class CodeBlock implements OnInit {
     this.output.set('');
     this.error.set('');
     this.plot.set('');
-    this.isRunning.set(false);
     this.code.set(this.initialCode());
   }
 

@@ -1,4 +1,4 @@
-import { effect, Injectable, OnDestroy, signal, WritableSignal } from '@angular/core';
+import { Injectable, OnDestroy, signal, WritableSignal } from '@angular/core';
 import { PyodideRequest, PyodideResponse } from './pyodide.worker';
 
 interface ExecutionHandler {
@@ -8,7 +8,7 @@ interface ExecutionHandler {
   onPlot?: (base64: string) => void;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class Pyodide implements OnDestroy {
   private packages: string[] = [];
   private worker: Worker | null = null;
@@ -69,6 +69,8 @@ export class Pyodide implements OnDestroy {
       onPlot: onPlot
     }
     this.executionHandlers.set(executionId, handler);
+
+    isRunningSignal?.set(true);
 
     const msg: PyodideRequest = { type: 'RUN', id: executionId, code };
     this.worker!.postMessage(msg);

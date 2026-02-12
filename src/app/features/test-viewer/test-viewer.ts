@@ -1,18 +1,21 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { MarkdownViewer } from '@shared/components/markdown-viewer/markdown-viewer';
+import { Pyodide } from '@shared/services/pyodide/pyodide';
 
 @Component({
   selector: 'app-test-viewer',
   imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, MarkdownViewer],
   templateUrl: './test-viewer.html',
   styleUrl: './test-viewer.scss',
+  providers: [Pyodide],
 })
 export class TestViewer {
+  pyodide = inject(Pyodide);
   markdown = signal<string>('');
   fileLoading = signal(false);
   fileError = signal<string | null>(null);
