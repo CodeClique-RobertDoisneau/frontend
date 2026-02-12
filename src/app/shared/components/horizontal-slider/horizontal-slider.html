@@ -9,10 +9,10 @@
   </div>
 
   <div class="slider-content" #sliderContent>
-    @for (item of items(); track item.id) {
-      <app-chapter-card [item]="item" class="slider-item"></app-chapter-card>
+    @for (chapter of chapters.value(); track chapter.id) {
+    <app-chapter-card [id]="chapter.id" class="slider-item"></app-chapter-card>
     } @empty {
-      <p class="empty-msg">Aucun contenu à afficher pour le moment.</p>
+    <p class="empty-msg">Aucun contenu à afficher pour le moment.</p>
     }
   </div>
 </div>

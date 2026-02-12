@@ -2,6 +2,7 @@
   position: relative;
   margin: 20px 0;
   overflow: hidden;
+  min-height: 3rem; //Sert dans le cas du @empty
 
   // Cache les boutons par défaut, ils apparaissent au survol du container
   &:hover {
@@ -22,6 +23,10 @@
 
   &::-webkit-scrollbar {
     display: none; // Cache la barre sur Chrome/Safari
+  }
+
+  .empty-msg {
+    margin: auto;
   }
 }
 

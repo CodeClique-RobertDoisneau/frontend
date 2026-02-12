@@ -10,21 +10,20 @@
   z-index: 1;
 }
 
-.example-header-image {
-  background-image: url('https://material.angular.dev/assets/img/examples/shiba1.jpg');
-  background-size: cover;
-  background-size: cover;
-}
 
 .menu-icon {
-  margin-left: auto; /* Pousse l'élément vers la droite dans un flex container */
+  margin-left: auto;
+  /* Pousse l'élément vers la droite dans un flex container */
   cursor: pointer;
   color: #666;
 }
 
 mat-card-actions {
   display: flex;
-  justify-content: flex-end; /* Aligne à droite */
-  gap: 16px; /* Espace entre les boutons */
-  padding: 16px; /* Un peu d'aération */
+  justify-content: flex-end;
+  /* Aligne à droite */
+  gap: 16px;
+  /* Espace entre les boutons */
+  padding: 16px;
+  /* Un peu d'aération */
 }
