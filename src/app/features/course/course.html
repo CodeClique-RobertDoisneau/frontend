@@ -17,8 +17,13 @@
         </mat-paginator>
       </div>
 
-      <div class="markdown-wrapper">
-        <app-markdown-viewer [markdown]="d.item.content || ''" [pyodide]="this.pyodide" [packages]="['numpy']"></app-markdown-viewer>
+      <div class="content-wrapper">
+        @if (d.item.item_type === 'QUIZZ' || d.item.name.toLowerCase().includes('qui')) {
+        <app-quiz [quizData]="d.item.content"></app-quiz>
+        } @else {
+        <app-markdown-viewer [markdown]="d.item.content || ''" [pyodide]="this.pyodide"
+          [packages]="['numpy']"></app-markdown-viewer>
+        }
       </div>
     </main>
 

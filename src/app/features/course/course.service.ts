@@ -16,6 +16,7 @@ export enum ItemType {
 
 export interface Item {
   id: number;
+  name: string;
   title: string;
   item_type: ItemType;
   content?: string;

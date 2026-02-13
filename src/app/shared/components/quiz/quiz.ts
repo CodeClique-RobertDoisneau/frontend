@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, ChangeDetectionStrategy, effect, untracked } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectionStrategy, effect, untracked, input } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
@@ -37,7 +37,8 @@ export type QuizResult = [boolean[], string][];
 
 
 export class QuizComponent {
-  quizResource = httpResource<ItemResponse>(() => `/api/item/7/`);
+  quizData = input<string | QuizItem[] | undefined>(undefined);
+  quizResource = httpResource<ItemResponse>(() => `/api/item/5/`);
 
   userAnswers = signal<boolean[][]>([]);
   quizSubmitted = signal(false);
@@ -47,19 +48,37 @@ export class QuizComponent {
   constructor() {
     //Pour les reposes du user
     effect(() => {
-      const resp = this.quizResource.value();
-      if (resp?.content) {
-        try {
-          const data = JSON.parse(resp.content) as QuizItem[];
-          untracked(() => {
-            if (this.userAnswers().length === 0) {
-              const initialState = data.map((q: QuizItem) => new Array(q.options.length).fill(false));
-              this.userAnswers.set(initialState);
-            }
-          });
-        } catch (e) {
-          console.error("Failed to parse quiz content (user answers)", e);
+      let data: QuizItem[] | undefined;
+      const inputData = this.quizData();
+
+      if (inputData) {
+        if (typeof inputData === 'string') {
+          try {
+            data = JSON.parse(inputData) as QuizItem[];
+          } catch (e) {
+            console.error("Failed to parse quizData string", e);
+          }
+        } else {
+          data = inputData;
         }
+      } else {
+        const resp = this.quizResource.value();
+        if (resp?.content) {
+          try {
+            data = JSON.parse(resp.content) as QuizItem[];
+          } catch (e) {
+            console.error("Failed to parse quizResource content", e);
+          }
+        }
+      }
+
+      if (data) {
+        untracked(() => {
+          if (this.userAnswers().length === 0) {
+            const initialState = data.map((q: QuizItem) => new Array(q.options.length).fill(false));
+            this.userAnswers.set(initialState);
+          }
+        });
       }
     });
 
@@ -81,16 +100,33 @@ export class QuizComponent {
 
   //Permet d'afficher les quiz de quizResource une fois reçut
   formState = computed(() => {
-    const resp = this.quizResource.value();
-    if (!resp?.content) return null;
+    let data: QuizItem[] | undefined;
+    const inputData = this.quizData();
 
-    try {
-      const data = JSON.parse(resp.content) as QuizItem[];
-      if (this.userAnswers().length !== data.length) return null;
-      return data;
-    } catch (e) {
-      return null;
+    if (inputData) {
+      if (typeof inputData === 'string') {
+        try {
+          data = JSON.parse(inputData) as QuizItem[];
+        } catch (e) {
+          return null;
+        }
+      } else {
+        data = inputData;
+      }
+    } else {
+      const resp = this.quizResource.value();
+      if (resp?.content) {
+        try {
+          data = JSON.parse(resp.content) as QuizItem[];
+        } catch (e) {
+          return null;
+        }
+      }
     }
+
+    if (!data) return null;
+    if (this.userAnswers().length !== data.length) return null;
+    return data;
   });
 
 

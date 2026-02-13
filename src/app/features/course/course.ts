@@ -13,6 +13,7 @@ import { NestedTreeControl } from '@angular/cdk/tree';
 import { Location } from '@angular/common';
 import { CustomPaginatorIntl } from '@shared/providers/custom-paginator-intl';
 import { Pyodide } from '@shared/services/pyodide/pyodide';
+import { QuizComponent } from '@shared/components/quiz/quiz';
 
 interface TocNode {
   name: string;
@@ -23,12 +24,13 @@ interface TocNode {
 @Component({
   selector: 'app-course',
   imports: [
-    MatProgressSpinnerModule, 
-    MatButtonModule, 
-    MatIconModule, 
+    MatProgressSpinnerModule,
+    MatButtonModule,
+    MatIconModule,
     MatPaginatorModule,
-    MatTreeModule, 
-    MarkdownViewer
+    MatTreeModule,
+    MarkdownViewer,
+    QuizComponent
   ],
   templateUrl: './course.html',
   styleUrl: './course.scss',
@@ -82,6 +84,11 @@ export class Course {
   constructor() {
     // Update tree data source when toc changes
     effect(() => {
+      const d = this.data();
+      if (d?.item) {
+        console.log('Current item:', d.item);
+        console.log('Item type:', d.item.item_type);
+      }
       this.dataSource.data = this.toc();
       this.treeControl.dataNodes = this.toc();
       this.treeControl.expandAll(); // Default to expanded
@@ -102,7 +109,7 @@ export class Course {
   onPageChange(event: PageEvent) {
     const d = this.data();
     if (!d || !d.section || !d.section.items) return;
-    
+
     // MatPaginator index is 0-based, matches array index
     const nextItem = d.section.items[event.pageIndex];
     if (nextItem) {
