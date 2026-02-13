@@ -4,18 +4,19 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { httpResource } from '@angular/common/http';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Persona } from '../persona/persona';
 
 @Component({
   selector: 'app-horizontal-slider',
   templateUrl: './horizontal-slider.html',
   styleUrls: ['./horizontal-slider.scss'],
-  imports: [ChapterCard, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [ChapterCard, MatButtonModule, MatIconModule, MatProgressSpinnerModule, Persona],
 })
 export class HorizontalSlider {
   apiPath = '/api/chapter/';
   chapters = httpResource<ChapterInfo[]>(() => this.apiPath);
   sliderContent = viewChild<ElementRef<HTMLElement>>('sliderContent');
-  
+
   hasData = computed(() => (this.chapters.value()?.length ?? 0) > 0);
 
   scroll(offset: number) {
@@ -24,7 +25,7 @@ export class HorizontalSlider {
   }
 
   private scrollContainer = viewChild<ElementRef<HTMLElement>>('sliderContent');
-  
+
   // Track the scroll position
   scrollPosition = signal(0);
   maxScroll = signal(10);

@@ -4,7 +4,9 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 @Component({
   selector: 'app-persona',
   templateUrl: './persona.html',
+  styleUrl: './persona.scss',
 })
+
 export class Persona {
   private sanitizer = inject(DomSanitizer);
 
@@ -18,7 +20,7 @@ export class Persona {
   });
 
   // Create a dynamic description for accessibility
-  personaDesc = computed(() => 
+  personaDesc = computed(() =>
     `Illustration of a ${this.subject()} teacher in a ${this.pose()} pose`
   );
 }
