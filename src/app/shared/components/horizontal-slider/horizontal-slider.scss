@@ -9,10 +9,15 @@
     z-index: 10;
     background-color: var(--mat-sys-surface-container-highest);
     transition: opacity 0.3s ease;
-    
-    &.left { left: 10px; }
-    &.right { right: 10px; }
-    
+
+    &.left {
+      left: 10px;
+    }
+
+    &.right {
+      right: 10px;
+    }
+
     &:hover {
       transform: scale(1.1);
       transition: transform 0.2s ease-in-out;
@@ -25,7 +30,7 @@
   grid-auto-flow: column;
   grid-auto-columns: 280px;
   grid-template-rows: auto 1fr auto;
-  
+
   gap: 1.5rem;
   overflow-x: auto;
   scroll-behavior: smooth;
@@ -34,11 +39,18 @@
 
   -ms-overflow-style: none;
   scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .slider-item {
   flex: 0 0 auto;
   scroll-snap-align: center;
   width: 280px;
+}
+
+app-persona {
+  height: 15rem;
 }
