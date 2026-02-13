@@ -2,9 +2,6 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { BaseChartDirective } from 'ng2-charts';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { ChartConfiguration, ChartData } from 'chart.js';
-import { MatDivider } from '@angular/material/divider';
-import { MatList, MatListItem, MatListItemIcon } from '@angular/material/list';
-import { DecimalPipe } from '@angular/common';
 
 type SummaryItem = {
   name: string;
@@ -16,7 +13,7 @@ type SummaryItem = {
   selector: 'app-area-chart',
   templateUrl: './area-chart.html',
   styleUrl: './area-chart.scss',
-  imports: [BaseChartDirective, MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatDivider, MatList, MatListItem, MatListItemIcon, DecimalPipe],
+  imports: [BaseChartDirective, MatCard, MatCardContent, MatCardHeader, MatCardTitle],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AreaChart {
