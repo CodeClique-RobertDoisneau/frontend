@@ -27,24 +27,10 @@
   </div>
   } @else if (items(); as itemList) {
   <mat-nav-list>
-    @for (item of itemList; track item.id) {
-    <a mat-list-item [routerLink]="['/course', item.id]" class="item-link">
-      <mat-icon matListItemIcon [fontIcon]="getItemIcon(item.item_type)"></mat-icon>
-      <span matListItemTitle>{{ item.title }}</span>
-      <div matListItemMeta class="meta-container">
-        <mat-chip-set>
-          <mat-chip [class]="getDifficultyClass(item.difficulty)" highlighted disabled>
-            {{ getDifficultyLabel(item.difficulty) }}
-          </mat-chip>
-        </mat-chip-set>
-        <!-- Simulated item progress -->
-        <span class="item-status" [ngClass]="{'completed': isItemCompleted(item.id)}">
-          {{ isItemCompleted(item.id) ? 'Complété' : 'Démarrer' }}
-        </span>
-      </div>
-    </a>
+    @for (childId of itemList; track childId) {
+    <app-chapter-child [id]="childId"></app-chapter-child>
     } @empty {
-    <div class="empty-state">No items in this section.</div>
+    <div class="empty-state">Aucun élément dans cette section.</div>
     }
   </mat-nav-list>
   }

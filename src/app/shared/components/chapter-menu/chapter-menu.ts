@@ -1,14 +1,14 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { MatAccordion } from '@angular/material/expansion';
 import { SectionExpansionPanel } from '@shared/components/section-expansion-panel/section-expansion-panel';
-import { Chapter } from '@features/course/course.service';
+import { Chapter } from '@shared/services/node.service';
 
 @Component({
   selector: 'app-chapter-menu',
   imports: [MatAccordion, SectionExpansionPanel],
   template: `
     <mat-accordion class="chapter-menu" multi>
-      @for (section of chapter().sections; track section.id) {
+      @for (section of chapter().children; track section.id) {
         <app-section-expansion-panel [section]="section"></app-section-expansion-panel>
       } @empty {
         <div class="empty-message">

@@ -1,35 +1,41 @@
 <div class="showcase-container">
-  @if (chapter(); as chapterData) {
-    <div class="hero-section">
-      <button mat-fab class="back-fab" routerLink="/courses" color="primary" aria-label="Back to courses">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <div class="hero-content">
-        
-        <h1 class="chapter-title">{{ chapterData.title }}</h1>
-        <p class="chapter-description">{{ chapterData.description }}</p>
-        
-        <div class="meta-chips">
-          <mat-chip-set>
-            <mat-chip class="grade-chip">
-              {{ chapterData.grade_level }}
-            </mat-chip>
-            <mat-chip>
-              <mat-icon matChipAvatar>list</mat-icon>
-              {{ chapterData.sections ? chapterData.sections.length : 0 }} Sections
-            </mat-chip>
-          </mat-chip-set>
-        </div>
+  @if (chapterInfo.isLoading()) {
+  <div class="loading-container">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Chargement du chapitre...</p>
+  </div>
+  } @else if (chapterInfo.value(); as chapterData) {
+  <div class="hero-section">
+    <button mat-fab class="back-fab" routerLink="/courses" color="primary" aria-label="Retour aux cours">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+
+    <div class="hero-content">
+      <h1 class="chapter-title">{{ chapterData.title }}</h1>
+      <p class="chapter-description">{{ chapterData.description }}</p>
+
+      <div class="meta-chips">
+        <mat-chip-set>
+          <mat-chip class="grade-chip">
+            {{ chapterData.grade_level }}
+          </mat-chip>
+          <mat-chip>
+            <mat-icon matChipAvatar>list</mat-icon>
+            {{ childIds().length }} éléments
+          </mat-chip>
+        </mat-chip-set>
       </div>
     </div>
+  </div>
 
-    <div class="menu-container">
-      <app-chapter-menu [chapter]="chapterData"></app-chapter-menu>
-    </div>
-  } @else {
-     <div class="loading-container">
-      <mat-spinner diameter="48"></mat-spinner>
-      <p>Loading chapter...</p>
-    </div>
+  <div class="children-container">
+    <mat-accordion multi>
+      @for (childId of childIds(); track childId) {
+      <app-chapter-child [id]="childId"></app-chapter-child>
+      } @empty {
+      <div class="empty-message">Aucun contenu dans ce chapitre.</div>
+      }
+    </mat-accordion>
+  </div>
   }
 </div>

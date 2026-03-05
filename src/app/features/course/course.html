@@ -12,16 +12,16 @@
 
       <!-- Paginator moved between title and content -->
       <div class="paginator-wrapper">
-        <mat-paginator [length]="d.section?.items?.length || 0" [pageSize]="1" [pageIndex]="currentIndex()"
+        <mat-paginator [length]="d.section?.children?.length || 0" [pageSize]="1" [pageIndex]="currentIndex()"
           (page)="onPageChange($event)" hidePageSize showFirstLastButtons aria-label="Select item">
         </mat-paginator>
       </div>
 
       <div class="content-wrapper">
-        @if (d.item.item_type === 'QUIZZ' || d.item.name.toLowerCase().includes('qui')) {
+        @if (d.item.type === 'QU' || d.item.type === 'QUIZZ' || d.item.title.toLowerCase().includes('qui')) {
         <app-quiz [quizData]="d.item.content"></app-quiz>
         } @else {
-        <app-markdown-viewer [markdown]="d.item.content || ''" [pyodide]="this.pyodide"
+        <app-markdown-viewer [markdown]="d.item.content?.data || ''" [pyodide]="this.pyodide"
           [packages]="['numpy']"></app-markdown-viewer>
         }
       </div>

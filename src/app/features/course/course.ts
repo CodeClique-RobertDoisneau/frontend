@@ -5,7 +5,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { CourseService, Item, Section } from './course.service';
+import { CourseService, Item, Section, NodeInfo } from '../../shared/services/node.service';
 import { MarkdownViewer } from '@shared/components/markdown-viewer/markdown-viewer';
 import { MatPaginatorModule, PageEvent, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatTreeModule, MatTreeNestedDataSource } from '@angular/material/tree';
@@ -46,21 +46,23 @@ export class Course {
   private router = inject(Router);
 
   // Tree control for TOC
-  treeControl = new NestedTreeControl<TocNode>(node => node.children);
+  treeControl = new NestedTreeControl<TocNode>((node: TocNode) => node.children);
   dataSource = new MatTreeNestedDataSource<TocNode>();
 
   // Combined data signal: Item + Section (using the first section as context)
   readonly data = toSignal(
     toObservable(this.id).pipe(
-      switchMap(id => this.courseService.getItem(id)),
-      switchMap(item => {
-        // If item has no sections, return just item with undefined section
-        if (!item.sections || item.sections.length === 0) {
+      switchMap((id: string) => this.courseService.getNode(id)),
+      switchMap((item: NodeInfo) => {
+        // If item has no children (sections), return just item with undefined section
+        if (!item.children || item.children.length === 0) {
           return [{ item, section: undefined }];
         }
-        // Fetch the first section as context
-        return this.courseService.getSection(item.sections[0]).pipe(
-          map(section => ({ item, section }))
+        // Extract section ID (could be number or NodeInfo object)
+        const firstSection = item.children[0];
+        const sectionId = typeof firstSection === 'object' ? firstSection.id : firstSection;
+        return this.courseService.getNode(sectionId).pipe(
+          map((section: NodeInfo) => ({ item, section }))
         );
       })
     )
@@ -68,16 +70,16 @@ export class Course {
 
   // Compute TOC from markdown content
   readonly toc = computed(() => {
-    const content = this.data()?.item.content;
-    if (!content) return [];
+    const content = this.data()?.item.content?.data;
+    if (!content || typeof content !== 'string') return [];
     return this.buildToc(content);
   });
 
   // Compute current page index for paginator
   readonly currentIndex = computed(() => {
     const d = this.data();
-    if (!d || !d.section || !d.section.items) return 0;
-    const index = d.section.items.findIndex(i => i.id === d.item.id);
+    if (!d || !d.section || !d.section.children) return 0;
+    const index = d.section.children.findIndex((i: any) => i.id === d.item.id);
     return index >= 0 ? index : 0;
   });
 
@@ -87,7 +89,7 @@ export class Course {
       const d = this.data();
       if (d?.item) {
         console.log('Current item:', d.item);
-        console.log('Item type:', d.item.item_type);
+        console.log('Item type:', d.item.type);
       }
       this.dataSource.data = this.toc();
       this.treeControl.dataNodes = this.toc();
@@ -97,9 +99,9 @@ export class Course {
 
   goBack() {
     const d = this.data();
-    if (d && d.section && d.section.chapters && d.section.chapters.length > 0) {
+    if (d && d.section && d.section.children && d.section.children.length > 0) {
       // Navigate to the first parent chapter
-      this.router.navigate(['/chapter', d.section.chapters[0]]);
+      this.router.navigate(['/chapter', d.section.children[0]]);
     } else {
       // Fallback to simpler history back if no chapter context is found
       this.location.back();
@@ -108,10 +110,10 @@ export class Course {
 
   onPageChange(event: PageEvent) {
     const d = this.data();
-    if (!d || !d.section || !d.section.items) return;
+    if (!d || !d.section || !d.section.children) return;
 
     // MatPaginator index is 0-based, matches array index
-    const nextItem = d.section.items[event.pageIndex];
+    const nextItem = d.section.children[event.pageIndex] as any;
     if (nextItem) {
       this.router.navigate(['/course', nextItem.id]);
     }

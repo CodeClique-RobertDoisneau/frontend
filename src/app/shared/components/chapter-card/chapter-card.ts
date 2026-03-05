@@ -1,26 +1,9 @@
-import { ChangeDetectionStrategy, Component, input, effect, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { httpResource } from '@angular/common/http';
-
-
-export interface ChapterInfo {
-  id: number;
-  title: string;
-  description: string;
-  grade_level: string;
-  created_at: Date;
-  modified_at: Date;
-  sections: SectionInfo[];
-}
-
-
-export interface SectionInfo {
-  id: number;
-  title: string;
-  difficulty: number;
-}
+import { NodeInfo } from '../../services/node.service';
 
 @Component({
   selector: 'app-chapter-card',
@@ -30,7 +13,13 @@ export interface SectionInfo {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChapterCard {
-  id = input<number>();
+  id = input.required<number | string>();
 
-  chapterInfo = httpResource<ChapterInfo>(() => this.id() ? `/api/chapter/${this.id()}/` : undefined);
+  chapterInfo = httpResource<NodeInfo>(() => `/api/nodes/${this.id()}/`);
+
+  constructor() {
+    effect(() => {
+      const ch = this.chapterInfo.value();
+    });
+  }
 }

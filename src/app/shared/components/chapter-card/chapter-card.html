@@ -1,39 +1,33 @@
 @if (chapterInfo.isLoading()) {
-  <mat-card class="chapter-card skeleton" appearance="outlined">
-    <mat-card-header>
-      <mat-card-title>Chapitre X</mat-card-title>
-      <span class="material-symbols-outlined menu-icon"> </span>
-      <mat-card-subtitle>LYCEE</mat-card-subtitle>
-    </mat-card-header>
-
-    <mat-card-content>
-      <p> Chargement du chapitre... </p>
-    </mat-card-content>
-
-    <mat-card-actions>
-      <button matButton="outlined" disabled>Plan</button>
-      <button matButton="filled" disabled>Continuer</button>
-    </mat-card-actions>
+<mat-card class="chapter-card skeleton" appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>Chapitre...</mat-card-title>
+    <mat-card-subtitle>Chargement</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <p>Chargement du chapitre...</p>
+  </mat-card-content>
+  <mat-card-actions>
+    <button matButton="outlined" disabled>Voir</button>
+    <button matButton="filled" disabled>Continuer</button>
+  </mat-card-actions>
 </mat-card>
 } @else if (chapterInfo.value(); as chapter) {
-  <mat-card class="chapter-card" appearance="outlined">
-    <mat-card-header>
-      <mat-card-title>{{ chapter.title }}</mat-card-title>
-      <span class="material-symbols-outlined menu-icon"> </span>
-      <mat-card-subtitle>{{ chapter.grade_level }}</mat-card-subtitle>
-    </mat-card-header>
-
-    <mat-card-content>
-      <p>{{ chapter.description }}</p>
-    </mat-card-content>
-
-    <mat-card-actions>
-      <a matButton="outlined" [href]="'/chapter/' + chapter.id" >Voir</a>
-      <a matButton="filled" [href]="" disabled>Continuer</a>
-    </mat-card-actions>
-  </mat-card>
+<mat-card class="chapter-card" appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>{{ chapter.title }}</mat-card-title>
+    <mat-card-subtitle>{{ chapter.grade_level }}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <p>{{ chapter.description }}</p>
+  </mat-card-content>
+  <mat-card-actions>
+    <a matButton="outlined" [href]="'/chapter/' + chapter.id">Voir</a>
+    <a matButton="filled" href="" disabled>Continuer</a>
+  </mat-card-actions>
+</mat-card>
 } @else if (chapterInfo.error()) {
-  <div class="error-msg" role="alert">
-    Impossible de charger les chapitres. Veuillez réessayer plus tard.
-  </div>
+<div class="error-msg" role="alert">
+  Impossible de charger le chapitre.
+</div>
 }
