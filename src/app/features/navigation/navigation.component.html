@@ -4,10 +4,9 @@
       [mode]="(isHandset$ | async) ? 'over' : 'side'"
       [opened]="(isHandset$ | async) === false">
     <div class="sidenav-layout-wrapper">
-      <mat-toolbar>
-        <img src="img/CodeClique.svg" alt="App logo" class="logo">
-        <h1>CodeClique</h1>
-      </mat-toolbar>
+      <a routerLink="/" class="logo-wrapper">
+        <img src="img/CodeClique.webp" alt="App logo" class="logo">
+      </a>
       <mat-nav-list>
         <a mat-list-item routerLink="/dashboard" aria-label="Dashboard menu button">
           <mat-icon matListItemIcon>dashboard</mat-icon>
@@ -36,7 +35,7 @@
     </div>
   </mat-sidenav>
 
-  
+
   <mat-sidenav-content>
     <mat-toolbar color="primary">
       @if (isHandset$ | async) {
@@ -50,21 +49,16 @@
       }
       <span>{{ title() }}</span>
       <span class="toolbar-spacer"></span>
-      <button matIconButton aria-label="Theme toggle button" (click)="theming.toggle()">
-        <mat-icon>
-          @switch (theming.theme()) {
-            @case ('light') {
-              light_mode
-            }
-            @case ('dark') {
-              dark_mode
-            }
-            @default {
-              brightness_auto
-            }
-          }
-        </mat-icon>
-      </button>
+      <mat-button-toggle-group
+        [value]="theming.theme()"
+        (change)="theming.setTheme($event.value)"
+        hideSingleSelectionIndicator="true"
+        aria-label="Font Style"
+      >
+        <mat-button-toggle value="auto"><mat-icon>brightness_auto</mat-icon></mat-button-toggle>
+        <mat-button-toggle value="light"><mat-icon>brightness_low</mat-icon></mat-button-toggle>
+        <mat-button-toggle value="dark"><mat-icon>brightness_high</mat-icon></mat-button-toggle>
+      </mat-button-toggle-group>
     </mat-toolbar>
     <div class="main-container">
       <router-outlet /> 
