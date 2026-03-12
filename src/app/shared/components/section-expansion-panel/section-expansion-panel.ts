@@ -5,14 +5,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
-import { DatePipe, NgClass } from '@angular/common';
-import { RouterLink } from '@angular/router';
+// import { RouterLink } from '@angular/router';
 import { CourseService, Section, Item, NodeInfo } from '@shared/services/node.service';
 import { ChapterChild } from '@shared/components/chapter-child/chapter-child';
 
 @Component({
   selector: 'app-section-expansion-panel',
-  imports: [MatExpansionModule, MatListModule, MatIconModule, MatProgressBarModule, MatButtonModule, MatChipsModule, RouterLink, NgClass, forwardRef(() => ChapterChild)],
+  imports: [MatExpansionModule, MatListModule, MatIconModule, MatProgressBarModule, MatButtonModule, MatChipsModule, forwardRef(() => ChapterChild)],
   templateUrl: './section-expansion-panel.html',
   styleUrl: './section-expansion-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

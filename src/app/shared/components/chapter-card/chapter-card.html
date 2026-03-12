@@ -22,8 +22,8 @@
     <p>{{ chapter.description }}</p>
   </mat-card-content>
   <mat-card-actions>
-    <a matButton="outlined" [href]="'/chapter/' + chapter.id">Voir</a>
-    <a matButton="filled" href="" disabled>Continuer</a>
+    <a matButton="outlined" [routerLink]="['/chapter', chapter.id]">Voir</a>
+    <a matButton="filled" routerLink="" disabled>Continuer</a>
   </mat-card-actions>
 </mat-card>
 } @else if (chapterInfo.error()) {

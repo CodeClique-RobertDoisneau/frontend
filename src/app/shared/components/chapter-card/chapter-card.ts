@@ -4,10 +4,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { httpResource } from '@angular/common/http';
 import { NodeInfo } from '../../services/node.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-chapter-card',
-  imports: [CommonModule, MatCardModule, MatButtonModule],
+  imports: [CommonModule, MatCardModule, MatButtonModule, RouterLink],
   templateUrl: './chapter-card.html',
   styleUrl: './chapter-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

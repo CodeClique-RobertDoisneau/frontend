@@ -1,5 +1,5 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HorizontalSlider } from '@shared/components/horizontal-slider/horizontal-slider';
 import { SyllabusService, ClassGroupInfo } from '@shared/services/syllabus.service';
 import { NodeInfo } from '@shared/services/node.service';
@@ -29,7 +29,7 @@ interface GroupSyllabi {
 
 @Component({
   selector: 'app-courses-catalog',
-  imports: [HorizontalSlider, MatChipsModule, MatIconModule, MatSelectModule, MatFormFieldModule, RouterLink],
+  imports: [HorizontalSlider, MatChipsModule, MatIconModule, MatSelectModule, MatFormFieldModule],
   templateUrl: './courses-catalog.html',
   styleUrl: './courses-catalog.scss',
 })
