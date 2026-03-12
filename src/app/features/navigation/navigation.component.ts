@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import {
@@ -12,6 +12,7 @@ import {
 
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleGroup, MatButtonToggle } from '@angular/material/button-toggle';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
@@ -29,6 +30,8 @@ import { Theming } from '@shared/services/theming/theming';
   templateUrl: './navigation.component.html',
   styleUrl: './navigation.component.scss',
   imports: [
+    MatButtonToggleGroup,
+    MatButtonToggle,
     MatToolbarModule,
     MatButtonModule,
     MatSidenavModule,
