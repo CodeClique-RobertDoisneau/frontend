@@ -17,10 +17,10 @@
         <section class="section">
             <h3 class="footer-title">Ressources</h3>
             <nav class="footer-nav">
-                <a matButton href="dashboard">Dashboard</a>
-                <a matButton href="free-python-ide">Python en ligne</a>
-                <a matButton href="courses">Catalogue des cours</a>
-                <a matButton href="privacy-policy">Politique de confidentialité</a>
+                <a matButton routerLink="/dashboard">Dashboard</a>
+                <a matButton routerLink="/free-python-ide">Python en ligne</a>
+                <a matButton routerLink="/courses">Catalogue des cours</a>
+                <a matButton routerLink="/privacy-policy">Politique de confidentialité</a>
             </nav>
         </section>
 
@@ -34,8 +34,9 @@
             </div>
 
             <div class="brand-display">
-                <img src="img/CodeClique.svg" alt="CodeClique Logo" class="big-logo">
-                <h2 class="big-logo-text">CodeClique</h2>
+                <a routerLink="/" class="logo-wrapper">
+                    <img src="img/CodeClique.webp" alt="App logo" class="logo">
+                </a>
             </div>
         </section>
     </div>
