@@ -14,6 +14,7 @@ import { NestedTreeControl } from '@angular/cdk/tree';
 import { Location } from '@angular/common';
 import { CustomPaginatorIntl } from '@shared/providers/custom-paginator-intl';
 import { Pyodide } from '@shared/services/pyodide/pyodide';
+import { BreadcrumbService, BreadcrumbItem } from '@shared/services/breadcrumb.service';
 
 interface TocNode {
   name: string;
@@ -43,6 +44,7 @@ export class Course {
   private courseService = inject(CourseService);
   private location = inject(Location);
   private router = inject(Router);
+  private breadcrumbService = inject(BreadcrumbService);
 
   error = signal('');
   isVerifying = signal(false);
@@ -95,10 +97,21 @@ export class Course {
   });
 
   constructor() {
-    // Update tree data source when toc changes
+    // Update tree data source and breadcrumb when data changes
     effect(() => {
       const d = this.data();
       if (d?.item) {
+        // Build breadcrumb
+        const lastChapter = this.breadcrumbService.getLastChapter();
+        const crumbs: BreadcrumbItem[] = [];
+        
+        if (lastChapter) {
+          crumbs.push({ label: lastChapter.title, url: `/chapter/${lastChapter.id}` });
+        }
+        crumbs.push({ label: d.item.title });
+        this.breadcrumbService.setBreadcrumbs(crumbs);
+
+
         console.log('Current item:', d.item);
         console.log('Item type:', d.item.type);
       }
@@ -168,8 +181,6 @@ export class Course {
   hasChild = (_: number, node: TocNode) => !!node.children && node.children.length > 0;
 
   scrollToHeader(name: string) {
-    // Simple scroll by text content matching
-    // In a real app with marked, we might use slugs, but this works for "jump to header"
     const elements = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'));
     const target = elements.find(el => el.textContent?.trim() === name.trim());
     if (target) {
@@ -211,4 +222,3 @@ export class Course {
     return !!d?.item.user_progress?.done;
   });
 }
-

@@ -1,12 +1,8 @@
 <div class="course-container">
   @if (data(); as d) {
   <div class="content-layout">
-    <!-- Back FAB (Sticky Column) -->
-    <button mat-fab class="back-fab" (click)="goBack()" color="primary" aria-label="Go back">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-
     <!-- Main Content Column -->
+
     <main class="main-column">
       <h1 class="chapter-title">{{ d.item.title }}</h1>
 

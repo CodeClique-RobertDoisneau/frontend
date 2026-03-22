@@ -8,8 +8,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { forkJoin, of } from 'rxjs';
+import { BreadcrumbService } from '@shared/services/breadcrumb.service';
 
 const SUBJECT_LABELS: Record<string, string> = {
+
   'MA': 'Maths',
   'PH': 'Physique',
   'NS': 'NSI',
@@ -37,6 +39,8 @@ export class CoursesCatalog implements OnInit {
   private syllabusService = inject(SyllabusService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private breadcrumbService = inject(BreadcrumbService);
+
 
   // Données
   allSyllabi = signal<NodeInfo[]>([]);
@@ -90,7 +94,11 @@ export class CoursesCatalog implements OnInit {
   }
 
   ngOnInit() {
+    this.breadcrumbService.setBreadcrumbs([]);
+
     // Lire les query params
+
+
     this.route.queryParams.subscribe(params => {
       this.activeSubject.set(params['subject'] || null);
       this.activeGrade.set(params['grade'] || null);

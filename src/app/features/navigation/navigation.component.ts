@@ -22,7 +22,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
 
 
 import { Footer } from '@shared/components/footer/footer';
+import { Breadcrumb } from '@shared/components/breadcrumb/breadcrumb';
 import { Theming } from '@shared/services/theming/theming';
+
 
 @Component({
   selector: 'app-navigation',
@@ -38,7 +40,9 @@ import { Theming } from '@shared/services/theming/theming';
     RouterOutlet,
     RouterLink,
     Footer,
+    Breadcrumb,
   ]
+
 })
 export class NavigationComponent {
   private breakpointObserver = inject(BreakpointObserver);

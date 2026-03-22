@@ -5,22 +5,14 @@
   position: relative;
 }
 
-/* FAB Styling */
-/* FAB Styling */
-.back-fab {
-  /* Desktop: Sticky in grid column */
-  position: sticky;
-  top: 32px;
-  justify-self: center;
-  margin-top: 8px; /* Alignment tweak */
-  z-index: 100;
-}
 
 /* Layout */
+
 /* Layout */
 .content-layout {
   display: grid;
-  grid-template-columns: 80px 1fr 200px; /* FAB | Main | TOC */
+  grid-template-columns: 1fr 250px; /* Main | TOC */
+
   max-width: 1400px;
   margin: 0 auto;
   gap: 32px;
@@ -122,14 +114,8 @@
     padding-top: 80px; /* Space for FAB in absolute mode */
   }
   
-  .back-fab {
-    position: absolute;
-    top: 24px;
-    left: 24px;
-    margin: 0;
-  }
-
   .toc-sidebar {
+
     display: none; /* Hide TOC on small screens or move to drawer */
   }
 }
