@@ -1,54 +1,118 @@
-.horizontal {
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
+@use '../../../../_premium-mixins' as mixins;
 
-    p,
-    h3,
+.quiz-container {
+
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    padding: 24px;
+}
+
+.question-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.quiz-question-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--mat-sys-on-surface);
+
     mat-icon {
-        align-self: center;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+    }
+
+    h3 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.1rem;
     }
 }
 
-.quiz-container {
+.quiz-card {
+    @include mixins.premium-card;
+    padding: 24px;
+
+    
+    .question-text {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--mat-sys-on-surface);
+    }
+
+    .instruction-text {
+        font-size: 0.9rem;
+        font-style: italic;
+        color: var(--mat-sys-on-surface-variant);
+        margin-bottom: 24px;
+    }
+
+    .options-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 32px;
+    }
+
+    .option-item {
+        display: flex;
+        align-items: center;
+    }
+}
+
+.explanation-box {
     display: flex;
-    flex-direction: column;
-    gap: 3rem;
-}
+    gap: 16px;
+    background-color: #a9d4ff; // Bleu clair proche de l'image
+    padding: 20px;
+    border-radius: 12px;
+    color: #1a1c1e;
 
+    mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        color: #1a1c1e;
+    }
 
+    .explanation-content {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
 
-.correction {
-    border-radius: 0.5rem;
+        .explanation-label {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
 
-}
+        .explanation-text {
+            margin: 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
 
-
-
-.correction.wrong {
-    padding-right: 0.6rem;
-    padding-top: 0.3rem;
-    padding-bottom: 0.3rem;
-    background-color: rgba(255, 33, 33, 0.338);
-}
-
-
-
-.correction.correct {
-    padding-right: 0.6rem;
-    background-color: rgba(0, 255, 0, 0.338);
+        .answers-summary {
+            font-weight: 600;
+            margin-top: 4px;
+            opacity: 0.8;
+        }
+    }
 }
 
 .score-display {
+    @include mixins.premium-card;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
     margin-top: 2rem;
     padding: 1.5rem;
-    background: var(--mat-sys-surface-container-highest);
-    border-radius: 12px;
     align-items: center;
-    border: 1px solid var(--mat-sys-outline-variant);
+
 
     .score-text {
         font-size: 1.5rem;

@@ -1,3 +1,5 @@
+@use '../../../_premium-mixins' as mixins;
+
 .profile-container {
   display: flex;
   justify-content: center;
@@ -7,13 +9,13 @@
 }
 
 .profile-card {
+  @include mixins.premium-card;
   width: 100%;
   max-width: 520px;
   padding: 36px;
-  border-radius: 16px;
-  background: var(--mat-sys-surface-container);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
 }
+
+
 
 .profile-header {
   display: flex;
@@ -123,3 +125,39 @@ form {
     margin: 0 auto;
   }
 }
+
+.join-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+
+  mat-form-field {
+    flex: 1;
+  }
+
+.join-btn {
+    height: 54px;
+    border-radius: 12px;
+  }
+}
+
+.class-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.class-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--mat-sys-surface-container-low);
+
+  a {
+    font-size: 0.85rem;
+  }
+}
+
+

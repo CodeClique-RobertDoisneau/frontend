@@ -1,3 +1,5 @@
+@use '../../../_premium-mixins' as mixins;
+
 .connexion-container {
   display: flex;
   justify-content: center;
@@ -7,12 +9,11 @@
 }
 
 .connexion-card {
+  @include mixins.premium-card;
   width: 100%;
   max-width: 420px;
   padding: 40px 36px;
-  border-radius: 16px;
-  background: var(--mat-sys-surface-container);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+
 
   h1 {
     font-size: 1.75rem;

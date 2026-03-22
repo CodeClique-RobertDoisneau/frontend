@@ -87,4 +87,12 @@ export class AuthService {
   getUser(id: number | string): Observable<any> {
     return this.http.get(`${this.apiUrl}/users/${id}/`);
   }
+
+  /**
+   * Join a class group via a code.
+   */
+  joinClass(code: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/class-groups/join-code/${code}/`, null);
+  }
 }
+

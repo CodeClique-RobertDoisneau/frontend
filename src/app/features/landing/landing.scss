@@ -1,3 +1,5 @@
+@use '../../../_premium-mixins' as mixins;
+
 .landing-container {
   display: flex;
   flex-direction: column;
@@ -66,13 +68,14 @@
   }
 
   .feature-card {
+    @include mixins.premium-card;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
     
     &:hover {
       transform: translateY(-5px);
-      box-shadow: var(--mat-sys-elevation-level2);
     }
+
 
     .feature-icon-container {
         display: flex;

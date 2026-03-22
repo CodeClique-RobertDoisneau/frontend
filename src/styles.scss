@@ -102,3 +102,11 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
   line-height: normal;
 }
+
+/* Global design utilities */
+.premium-card {
+    background-color: var(--mat-sys-surface-container-lowest);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}

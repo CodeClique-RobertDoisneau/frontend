@@ -1,17 +1,19 @@
+@use '../../../_premium-mixins' as mixins;
+
 .features-section {
   padding: 24px;
 }
 
 .filters {
+  @include mixins.premium-card;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 16px;
   margin-bottom: 24px;
   padding: 16px;
-  border-radius: 12px;
-  background: var(--mat-sys-surface-container, rgba(0, 0, 0, 0.04));
 }
+
 
 .group-select {
   width: 200px;

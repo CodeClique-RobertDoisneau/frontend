@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -16,6 +16,7 @@ import { AuthService } from '@shared/services/auth.service';
   selector: 'app-profile',
   imports: [
     ReactiveFormsModule,
+    FormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
@@ -23,6 +24,7 @@ import { AuthService } from '@shared/services/auth.service';
     MatProgressSpinnerModule,
     MatCardModule,
     MatChipsModule,
+    RouterLink,
   ],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
@@ -45,6 +47,9 @@ export class Profile implements OnInit {
     last_name: [''],
     email: ['', [Validators.email]],
   });
+
+  joinCode = signal('');
+  isJoining = signal(false);
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -105,7 +110,7 @@ export class Profile implements OnInit {
     this.errorMessage.set('');
     this.successMessage.set('');
 
-    this.authService.updateMe(this.profileForm.value).subscribe({
+    this.authService.updateMe(this.profileForm.getRawValue()).subscribe({
       next: (user) => {
         this.user.set(user);
         this.isSaving.set(false);
@@ -125,5 +130,41 @@ export class Profile implements OnInit {
         }
       },
     });
+  }
+
+  onJoinClass() {
+    const code = this.joinCode().trim();
+    if (!code) return;
+
+    this.isJoining.set(true);
+    this.errorMessage.set('');
+    this.successMessage.set('');
+
+    this.authService.joinClass(code).subscribe({
+      next: (updatedUser) => {
+        this.user.set(updatedUser);
+        this.populateForm(updatedUser);
+        this.isJoining.set(false);
+        this.joinCode.set('');
+        this.successMessage.set('Vous avez rejoint la classe avec succès !');
+        setTimeout(() => this.successMessage.set(''), 3000);
+      },
+      error: (err) => {
+        this.isJoining.set(false);
+        if (err.status === 404) {
+          this.errorMessage.set("Code d'invitation invalide.");
+        } else if (err.status === 400) {
+          this.errorMessage.set(err.error?.detail || "Erreur lors de l'ajout à la classe.");
+        } else {
+          this.errorMessage.set("Une erreur est survenue.");
+        }
+      }
+    });
+  }
+
+  getGroupId(url: string): string {
+    if (!url) return '';
+    const parts = url.split('/').filter(p => !!p);
+    return parts[parts.length - 1];
   }
 }

@@ -4,53 +4,52 @@
     }
     @else if (formState(); as questions) {
     @for (question of questions; track question.question; let qIdx = $index) {
-    <section class="quiz-card" [class.is-answered]="userAnswers()[qIdx].includes(true)">
-        <header class="horizontal">
+    <div class="question-wrapper">
+        <header class="quiz-question-header">
             <mat-icon>quiz</mat-icon>
             <h3>Question {{ qIdx + 1 }}</h3>
         </header>
 
-        <p class="question-text"><strong>{{ question.question }}</strong></p>
+        <section class="quiz-card">
+            <p class="question-text">{{ question.question }}</p>
 
-        @if (question.instruction) {
-        <p class="instruction-text"><em>{{ question.instruction }}</em></p>
-        }
+            @if (question.instruction) {
+            <p class="instruction-text">{{ question.instruction }}</p>
+            }
 
-        <div class="options-list" role="group" [attr.aria-label]="question.question">
-            @for (option of question.options; track $index; let oIdx = $index) {
-            @let isChecked = userAnswers()[qIdx][oIdx];
-            @let correction = QuizCorrection()[qIdx]?.[0]?.[oIdx];
-
-            <div class="option-item">
-
-                @if (question.multiple_answers) {
-                <mat-checkbox [checked]="isChecked" [disabled]="quizSubmitted()"
-                    (change)="updateAnswer(qIdx, oIdx, true)">
-                    {{ option }}
-                </mat-checkbox>
-                } @else {
-                <mat-radio-button [checked]="isChecked" [disabled]="quizSubmitted()"
-                    (change)="updateAnswer(qIdx, oIdx, false)">
-                    {{ option }}
-                </mat-radio-button>
+            <div class="options-list" role="group">
+                @for (option of question.options; track $index; let oIdx = $index) {
+                @let isChecked = userAnswers()[qIdx][oIdx];
+                <div class="option-item">
+                    @if (question.multiple_answers) {
+                    <mat-checkbox [checked]="isChecked" [disabled]="quizSubmitted()"
+                        (change)="updateAnswer(qIdx, oIdx, true)">
+                        {{ option }}
+                    </mat-checkbox>
+                    } @else {
+                    <mat-radio-button [checked]="isChecked" [disabled]="quizSubmitted()"
+                        (change)="updateAnswer(qIdx, oIdx, false)">
+                        {{ option }}
+                    </mat-radio-button>
+                    }
+                </div>
                 }
+            </div>
+
+            @if (quizSubmitted() && QuizCorrection()[qIdx]) {
+            <div class="explanation-box">
+                <mat-icon>lightbulb_outline</mat-icon>
+                <div class="explanation-content">
+                    <span class="explanation-label">Correction</span>
+                    <p class="explanation-text">{{ QuizCorrection()[qIdx][1] }}</p>
+                    <small class="answers-summary">{{ getCorrectAnswersText(QuizCorrection()[qIdx][0]) }}</small>
+                </div>
             </div>
             }
-        </div>
-        @if (quizSubmitted() && QuizCorrection()[qIdx]) {
-        <div class="horizontal explanation-box"
-            style="margin-top: 1rem; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
-            <mat-icon color="accent">lightbulb</mat-icon>
-            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                <strong>{{ getCorrectAnswersText(QuizCorrection()[qIdx][0]) }}</strong>
-                @if (QuizCorrection()[qIdx][1]) {
-                <p>{{ QuizCorrection()[qIdx][1] }}</p>
-                }
-            </div>
-        </div>
-        }
-    </section>
+        </section>
+    </div>
     }
+
 
 
     <div class="quiz-actions">

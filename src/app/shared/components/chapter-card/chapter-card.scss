@@ -1,12 +1,16 @@
+@use '../../../../_premium-mixins' as mixins;
+
 :host {
   display: contents; // Necessary for subgrid to "see" the parent grid
 }
 
 .chapter-card {
+  @include mixins.premium-card;
   display: grid;
   grid-row: span 3;
   grid-template-rows: subgrid;
 }
+
 
 mat-card-actions {
   display: flex;

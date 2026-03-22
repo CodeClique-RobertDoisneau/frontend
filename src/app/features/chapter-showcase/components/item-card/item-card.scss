@@ -1,0 +1,68 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
+.item-card-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    text-decoration: none;
+    background-color: var(--mat-sys-surface-container-low);
+    border: 1px solid var(--mat-sys-outline-variant);
+    transition: all 0.2s ease;
+    color: var(--mat-sys-on-surface);
+
+    &:hover {
+        background-color: var(--mat-sys-surface-container);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+}
+
+.item-main-info {
+    display: flex;
+    align-items: center;
+}
+
+.item-icon {
+    margin-right: 16px;
+    color: var(--mat-sys-primary); // Bleu
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.item-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--mat-sys-on-surface);
+}
+
+.item-status-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.item-type-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    background-color: var(--mat-sys-primary-container); // Bleu clair
+    color: var(--mat-sys-on-primary-container);
+    padding: 2px 10px;
+    border-radius: 16px;
+    letter-spacing: 0.8px;
+}
+
+.status-icon {
+    color: var(--mat-sys-outline); // Gris par défaut
+    
+    &.done {
+        color: var(--mat-sys-tertiary); // Jaune (Variable M3)
+    }
+}

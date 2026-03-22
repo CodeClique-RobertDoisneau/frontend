@@ -69,15 +69,45 @@
         @if (user().class_groups?.length) {
           <div class="section">
             <h3>Classes</h3>
-            <mat-chip-set>
+            <div class="class-list">
               @for (cg of user().class_groups; track cg) {
-                <mat-chip>{{ cg }}</mat-chip>
+                <div class="class-item">
+                  <mat-chip>Classe #{{ getGroupId(cg) }}</mat-chip>
+                  <a mat-button color="primary" [routerLink]="['/courses']" [queryParams]="{group: getGroupId(cg)}">
+                    <mat-icon>visibility</mat-icon>
+                    Voir les cours associés
+                  </a>
+                </div>
               }
-            </mat-chip-set>
+            </div>
+          </div>
+        }
+
+
+        @if (isOwnProfile()) {
+          <div class="join-class-section section">
+            <h3>Rejoindre une classe</h3>
+            <div class="join-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Code d'invitation</mat-label>
+                <input matInput [ngModel]="joinCode()" (ngModelChange)="joinCode.set($event)" 
+                       [ngModelOptions]="{standalone: true}" placeholder="Ex: AB1234" [disabled]="isJoining()" />
+                <mat-icon matPrefix>vpn_key</mat-icon>
+              </mat-form-field>
+              <button mat-flat-button color="accent" type="button" class="join-btn"
+                      (click)="onJoinClass()" [disabled]="!joinCode() || isJoining()">
+                @if (isJoining()) {
+                  <mat-spinner diameter="22"></mat-spinner>
+                } @else {
+                  Rejoindre
+                }
+              </button>
+            </div>
           </div>
         }
 
         @if (errorMessage()) {
+
           <div class="error-banner">
             <mat-icon>error</mat-icon>
             <span>{{ errorMessage() }}</span>

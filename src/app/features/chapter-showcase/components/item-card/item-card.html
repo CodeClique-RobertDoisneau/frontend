@@ -1,0 +1,23 @@
+@if (itemInfo.isLoading()) {
+<div class="loading-container">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Chargement...</p>
+</div>
+} @else if (itemInfo.value(); as item) {
+<a class="item-card-link" [routerLink]="['/course', item.id]">
+    <div class="item-main-info">
+        <mat-icon class="item-icon">{{ typeIcon() }}</mat-icon>
+        <span class="item-title">{{ item.title }}</span>
+    </div>
+    <div class="item-status-group">
+        <span class="item-type-badge">{{ typeLabel() }}</span>
+        <mat-icon class="status-icon" [class.done]="isDone()">
+            {{ isDone() ? 'check_circle' : 'radio_button_unchecked' }}
+        </mat-icon>
+    </div>
+</a>
+
+
+} @else if (itemInfo.error()) {
+<div>Erreur de chargement</div>
+}
