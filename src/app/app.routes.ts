@@ -8,6 +8,11 @@ export const routes: Routes = [
     component: Landing,
   },
   {
+    title: 'Connexion',
+    path: 'connexion',
+    loadComponent: () => import('@features/connexion/connexion').then(m => m.Connexion)
+  },
+  {
     title: 'Dashboard',
     path: 'dashboard',
     loadComponent: () => import('@features/dashboard/dashboard').then(m => m.Dashboard)
@@ -57,7 +62,7 @@ export const routes: Routes = [
     path: 'error/:errorCode',
     loadComponent: () => import('@features/error/error').then(m => m.Error)
   },
-  { 
+  {
     title: 'Page non trouvée',
     path: '**',
     redirectTo: '/error/404'

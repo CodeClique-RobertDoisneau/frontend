@@ -1,0 +1,91 @@
+<!-- Login View -->
+@if (!showForgotPassword) {
+  <div class="connexion-container">
+    <div class="connexion-card">
+      <h1>Connexion</h1>
+      <p class="subtitle">Connectez-vous à votre compte CodeClique</p>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nom d'utilisateur</mat-label>
+          <input matInput formControlName="username" autocomplete="username" />
+          <mat-icon matPrefix>person</mat-icon>
+          @if (loginForm.get('username')?.hasError('required') && loginForm.get('username')?.touched) {
+            <mat-error>Le nom d'utilisateur est requis</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Mot de passe</mat-label>
+          <input matInput formControlName="password"
+                 [type]="showPassword ? 'text' : 'password'"
+                 autocomplete="current-password" />
+          <mat-icon matPrefix>lock</mat-icon>
+          <button mat-icon-button matSuffix type="button"
+                  (click)="showPassword = !showPassword"
+                  [attr.aria-label]="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
+            <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched) {
+            <mat-error>Le mot de passe est requis</mat-error>
+          }
+        </mat-form-field>
+
+        @if (errorMessage) {
+          <div class="error-banner">
+            <mat-icon>error</mat-icon>
+            <span>{{ errorMessage }}</span>
+          </div>
+        }
+
+        <button mat-flat-button color="primary" type="submit"
+                class="submit-btn full-width"
+                [disabled]="loginForm.invalid || isLoading">
+          @if (isLoading) {
+            <mat-spinner diameter="22"></mat-spinner>
+          } @else {
+            Se connecter
+          }
+        </button>
+      </form>
+
+      <button mat-button class="forgot-password-btn" (click)="showForgotPassword = true">
+        Mot de passe oublié ?
+      </button>
+    </div>
+  </div>
+}
+
+<!-- Forgot Password View -->
+@if (showForgotPassword) {
+  <div class="connexion-container">
+    <div class="connexion-card">
+      <h1>Mot de passe oublié</h1>
+      <p class="subtitle">Entrez votre adresse email pour recevoir un lien de réinitialisation</p>
+
+      <form [formGroup]="forgotPasswordForm">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Adresse email</mat-label>
+          <input matInput formControlName="email" type="email" autocomplete="email" />
+          <mat-icon matPrefix>email</mat-icon>
+          @if (forgotPasswordForm.get('email')?.hasError('required') && forgotPasswordForm.get('email')?.touched) {
+            <mat-error>L'email est requis</mat-error>
+          }
+          @if (forgotPasswordForm.get('email')?.hasError('email') && forgotPasswordForm.get('email')?.touched) {
+            <mat-error>Adresse email invalide</mat-error>
+          }
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" type="button"
+                class="submit-btn full-width" disabled>
+          Envoyer le lien (bientôt disponible)
+        </button>
+      </form>
+
+      <button mat-button class="forgot-password-btn" (click)="showForgotPassword = false">
+        <mat-icon>arrow_back</mat-icon>
+        Retour à la connexion
+      </button>
+    </div>
+  </div>
+}
