@@ -136,14 +136,22 @@ export class CoursesCatalog implements OnInit {
             this.allSyllabi.set(nodes);
             this.isLoading.set(false);
           },
-          error: () => {
-            this.error.set('Impossible de charger les cours.');
+          error: (err: any) => {
+            if (err.status === 403) {
+              this.error.set("Vous n'êtes pas autorisé à accéder à cette page.");
+            } else {
+              this.error.set('Impossible de charger les cours.');
+            }
             this.isLoading.set(false);
           }
         });
       },
-      error: () => {
-        this.error.set('Impossible de charger les groupes.');
+      error: (err: any) => {
+        if (err.status === 403) {
+          this.error.set("Vous n'êtes pas autorisé à accéder à cette page.");
+        } else {
+          this.error.set('Impossible de charger les groupes.');
+        }
         this.isLoading.set(false);
       }
     });

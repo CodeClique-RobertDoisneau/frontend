@@ -4,11 +4,13 @@
     <mat-spinner diameter="48"></mat-spinner>
     <p>Chargement du chapitre...</p>
   </div>
+  } @else if (chapterInfo.error()) {
+  <div class="loading-container">
+    <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: var(--mat-sys-error)">block</mat-icon>
+    <p>Vous n'êtes pas autorisé à accéder à cette page.</p>
+  </div>
   } @else if (chapterInfo.value(); as chapterData) {
   <div class="hero-section">
-    <button mat-fab class="back-fab" routerLink="/courses" color="primary" aria-label="Retour aux cours">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
 
     <div class="hero-content">
       <h1 class="chapter-title">{{ chapterData.title }}</h1>
@@ -17,11 +19,12 @@
       <div class="meta-chips">
         <mat-chip-set>
           <mat-chip class="grade-chip">
+            <mat-icon matChipAvatar>school</mat-icon>
             {{ chapterData.grade_level }}
           </mat-chip>
           <mat-chip>
             <mat-icon matChipAvatar>list</mat-icon>
-            {{ childIds().length }} éléments
+            {{ sectionIds().length }} éléments
           </mat-chip>
         </mat-chip-set>
       </div>
@@ -29,11 +32,11 @@
   </div>
 
   <div class="children-container">
-    <mat-accordion multi>
-      @for (childId of childIds(); track childId) {
-      <app-chapter-child [id]="childId"></app-chapter-child>
+    <mat-accordion multi class="sections-accordion">
+      @for (sectionId of sectionIds(); track sectionId) {
+      <app-section-card [id]="sectionId"></app-section-card>
       } @empty {
-      <div class="empty-message">Aucun contenu dans ce chapitre.</div>
+      <div class="empty-message">Aucune sections dans ce chapitre.</div>
       }
     </mat-accordion>
   </div>

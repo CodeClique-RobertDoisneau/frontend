@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy, input, inject, computed, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, inject, computed, effect, signal } from '@angular/core';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
-import { switchMap, map, tap } from 'rxjs/operators';
+import { switchMap, map, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,7 +14,6 @@ import { NestedTreeControl } from '@angular/cdk/tree';
 import { Location } from '@angular/common';
 import { CustomPaginatorIntl } from '@shared/providers/custom-paginator-intl';
 import { Pyodide } from '@shared/services/pyodide/pyodide';
-import { QuizComponent } from '@shared/components/quiz/quiz';
 
 interface TocNode {
   name: string;
@@ -29,8 +29,7 @@ interface TocNode {
     MatIconModule,
     MatPaginatorModule,
     MatTreeModule,
-    MarkdownViewer,
-    QuizComponent
+    MarkdownViewer
   ],
   templateUrl: './course.html',
   styleUrl: './course.scss',
@@ -44,6 +43,8 @@ export class Course {
   private courseService = inject(CourseService);
   private location = inject(Location);
   private router = inject(Router);
+
+  error = signal('');
 
   // Tree control for TOC
   treeControl = new NestedTreeControl<TocNode>((node: TocNode) => node.children);
@@ -64,6 +65,14 @@ export class Course {
         return this.courseService.getNode(sectionId).pipe(
           map((section: NodeInfo) => ({ item, section }))
         );
+      }),
+      catchError((err: any) => {
+        if (err.status === 403) {
+          this.error.set("Vous n'êtes pas autorisé à accéder à cette page.");
+        } else {
+          this.error.set('Erreur lors du chargement du cours.');
+        }
+        return of(null);
       })
     )
   );

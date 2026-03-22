@@ -18,12 +18,8 @@
       </div>
 
       <div class="content-wrapper">
-        @if (d.item.type === 'QU' || d.item.type === 'QUIZZ' || d.item.title.toLowerCase().includes('qui')) {
-        <app-quiz [quizData]="d.item.content"></app-quiz>
-        } @else {
         <app-markdown-viewer [markdown]="d.item.content?.data || ''" [pyodide]="this.pyodide"
           [packages]="['numpy']"></app-markdown-viewer>
-        }
       </div>
     </main>
 
@@ -59,6 +55,11 @@
       }
     </aside>
 
+  </div>
+  } @else if (error()) {
+  <div class="loading-container">
+    <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: var(--mat-sys-error)">block</mat-icon>
+    <p>{{ error() }}</p>
   </div>
   } @else {
   <div class="loading-container">
