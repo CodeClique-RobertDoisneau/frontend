@@ -10,16 +10,18 @@
             <h3>Question {{ qIdx + 1 }}</h3>
         </header>
 
-        <p class="question-text">{{ question.question }}</p>
+        <p class="question-text"><strong>{{ question.question }}</strong></p>
+
+        @if (question.instruction) {
+        <p class="instruction-text"><em>{{ question.instruction }}</em></p>
+        }
 
         <div class="options-list" role="group" [attr.aria-label]="question.question">
             @for (option of question.options; track $index; let oIdx = $index) {
             @let isChecked = userAnswers()[qIdx][oIdx];
             @let correction = QuizCorrection()[qIdx]?.[0]?.[oIdx];
 
-            <div class="option-item" [class.correction]="quizSubmitted() && QuizCorrection().length > 0"
-                [class.correct]="quizSubmitted() && QuizCorrection().length > 0 && isChecked === correction"
-                [class.wrong]="quizSubmitted() && QuizCorrection().length > 0 && isChecked !== correction">
+            <div class="option-item">
 
                 @if (question.multiple_answers) {
                 <mat-checkbox [checked]="isChecked" [disabled]="quizSubmitted()"
@@ -36,9 +38,15 @@
             }
         </div>
         @if (quizSubmitted() && QuizCorrection()[qIdx]) {
-        <div class="horizontal">
-            <mat-icon>info</mat-icon>
-            <p>{{ QuizCorrection()[qIdx][1] }}</p>
+        <div class="horizontal explanation-box"
+            style="margin-top: 1rem; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
+            <mat-icon color="accent">lightbulb</mat-icon>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <strong>{{ getCorrectAnswersText(QuizCorrection()[qIdx][0]) }}</strong>
+                @if (QuizCorrection()[qIdx][1]) {
+                <p>{{ QuizCorrection()[qIdx][1] }}</p>
+                }
+            </div>
         </div>
         }
     </section>
@@ -52,8 +60,15 @@
             @if (submitResource.isLoading()) { <mat-progress-bar mode="indeterminate"></mat-progress-bar> }
             Vérifier mes réponses
         </button>
+        } @else if (score() !== null) {
+        <div class="score-display">
+            <span class="score-text">Votre score : {{ score() }} / {{ maxScore() }}</span>
+            <mat-progress-bar mode="determinate" [value]="(score()! / maxScore()!) * 100" color="accent">
+            </mat-progress-bar>
+        </div>
         }
     </div>
+
     }
 
     @else if (quizResource.error()) {

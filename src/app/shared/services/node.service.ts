@@ -16,7 +16,14 @@ export interface NodeInfo {
   subject?: string;
   content?: any;
   children: any[];
+  user_progress?: {
+    done: boolean;
+    score?: number;
+    max_score?: number;
+    modified_at: string;
+  } | null;
 }
+
 
 export type Section = NodeInfo;
 export type Item = NodeInfo;
@@ -35,6 +42,11 @@ export class NodeService {
         return node;
       })
     );
+  }
+
+  verifyNode(id: string | number, submission: any = null): Observable<any> {
+    const payload = { submission };
+    return this.http.post<any>(`${this.apiUrl}/nodes/${id}/verif/`, payload);
   }
 }
 

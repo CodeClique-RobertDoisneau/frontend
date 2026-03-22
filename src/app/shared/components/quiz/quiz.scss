@@ -38,3 +38,28 @@
     padding-right: 0.6rem;
     background-color: rgba(0, 255, 0, 0.338);
 }
+
+.score-display {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--mat-sys-surface-container-highest);
+    border-radius: 12px;
+    align-items: center;
+    border: 1px solid var(--mat-sys-outline-variant);
+
+    .score-text {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--mat-sys-primary);
+    }
+    
+    mat-progress-bar {
+        height: 8px;
+        border-radius: 4px;
+        width: 100%;
+        max-width: 400px;
+    }
+}

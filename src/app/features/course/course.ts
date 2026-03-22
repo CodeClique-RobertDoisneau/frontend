@@ -45,6 +45,8 @@ export class Course {
   private router = inject(Router);
 
   error = signal('');
+  isVerifying = signal(false);
+  successMessage = signal('');
 
   // Tree control for TOC
   treeControl = new NestedTreeControl<TocNode>((node: TocNode) => node.children);
@@ -124,7 +126,42 @@ export class Course {
     // MatPaginator index is 0-based, matches array index
     const nextItem = d.section.children[event.pageIndex] as any;
     if (nextItem) {
-      this.router.navigate(['/course', nextItem.id]);
+      this.router.navigate(['/course', nextItem.id || nextItem]);
+    }
+  }
+
+  onVerify() {
+    this.isVerifying.set(true);
+    // For now, support lessons verification (empty submission). Quizzes and Exercises will need specific submissions later.
+    this.courseService.verifyNode(this.id()).subscribe({
+      next: (res) => {
+        this.isVerifying.set(false);
+        this.successMessage.set('Terminé !');
+        // Let user see success message for a brief moment before moving to next item
+        setTimeout(() => {
+          this.successMessage.set('');
+          this.goToNext();
+        }, 1500);
+      },
+      error: () => {
+        this.isVerifying.set(false);
+        this.error.set("Erreur lors de la validation.");
+      }
+    });
+  }
+
+  goToNext() {
+    const d = this.data();
+    if (!d || !d.section || !d.section.children) return;
+    const nextIndex = this.currentIndex() + 1;
+    if (nextIndex < d.section.children.length) {
+      const nextItem = d.section.children[nextIndex] as any;
+      if (nextItem) {
+        this.router.navigate(['/course', nextItem.id || nextItem]);
+      }
+    } else {
+      // Si fin de section, revenir au chapitre
+      this.goBack();
     }
   }
 
@@ -168,4 +205,10 @@ export class Course {
 
     return root.children || [];
   }
+
+  readonly isAlreadyFinished = computed(() => {
+    const d = this.data();
+    return !!d?.item.user_progress?.done;
+  });
 }
+
