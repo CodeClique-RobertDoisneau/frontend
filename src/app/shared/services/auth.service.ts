@@ -73,4 +73,18 @@ export class AuthService {
   getMe(): Observable<any> {
     return this.http.get(`${this.apiUrl}/users/me/`);
   }
+
+  /**
+   * Update the current user's profile.
+   */
+  updateMe(data: Record<string, any>): Observable<any> {
+    return this.http.put(`${this.apiUrl}/users/me/`, data);
+  }
+
+  /**
+   * Get a specific user by ID (admin only).
+   */
+  getUser(id: number | string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/users/${id}/`);
+  }
 }

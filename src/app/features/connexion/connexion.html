@@ -1,5 +1,5 @@
 <!-- Login View -->
-@if (!showForgotPassword) {
+@if (!showForgotPassword()) {
   <div class="connexion-container">
     <div class="connexion-card">
       <h1>Connexion</h1>
@@ -18,30 +18,30 @@
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Mot de passe</mat-label>
           <input matInput formControlName="password"
-                 [type]="showPassword ? 'text' : 'password'"
+                 [type]="showPassword() ? 'text' : 'password'"
                  autocomplete="current-password" />
           <mat-icon matPrefix>lock</mat-icon>
           <button mat-icon-button matSuffix type="button"
-                  (click)="showPassword = !showPassword"
-                  [attr.aria-label]="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
-            <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  (click)="showPassword.set(!showPassword())"
+                  [attr.aria-label]="showPassword() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
+            <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
           @if (loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched) {
             <mat-error>Le mot de passe est requis</mat-error>
           }
         </mat-form-field>
 
-        @if (errorMessage) {
+        @if (errorMessage()) {
           <div class="error-banner">
             <mat-icon>error</mat-icon>
-            <span>{{ errorMessage }}</span>
+            <span>{{ errorMessage() }}</span>
           </div>
         }
 
         <button mat-flat-button color="primary" type="submit"
                 class="submit-btn full-width"
-                [disabled]="loginForm.invalid || isLoading">
-          @if (isLoading) {
+                [disabled]="loginForm.invalid || isLoading()">
+          @if (isLoading()) {
             <mat-spinner diameter="22"></mat-spinner>
           } @else {
             Se connecter
@@ -49,7 +49,7 @@
         </button>
       </form>
 
-      <button mat-button class="forgot-password-btn" (click)="showForgotPassword = true">
+      <button mat-button class="forgot-password-btn" (click)="showForgotPassword.set(true)">
         Mot de passe oublié ?
       </button>
     </div>
@@ -57,7 +57,7 @@
 }
 
 <!-- Forgot Password View -->
-@if (showForgotPassword) {
+@if (showForgotPassword()) {
   <div class="connexion-container">
     <div class="connexion-card">
       <h1>Mot de passe oublié</h1>
@@ -82,7 +82,7 @@
         </button>
       </form>
 
-      <button mat-button class="forgot-password-btn" (click)="showForgotPassword = false">
+      <button mat-button class="forgot-password-btn" (click)="showForgotPassword.set(false)">
         <mat-icon>arrow_back</mat-icon>
         Retour à la connexion
       </button>

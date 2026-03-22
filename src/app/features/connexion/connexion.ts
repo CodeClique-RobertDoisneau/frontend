@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
@@ -29,10 +29,10 @@ export class Connexion {
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
 
-  showPassword = false;
-  showForgotPassword = false;
-  isLoading = false;
-  errorMessage = '';
+  showPassword = signal(false);
+  showForgotPassword = signal(false);
+  isLoading = signal(false);
+  errorMessage = signal('');
 
   /** The URL to redirect to after successful login */
   private redirectUrl = '/dashboard';
@@ -47,7 +47,6 @@ export class Connexion {
   });
 
   constructor() {
-    // Read ?next= query param for post-login redirect
     const next = this.route.snapshot.queryParamMap.get('next');
     if (next) {
       this.redirectUrl = next;
@@ -57,25 +56,24 @@ export class Connexion {
   onSubmit() {
     if (this.loginForm.invalid) return;
 
-    this.isLoading = true;
-    this.errorMessage = '';
+    this.isLoading.set(true);
+    this.errorMessage.set('');
 
     const { username, password } = this.loginForm.value;
 
     this.authService.login(username!, password!).subscribe({
       next: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.router.navigateByUrl(this.redirectUrl);
       },
       error: (err) => {
-        this.isLoading = false;
-        if (err.status === 400 || err.status === 403 || err.status === 200) {
-          // DRF login returns 200 with the login page HTML on failure
-          this.errorMessage = "Nom d'utilisateur ou mot de passe incorrect.";
+        this.isLoading.set(false);
+        if (err.status === 401 || err.message === 'Invalid credentials') {
+          this.errorMessage.set("Nom d'utilisateur ou mot de passe incorrect.");
         } else if (err.status === 0) {
-          this.errorMessage = 'Impossible de contacter le serveur. Vérifiez votre connexion.';
+          this.errorMessage.set('Impossible de contacter le serveur. Vérifiez votre connexion.');
         } else {
-          this.errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
+          this.errorMessage.set('Une erreur est survenue. Veuillez réessayer.');
         }
       },
     });

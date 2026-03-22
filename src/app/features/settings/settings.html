@@ -1,1 +1,15 @@
-<p>settings works!</p>
+<div class="settings-container">
+  <h1>Paramètres</h1>
+
+  <div class="settings-section">
+    <h3>Compte</h3>
+    <button mat-flat-button color="warn" (click)="onLogout()" [disabled]="isLoggingOut()">
+      @if (isLoggingOut()) {
+        <mat-spinner diameter="20"></mat-spinner>
+      } @else {
+        <mat-icon>logout</mat-icon>
+        Se déconnecter
+      }
+    </button>
+  </div>
+</div>
