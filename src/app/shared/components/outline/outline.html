@@ -1,18 +1,23 @@
 <div [class]="outlineType()" class="outline_div">
-    <div>
-        @if (outlineType()=="AIDE") {
-        <button mat-icon-button>
-            <div class="tittle_button">
-                <mat-icon>chevron_forward</mat-icon>
-                <h2>{{ outlineType() }}</h2>
-            </div>
-        </button>
+    <div class="header_container" (click)="toggleOutline()" style="cursor: pointer;">
+        @if (outlineType() === "AIDE") {
+            <mat-icon [class.is-collapsed]="!isOpen()">expand_more</mat-icon>
         }
-        @else {
         <h2>{{ outlineType() }}</h2> 
-        }     
     </div>
     
-    <p><ng-content></ng-content></p>
-    
+    <div [style.display]="isOpen() ? 'block' : 'none'" class="content-wrapper">
+        <remark id="markdown" [markdown]="markdown()" [processor]="processor()">
+            <ng-template [remarkTemplate]="'code'" let-node>
+                @if(node.lang === 'mermaid') {
+                    <app-mermaid-block [code]="node.value"/>
+                }
+                @else {
+                    <app-code-block [initialCode]="node.value" [language]="node.lang" [pyodide]="this.pyodide()" />
+                }
+            </ng-template>
+            <remark-katex *remarkTemplate="'math'; let node" [expr]="node.value" />
+            <remark-katex *remarkTemplate="'inlineMath'; let node" [expr]="node.value" />
+        </remark>
+    </div>
 </div>

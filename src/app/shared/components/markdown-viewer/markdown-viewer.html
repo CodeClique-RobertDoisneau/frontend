@@ -1,6 +1,16 @@
-<remark [markdown]="markdown()"  [processor]="processor">
-  <app-code-block *remarkTemplate="'code'; let node" [initialCode]="node.value" [language]="node.lang" [pyodide]="this.pyodide()" />
-  <remark-katex *remarkTemplate="'math'; let node" [expr]="node.value" />
-  <remark-katex *remarkTemplate="'inlineMath'; let node" [expr]="node.value" />
-  <app-outline *remarkTemplate="'outline'; let node" [outlineType]="node.attributes.outlineType ?? 'AIDE'" [content]="node" />
+<remark [markdown]="markdown()" [processor]="processor">
+  <ng-template [remarkTemplate]="'code'" let-node>
+    @if(node.lang === 'mermaid') {
+      <app-mermaid-block [code]="node.value"/>
+    } @else if (node.lang === 'math') {
+      <remark-katex [expr]="node.value" class="math-display" />
+    }
+    @else {
+      <app-code-block [initialCode]="node.value" [language]="node.lang" [pyodide]="this.pyodide()" />
+    }
+  </ng-template>
+  <remark-katex *remarkTemplate="'math'; let node" [expr]="node.value" class="math-display" />
+  <remark-katex *remarkTemplate="'inlineMath'; let node" [expr]="node.value" class="math-inline" />
+  <app-outline *remarkTemplate="'outline'; let node" [outlineType]="node.attributes.outlineType ?? 'AIDE'" [node]="node.children" [processor]="processor" />
+  <app-video-block *remarkTemplate="'video'; let node" [link]="node.attributes.link" />
 </remark>

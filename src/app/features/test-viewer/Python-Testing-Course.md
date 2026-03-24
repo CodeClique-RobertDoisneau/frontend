@@ -20,19 +20,27 @@ aire = x * y
 print(aire)
 ```
 
-Formule mathématique :
+## III / Mathématiques
 
-$$ E = mc^2 \quad \text{et} \quad \int_0^{2\pi} \sin(x) dx = 0 $$
+### Expression
 
-## III / Listes et boucles
+Avec `\displaystyle`:
+$$
+\displaystyle E = mc^2 \quad \text{et} \quad \int_0^{2\pi} \sin(x) \, dx = 0
+$$
 
-```python
-objets = ["fusée", "capteur", "moteur"]
-for i, objet in enumerate(objets, 1):
-    print(f"{i}. {objet}")
+Sans `\displaystyle`:
+$$
+E = mc^2 \quad \text{et} \quad \int_0^{2\pi} \sin(x) \, dx = 0
+$$
+
+### Math en ligne
+$f(x) = x^2 + 1$
+
+### Bloc de maths
+```math
+\int_0^{2\pi} \sin(x) \, dx = 0
 ```
-
-> Bloc de citation : *« Python est simple, mais puissant. »* — Guido van Rossum
 
 ## IV / Images et liens
 
@@ -50,18 +58,6 @@ Exemple de lien : [Documentation officielle de Python](https://docs.python.org/3
 | float | Nombre à virgule flottante | `3.14`    |
 | str   | Chaîne de caractères       | `"fusée"` |
 
-## VI / Fonctions et exceptions
-
-```python
-def diviser(a, b):
-    try:
-        return a / b
-    except ZeroDivisionError:
-        return float('inf')
-
-print(diviser(5, 0))
-```
-
 ## VII / Autres langages
 
 ```java
@@ -76,13 +72,11 @@ public class Main {
 echo "Hello world!"
 ```
 
-## VIII / Émojis et mise en forme mixte
+## VII / Mise en forme
 
 **Gras**, *italique*, ~~barré~~ et `code en ligne`
 
-Math en ligne : $ f(x) = x^2 + 1 $
-
-## IX / Librairies
+## VIII / Librairies
 
 ```python
 import numpy as np
@@ -94,7 +88,19 @@ y = np.sin(x)
 plt.plot(x,y)
 ```
 
+## IX / Graphes mermaid
+
+```mermaid
+graph TD
+    A[Début] --> B{Est-ce que ça marche ?}
+    B -- Oui --> C[Super !]
+    B -- Non --> D[On réessaie]
+    D --> A
+```
+
 ## X / Composants customs
+
+### Outlines
 
 :::outline{outlineType="REMARQUE"}
 Il faut apprendre ses cours !
@@ -102,8 +108,17 @@ Et être sage.
 Et travailler.
 Et manger ses légumes.
 Et respecter l'autorité.
+
+$$\int_0^{2\pi} \sin(x) \, dx = 0$$
 :::
 
 ::outline[Sinon pas de cadeaux à noël!]{outlineType="REMARQUE"}
 
 :outline[Imagine tu fais un test.]
+
+### Video
+
+::video{link="https://www.youtube-nocookie.com/embed/3_P-dxrNCq8?si=UDquzF6rLCU4YTBC"}
+
+### Quizz
+

@@ -38,6 +38,8 @@ def _fetch_last_plot():
         plt.close('all') 
         return img_str
     return None
+
+plt.show = lambda: None  # Override show to prevent blocking
 `;
 
 addEventListener('message', async ({ data }: { data: PyodideRequest }) => {

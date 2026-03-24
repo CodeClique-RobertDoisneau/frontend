@@ -1,4 +1,5 @@
 /* Markdown */
+/* Always encapsulate in remark to prevent style leakage */
 remark {
   margin: 1em;
 
@@ -67,6 +68,10 @@ remark {
   }
 
   /* Code */
+  code.language-plain {
+    background-color: var(--mat-sys-surface-variant);
+  }
+
   code {
     font-size: 0.9rem;
     background-color: var(--mat-sys-surface);
@@ -156,7 +161,9 @@ remark {
     background-color: var(--mat-sys-primary);
   }
 
-  // .math-expression {
-  //   text-align: center;
-  // }
+  /* Maths */
+  remark-katex.math-display {
+    display: block;
+    text-align: center;
+  }
 }

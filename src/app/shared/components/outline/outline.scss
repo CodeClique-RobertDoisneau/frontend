@@ -1,4 +1,16 @@
+.header_container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
 
+mat-icon {
+    transition: transform 0.2s ease-in-out;
+    &.is-collapsed {
+        transform: rotate(-90deg);
+    }
+}
 
 .outline_div {
     border-radius: 12px;
@@ -17,6 +29,7 @@ h2 {
     font-weight: 700;
     line-height: 50px; /* 250% */
     margin: 0;
+    padding: 0;
 }
 
 .tittle_button {
