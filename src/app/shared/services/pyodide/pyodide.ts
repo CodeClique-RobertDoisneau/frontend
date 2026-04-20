@@ -47,10 +47,9 @@ export class Pyodide implements OnDestroy {
     code: string, 
     onOutput?: (text: string) => void,
     onError?: (text: string) => void,
-    isRunningSignal?: WritableSignal<boolean>,
     onPlot?: (base64: string) => void,
     onInput?: (text: string) => void
-  ): string {
+  ): { executionId: string, isRunning: WritableSignal<boolean> } {
     if (!this.serviceWorkerRegistered || !this.webWorker || !this.isReadySignal()) {
       throw new Error('Pyodide is not ready yet.');
     }
@@ -60,22 +59,21 @@ export class Pyodide implements OnDestroy {
     }
 
     const executionId: string = crypto.randomUUID();
+    const isRunning = signal<boolean>(true);
 
     const handler: ExecutionHandler = {
       onOutput: onOutput,
       onError: onError,
-      isRunning: isRunningSignal,
+      isRunning: isRunning,
       onPlot: onPlot,
       onInput: onInput
     }
     this.executionHandlers.set(executionId, handler);
 
-    isRunningSignal?.set(true);
-
     const msg: PyodideRequest = { type: 'RUN', id: executionId, code };
     this.webWorker.postMessage(msg);
 
-    return executionId;
+    return { executionId, isRunning };
   }
 
   public interruptExecution(executionId: string): void {

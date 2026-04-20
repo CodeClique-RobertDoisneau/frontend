@@ -47,17 +47,16 @@ export class CodeBlock implements OnInit {
     this.error.set('');
     this.plot.set('');
 
-    this.executionId = engine.run(
+    const { executionId, isRunning } = engine.run(
       this.code(),
       (outText) => {
         if (!outText) return;
-        this.output.update(current => current + outText + '\n');
+        this.output.update(current => current + outText);
       },
       (errText) => {
         if (!errText) return;
-        this.error.set(errText);
+        this.error.update(current => current + errText);
       },
-      this.isRunning,
       (base64) => {
         if (!base64) return;
         this.plot.set(base64);
@@ -66,6 +65,9 @@ export class CodeBlock implements OnInit {
         this.waitingForInput.set(true);
       }
     );
+
+    this.executionId = executionId;
+    this.isRunning = isRunning;
   }
 
   submitInput(): void {
