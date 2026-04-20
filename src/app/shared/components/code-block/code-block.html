@@ -37,6 +37,26 @@
         <pre class="output-content">{{ output() }}</pre>
       </div>
     }
+    
+    @if (waitingForInput()) {
+      <div class="python-input">
+        <div class="input-header">
+          <span>In:</span>
+        </div>
+        <div class="input-container">
+          <input 
+            type="text" 
+            [(ngModel)]="userInput" 
+            (keyup.enter)="submitInput()" 
+            placeholder="Provide input..."
+            autofocus
+          />
+          <button matIconButton (click)="submitInput()">
+            <mat-icon>send</mat-icon>
+          </button>
+        </div>
+      </div>
+    }
 
     @if (error()) {
       <div class="python-error">

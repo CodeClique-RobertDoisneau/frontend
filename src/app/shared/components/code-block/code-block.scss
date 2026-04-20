@@ -38,6 +38,32 @@ code-editor {
       margin: 0;
     }
   }
+  .python-input {
+    display: flex;
+    align-items: center;
+    .input-header { padding: 1em 1em 1em 0; }
+    .input-container {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      gap: 0.5em;
+      
+      input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid var(--mat-sys-outline);
+        color: var(--mat-sys-on-surface);
+        padding: 0.5em;
+        font-family: 'Roboto Mono', monospace;
+        outline: none;
+        
+        &:focus {
+          border-bottom: 2px solid var(--mat-sys-primary);
+        }
+      }
+    }
+  }
   .python-error {
     color: var(--mat-sys-error);
     display: flex;

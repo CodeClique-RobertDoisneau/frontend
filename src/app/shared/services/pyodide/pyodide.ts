@@ -1,42 +1,49 @@
 import { Injectable, OnDestroy, signal, WritableSignal } from '@angular/core';
-import { PyodideRequest, PyodideResponse } from './pyodide.worker';
-
-interface ExecutionHandler {
-  onOutput?: (text: string) => void;
-  onError?: (text: string) => void;
-  isRunning?: WritableSignal<boolean>;
-  onPlot?: (base64: string) => void;
-}
+import { ExecutionHandler, PyodideRequest, PyodideResponse } from './pyodide.types';
 
 @Injectable()
 export class Pyodide implements OnDestroy {
-  private packages: string[] = [];
   private worker: Worker | null = null;
+  private initialPackages: string[] = [];
+  private executionHandlers = new Map<string, ExecutionHandler>();
+
   private interruptBuffer: Uint8Array | null = null;
   private interruptRequests: string[] = [];
-  private executionHandlers = new Map<string, ExecutionHandler>();
 
   private isReadySignal = signal<boolean>(false);
   public readonly isReady = this.isReadySignal.asReadonly();
 
   public init(packages?: string[]) {
     if (this.worker) return;
-    if (packages) this.packages = packages;
+    if (packages) this.initialPackages = packages;
 
-    this.initWorker(this.packages);
+    this.initWorker(this.initialPackages);
+    this.initServiceWorker();
   }
 
-  public resetWorker(packages?: string[]): void {
-    if (!this.worker) return;
-    if (packages) this.packages = packages;
+  private initServiceWorker() {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register(
+        new URL('./pyodide.sw.ts', import.meta.url),
+        { type: 'module', scope: '/' }
+      ).then((registration) => {
+        console.log('Pyodide Service Worker registered with scope:', registration.scope);
+      }).catch((error) => {
+        console.error('Pyodide Service Worker registration failed:', error);
+      });
+    }
+  }
 
+  public resetWorker(): void {
+    if (!this.worker) return;
+
+    // Terminate existing worker and clear state
     this.worker.terminate();
     this.worker = null;
-
     this.interruptBuffer = null;
-    
     this.isReadySignal.set(false);
-    this.initWorker(packages);
+
+    this.initWorker(this.initialPackages);
 
     this.executionHandlers.forEach((handler) => {
       handler.onError?.('Python environment reset.');
@@ -50,7 +57,8 @@ export class Pyodide implements OnDestroy {
     onOutput?: (text: string) => void,
     onError?: (text: string) => void,
     isRunningSignal?: WritableSignal<boolean>,
-    onPlot?: (base64: string) => void
+    onPlot?: (base64: string) => void,
+    onInput?: (text: string) => void
   ): string {
     if (!this.worker || !this.isReadySignal()) {
       throw new Error('Pyodide is not ready yet.');
@@ -66,7 +74,8 @@ export class Pyodide implements OnDestroy {
       onOutput: onOutput,
       onError: onError,
       isRunning: isRunningSignal,
-      onPlot: onPlot
+      onPlot: onPlot,
+      onInput: onInput
     }
     this.executionHandlers.set(executionId, handler);
 
@@ -94,6 +103,18 @@ export class Pyodide implements OnDestroy {
     }, 1000);
   }
 
+  public sendInput(executionId: string, value: string): void {
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'INPUT_RESPONSE',
+        id: executionId,
+        value: value + '\n'
+      });
+    } else {
+      console.error('Service Worker controller not available to send input.');
+    }
+  }
+
   private initWorker(packages: string[] = []) {
     try {
       this.worker = new Worker(new URL('./pyodide.worker.ts', import.meta.url), { type: 'module' });
@@ -116,8 +137,16 @@ export class Pyodide implements OnDestroy {
 
   private handleWorkerMessage({ data }: { data: PyodideResponse }) {
     switch (data.type) {
+      case 'LOADING':
+        this.isReadySignal.set(false);
+        break;
+
       case 'READY':
         this.isReadySignal.set(true);
+        break;
+
+      case 'RUN_STDIN_REQUEST':
+        this.executionHandlers.get(data.id)?.onInput?.('Input requested');
         break;
 
       case 'RUN_STDOUT':

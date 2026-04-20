@@ -31,6 +31,9 @@ export class CodeBlock implements OnInit {
   
   executionId: string | null = null;
   isRunning = signal<boolean>(false);
+  
+  waitingForInput = signal<boolean>(false);
+  userInput = signal<string>('');
 
   ngOnInit() {
     this.code.set(this.initialCode());
@@ -58,14 +61,27 @@ export class CodeBlock implements OnInit {
       (base64) => {
         if (!base64) return;
         this.plot.set(base64);
+      },
+      () => {
+        this.waitingForInput.set(true);
       }
     );
+  }
+
+  submitInput(): void {
+    const engine = this.pyodide();
+    if (!engine || !this.executionId) return;
+
+    engine.sendInput(this.executionId, this.userInput());
+    this.waitingForInput.set(false);
+    this.userInput.set('');
   }
 
   stop(): void {
     const engine = this.pyodide();
     if (!engine || !this.executionId) return;
     engine.interruptExecution(this.executionId);
+    this.waitingForInput.set(false);
   }
 
   reset(): void {
@@ -73,6 +89,7 @@ export class CodeBlock implements OnInit {
     this.output.set('');
     this.error.set('');
     this.plot.set('');
+    this.userInput.set('');
     this.code.set(this.initialCode());
   }
 
