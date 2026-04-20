@@ -4,8 +4,19 @@ Ce court document Markdown est conçu pour tester le **rendu du code Python**, d
 
 ## I / Bases
 
+Ecriture dans la sortie standard:
 ```python
 print("Hello world!")  # Commentaire simple
+```
+Ecriture dans la sortie d'erreur:
+```python
+import sys
+print("Ceci est une erreur", file=sys.stderr)
+```
+Lecture depuis l'entrée standard:
+```python
+age = input("Quel age avez-vous : ")
+print("Vous avez", age, "ans")
 ```
 
 Code en ligne : `a = b + c ** 2`
