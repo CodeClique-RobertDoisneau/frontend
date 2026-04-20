@@ -41,6 +41,7 @@ export type QuizResult = [boolean[], string][];
 
 export class QuizComponent {
   quizId = input<string | number | undefined>(undefined);
+  forceRestart = input<boolean>(false);
   // Bascule: `true` pour utiliser le système actuel en attendant le backend, `false` pour la nouvelle API
   useMockApi = false;
 
@@ -149,7 +150,7 @@ export class QuizComponent {
     // Restaurer l'état si déjà terminé (chargement initial)
     effect(() => {
       const resp = this.quizResource.value();
-      if (resp?.user_progress?.done) {
+      if (resp?.user_progress?.done && !this.forceRestart()) {
         untracked(() => {
           this.quizSubmitted.set(true);
           if (resp.user_progress.submission) {

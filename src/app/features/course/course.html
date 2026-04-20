@@ -25,7 +25,7 @@
             [ngModel]="editedContent()" 
             (ngModelChange)="editedContent.set($event)"
             [theme]="'dark'"
-            [language]="'markdown'"
+            [language]="d.item.type === 'QU' ? 'json' : 'markdown'"
             [languages]="languages">
           </code-editor>
         </div>
@@ -59,8 +59,22 @@
         </div>
 
         <div class="content-wrapper">
-          <app-markdown-viewer [markdown]="d.item.content?.data || ''" [pyodide]="this.pyodide"
-            [packages]="['numpy']"></app-markdown-viewer>
+          @if (d.item.type === 'QU' && !restartMode() && isAlreadyFinished() && !reviewMode()) {
+            <div class="success-banner" style="display: flex; flex-direction: column; align-items: center; padding: 2rem; text-align: center; background: rgba(0,0,0,0.2); border-radius: 8px;">
+              <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #4caf50; margin-bottom: 1rem;">stars</mat-icon>
+              <h2>Quiz Terminé !</h2>
+              <p>Vous avez déjà passé ce quiz.</p>
+              <div class="quiz-review-actions" style="margin-top: 1rem; display: flex; gap: 1rem;">
+                <button mat-flat-button color="primary" (click)="doReview()">Revoir mes résultats</button>
+                <button mat-stroked-button (click)="doRestart()">Refaire le quiz</button>
+              </div>
+            </div>
+          } @else if (d.item.type === 'QU') {
+            <app-quiz [quizId]="d.item.id" [forceRestart]="restartMode()"></app-quiz>
+          } @else {
+            <app-markdown-viewer [markdown]="d.item.content?.data || ''" [pyodide]="this.pyodide"
+              [packages]="['numpy']"></app-markdown-viewer>
+          }
         </div>
 
         @if (d.item.type === 'LE') {
