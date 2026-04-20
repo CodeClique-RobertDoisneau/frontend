@@ -1,7 +1,7 @@
-@use '../../../../../_premium-mixins' as mixins;
+@use 'components';
 
 mat-expansion-panel {
-    @include mixins.premium-card;
+    @include components.premium-card;
     margin-bottom: 24px;
 }
 

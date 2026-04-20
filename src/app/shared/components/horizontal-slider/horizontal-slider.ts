@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Persona } from '../persona/persona';
-import { NodeInfo } from '../../services/node.service';
+import { NodeInfo } from '@shared/services/node.service';
 import { httpResource } from '@angular/common/http';
 
 @Component({

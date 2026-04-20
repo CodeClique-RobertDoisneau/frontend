@@ -6,7 +6,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { CourseService, Item, Section, NodeInfo } from '../../shared/services/node.service';
+import { CourseService, Item, Section, NodeInfo } from '@shared/services/node.service';
 import { MarkdownViewer } from '@shared/components/markdown-viewer/markdown-viewer';
 import { MatPaginatorModule, PageEvent, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatTreeModule, MatTreeNestedDataSource } from '@angular/material/tree';
@@ -104,7 +104,7 @@ export class Course {
         // Build breadcrumb
         const lastChapter = this.breadcrumbService.getLastChapter();
         const crumbs: BreadcrumbItem[] = [];
-        
+
         if (lastChapter) {
           crumbs.push({ label: lastChapter.title, url: `/chapter/${lastChapter.id}` });
         }

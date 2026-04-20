@@ -1,4 +1,4 @@
-@use '../../../_premium-mixins' as mixins;
+@use 'components';
 
 .profile-container {
   display: flex;
@@ -9,7 +9,7 @@
 }
 
 .profile-card {
-  @include mixins.premium-card;
+  @include components.premium-card;
   width: 100%;
   max-width: 520px;
   padding: 36px;
@@ -135,7 +135,7 @@ form {
     flex: 1;
   }
 
-.join-btn {
+  .join-btn {
     height: 54px;
     border-radius: 12px;
   }
@@ -159,5 +159,3 @@ form {
     font-size: 0.85rem;
   }
 }
-
-

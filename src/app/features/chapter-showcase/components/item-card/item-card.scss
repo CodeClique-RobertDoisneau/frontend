@@ -19,7 +19,7 @@
     &:hover {
         background-color: var(--mat-sys-surface-container);
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 }
 
@@ -61,8 +61,8 @@
 
 .status-icon {
     color: var(--mat-sys-outline); // Gris par défaut
-    
+
     &.done {
-        color: var(--mat-sys-tertiary); // Jaune (Variable M3)
+        color: var(--mat-sys-primary); // Jaune (Variable M3)
     }
 }

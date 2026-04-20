@@ -1,4 +1,4 @@
-@use '../../../_premium-mixins' as mixins;
+@use 'components';
 
 .landing-container {
   display: flex;
@@ -10,7 +10,7 @@
   background-color: var(--mat-sys-surface-container-low);
   padding: 4rem 2rem;
   text-align: center;
-  
+
   .hero-content {
     max-width: 800px;
     margin: 0 auto;
@@ -38,7 +38,7 @@
       display: flex;
       gap: 1rem;
       justify-content: center;
-      
+
       button {
         padding: 0.5rem 1.5rem;
       }
@@ -68,19 +68,19 @@
   }
 
   .feature-card {
-    @include mixins.premium-card;
+    @include components.premium-card;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
-    
+
     &:hover {
       transform: translateY(-5px);
     }
 
 
     .feature-icon-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     mat-icon {

@@ -18,15 +18,16 @@ import { RemarkModule, KatexComponent } from 'ngx-remark';
 import { CodeBlock } from '@shared/components/code-block/code-block';
 import { Outline } from '@shared/components/outline/outline'
 import { Pyodide } from '@shared/services/pyodide/pyodide';
+import { QuizComponent } from '@shared/components/quiz/quiz';
 
 @Component({
   selector: 'app-markdown-viewer',
-  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, RemarkModule, KatexComponent, CodeBlock, Outline],
+  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, RemarkModule, KatexComponent, CodeBlock, Outline, QuizComponent],
   templateUrl: './markdown-viewer.html',
   styleUrls: ['./markdown-viewer.scss', './markdown.scss'],
   encapsulation: ViewEncapsulation.None, // Pour markdown.css
 })
-export class MarkdownViewer implements OnInit{
+export class MarkdownViewer implements OnInit {
   pyodide = input<Pyodide>();
   markdown = input<string>('');
   packages = input<string[]>([]);

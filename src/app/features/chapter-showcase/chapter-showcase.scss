@@ -67,6 +67,7 @@
 .meta-chips {
   display: flex;
   justify-content: center;
+  color: var(--mat-sys-on-surface-variant);
 }
 
 .menu-container {
@@ -82,4 +83,11 @@
 
 .children-container {
   margin-top: 3rem;
+}
+
+.empty-message {
+  padding: 16px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+  font-style: italic;
 }

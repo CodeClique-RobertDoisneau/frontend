@@ -1,11 +1,11 @@
-@use '../../../_premium-mixins' as mixins;
+@use 'components';
 
 .features-section {
   padding: 24px;
 }
 
 .filters {
-  @include mixins.premium-card;
+  @include components.premium-card;
   display: flex;
   flex-wrap: wrap;
   align-items: center;

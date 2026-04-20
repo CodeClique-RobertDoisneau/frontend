@@ -44,6 +44,11 @@
             "styles": [
               "src/styles.scss"
             ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/app/shared"
+              ]
+            },
             "externalDependencies": [
               "pyodide"
             ],

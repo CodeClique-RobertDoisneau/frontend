@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { httpResource } from '@angular/common/http';
-import { NodeInfo } from '../../services/node.service';
+import { NodeInfo } from '@shared/services/node.service';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -18,9 +18,4 @@ export class ChapterCard {
 
   chapterInfo = httpResource<NodeInfo>(() => `/api/nodes/${this.id()}/`);
 
-  constructor() {
-    effect(() => {
-      const ch = this.chapterInfo.value();
-    });
-  }
 }
