@@ -44,6 +44,10 @@ export class NodeService {
     );
   }
 
+  updateNodeContent(id: string | number, data: string): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/nodes/${id}/`, { content: { data } });
+  }
+
   verifyNode(id: string | number, submission: any = null): Observable<any> {
     const payload = { submission };
     return this.http.post<any>(`${this.apiUrl}/nodes/${id}/verif/`, payload);

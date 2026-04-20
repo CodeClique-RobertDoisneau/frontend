@@ -1,25 +1,45 @@
 import { Component, input, computed } from '@angular/core';
 import { httpResource } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { AuthService } from '@shared/services/auth.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { NodeInfo } from '@shared/services/node.service';
 import { MatDividerModule } from '@angular/material/divider';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 
 @Component({
   selector: 'app-item-card',
-  imports: [MatIconModule, MatChipsModule, MatDividerModule, RouterLink, MatButtonModule, MatProgressSpinnerModule],
+  imports: [MatIconModule, MatChipsModule, MatDividerModule, RouterLink, MatButtonModule, MatProgressSpinnerModule, MatTooltipModule],
   templateUrl: './item-card.html',
   styleUrl: './item-card.scss',
 })
 
 export class ItemCard {
   readonly id = input.required<string>();
+  
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   itemInfo = httpResource<NodeInfo>(() => `/api/nodes/${this.id()}/`);
+
+  isEditor = computed(() => {
+    const user = this.authService.currentUser();
+    return user && (user.role === 'TE' || user.role === 'AD');
+  });
+
+  onCardClick(event: Event, id: string | number) {
+    this.router.navigate(['/course', id]);
+  }
+
+  onEditClick(event: Event, id: string | number) {
+    event.stopPropagation();
+    this.router.navigate(['/course', id], { queryParams: { edit: 'true' } });
+  }
 
 
   typeIcon = computed(() => {

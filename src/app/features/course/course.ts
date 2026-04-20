@@ -4,8 +4,12 @@ import { switchMap, map, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { FormsModule } from '@angular/forms';
+import { CodeEditor } from '@acrodata/code-editor';
+import { languages } from '@codemirror/language-data';
 import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CourseService, Item, Section, NodeInfo } from '@shared/services/node.service';
 import { MarkdownViewer } from '@shared/components/markdown-viewer/markdown-viewer';
 import { MatPaginatorModule, PageEvent, MatPaginatorIntl } from '@angular/material/paginator';
@@ -15,6 +19,7 @@ import { Location } from '@angular/common';
 import { CustomPaginatorIntl } from '@shared/providers/custom-paginator-intl';
 import { Pyodide } from '@shared/services/pyodide/pyodide';
 import { BreadcrumbService, BreadcrumbItem } from '@shared/services/breadcrumb.service';
+import { AuthService } from '@shared/services/auth.service';
 
 interface TocNode {
   name: string;
@@ -30,6 +35,9 @@ interface TocNode {
     MatIconModule,
     MatPaginatorModule,
     MatTreeModule,
+    MatSidenavModule,
+    FormsModule,
+    CodeEditor,
     MarkdownViewer
   ],
   templateUrl: './course.html',
@@ -44,7 +52,20 @@ export class Course {
   private courseService = inject(CourseService);
   private location = inject(Location);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private breadcrumbService = inject(BreadcrumbService);
+  private authService = inject(AuthService);
+
+  languages = languages;
+  editMode = signal(false);
+  editedContent = signal('');
+  isSaving = signal(false);
+
+  // Compute isEditor dynamically based on role
+  readonly isEditor = computed(() => {
+    const user = this.authService.currentUser();
+    return user && (user.role === 'TE' || user.role === 'AD');
+  });
 
   error = signal('');
   isVerifying = signal(false);
@@ -119,6 +140,31 @@ export class Course {
       this.treeControl.dataNodes = this.toc();
       this.treeControl.expandAll(); // Default to expanded
     });
+    
+    // Ensure we have the user state for isEditor()
+    if (!this.authService.currentUser()) {
+        this.authService.getMe().subscribe();
+    }
+    
+    // Check initial queryParams for ?edit=true
+    this.route.queryParams.subscribe(params => {
+        const isEdit = params['edit'] === 'true';
+        this.editMode.set(isEdit);
+        if (isEdit) {
+            const d = this.data();
+            if (d?.item?.content?.data) {
+                this.editedContent.set(d.item.content.data);
+            }
+        }
+    });
+
+    // Also populate when data finally arrive while in editMode
+    effect(() => {
+        const d = this.data();
+        if (this.editMode() && d?.item?.content?.data && !this.editedContent()) {
+            this.editedContent.set(d.item.content.data);
+        }
+    });
   }
 
   goBack() {
@@ -161,6 +207,34 @@ export class Course {
         this.error.set("Erreur lors de la validation.");
       }
     });
+  }
+
+  toggleEditMode() {
+    const isEdit = !this.editMode();
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { edit: isEdit ? 'true' : null },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  saveContent() {
+    this.isSaving.set(true);
+    this.courseService.updateNodeContent(this.id(), this.editedContent()).subscribe({
+        next: (res) => {
+            this.isSaving.set(false);
+            // Quick reload of data or let user see. Ideally we'd update `this.data()` 
+            // but since it's an observable driven by `this.id`, forcing a refresh is complex.
+            // A simple page reload or routing to itself without query params works cleanly:
+            this.router.navigate([], { queryParams: { edit: null } }).then(() => {
+                window.location.reload();
+            });
+        },
+        error: () => {
+            this.isSaving.set(false);
+            this.error.set("Erreur lors de la sauvegarde.");
+        }
+    })
   }
 
   goToNext() {

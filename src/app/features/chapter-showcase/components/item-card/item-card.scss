@@ -3,7 +3,11 @@
     width: 100%;
 }
 
-.item-card-link {
+.item-card-container {
+    cursor: pointer;
+}
+
+.item-card-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -64,5 +68,17 @@
 
     &.done {
         color: var(--mat-sys-primary); // Jaune (Variable M3)
+    }
+}
+
+.edit-icon {
+    color: var(--mat-sys-primary);
+    cursor: pointer;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    transition: color 0.2s;
+    &:hover {
+        color: var(--mat-sys-on-surface);
     }
 }

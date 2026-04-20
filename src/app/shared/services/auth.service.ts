@@ -1,6 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, switchMap, catchError, throwError } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -66,12 +67,16 @@ export class AuthService {
     });
   }
 
+  currentUser = signal<any>(null);
+
   /**
    * Get the current authenticated user's info.
    * Returns user data if authenticated, 401/403 if not.
    */
   getMe(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/users/me/`);
+    return this.http.get(`${this.apiUrl}/users/me/`).pipe(
+      tap((user) => this.currentUser.set(user))
+    );
   }
 
   /**
