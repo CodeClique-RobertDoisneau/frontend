@@ -63,6 +63,7 @@ async function handleInit(data: Extract<PyodideRequest, { type: 'INIT' }>) {
     indexURL: '/pyodide',
     packages: initialPackages,
   });
+  await pyodide.runPythonAsync(`exit = lambda: None`);
 
   // Setup Interrupts
   if (data.buffer) {
@@ -98,11 +99,11 @@ async function handleRun(data: Extract<PyodideRequest, { type: 'RUN' }>) {
   pyodide.setStdin({
     stdin: () => {
       if (stdoutBuffer) {
-        respond({ type: 'RUN_STDOUT', id, text: stdoutBuffer });
+        respond({ type: 'RUN_STDOUT', id, text: stdoutBuffer + '\n' });
         stdoutBuffer = '';
       }
       if (stderrBuffer) {
-        respond({ type: 'RUN_STDERR', id, text: stderrBuffer });
+        respond({ type: 'RUN_STDERR', id, text: stderrBuffer + '\n' });
         stderrBuffer = '';
       }
 
