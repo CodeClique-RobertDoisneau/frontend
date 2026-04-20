@@ -92,9 +92,20 @@ async function handleRun(data: Extract<PyodideRequest, { type: 'RUN' }>) {
   // Reset interrupt buffer for this run
   if (interruptBuffer) interruptBuffer[0] = 0;
 
-  // Attach streams
+  let stdoutBuffer = '';
+  let stderrBuffer = '';
+
   pyodide.setStdin({
     stdin: () => {
+      if (stdoutBuffer) {
+        respond({ type: 'RUN_STDOUT', id, text: stdoutBuffer });
+        stdoutBuffer = '';
+      }
+      if (stderrBuffer) {
+        respond({ type: 'RUN_STDERR', id, text: stderrBuffer });
+        stderrBuffer = '';
+      }
+
       respond({ type: 'RUN_STDIN_REQUEST', id });
       
       const xhr = new XMLHttpRequest();
@@ -106,11 +117,25 @@ async function handleRun(data: Extract<PyodideRequest, { type: 'RUN' }>) {
   });
 
   pyodide.setStdout({
-    batched: (text) => respond({ type: 'RUN_STDOUT', id, text }),
+    raw: (code) => {
+      const char = String.fromCodePoint(code);
+      stdoutBuffer += char;
+      if (char === '\n') {
+        respond({ type: 'RUN_STDOUT', id, text: stdoutBuffer });
+        stdoutBuffer = '';
+      }
+    },
   });
 
   pyodide.setStderr({
-    batched: (text) => respond({ type: 'RUN_STDERR', id, text }),
+    raw: (code) => {
+      const char = String.fromCodePoint(code);
+      stderrBuffer += char;
+      if (char === '\n') {
+        respond({ type: 'RUN_STDERR', id, text: stderrBuffer });
+        stderrBuffer = '';
+      }
+    },
   });
 
   try {
@@ -131,6 +156,13 @@ async function handleRun(data: Extract<PyodideRequest, { type: 'RUN' }>) {
     respond({ type: 'RUN_SUCCESS', id });
   } catch (err) {
     respond({ type: 'RUN_ERROR', id, error: String(err) });
+  } finally {
+    if (stdoutBuffer) {
+      respond({ type: 'RUN_STDOUT', id, text: stdoutBuffer });
+    }
+    if (stderrBuffer) {
+      respond({ type: 'RUN_STDERR', id, text: stderrBuffer });
+    }
   }
 }
 
