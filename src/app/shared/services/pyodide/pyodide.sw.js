@@ -1,4 +1,9 @@
-// Pyodide Service Worker for Synchronous Stdin Interception
+// Pyodide Service Worker for Synchronous stdIn Interception
+// ---
+// The Web Worker sends a request for stdIn by fetching /__get_stdin__
+// This worker hangs the request until user inputs something
+// The component uses the pyodide service api which sends a message to this worker
+// This worker then resolves the request with the user input it got in the message
 
 const inputResolvers = new Map();
 

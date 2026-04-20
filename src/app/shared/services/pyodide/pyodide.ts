@@ -3,7 +3,8 @@ import { ExecutionHandler, PyodideRequest, PyodideResponse } from './pyodide.typ
 
 @Injectable()
 export class Pyodide implements OnDestroy {
-  private worker: Worker | null = null;
+  private webWorker: Worker | null = null;
+  private serviceWorkerRegistered = false;
   private initialPackages: string[] = [];
   private executionHandlers = new Map<string, ExecutionHandler>();
 
@@ -14,42 +15,32 @@ export class Pyodide implements OnDestroy {
   public readonly isReady = this.isReadySignal.asReadonly();
 
   public init(packages?: string[]) {
-    if (this.worker) return;
+    if (this.webWorker) return;
     if (packages) this.initialPackages = packages;
 
-    this.initWorker(this.initialPackages);
+    this.initWebWorker(this.initialPackages);
     this.initServiceWorker();
   }
 
-  private initServiceWorker() {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register(
-        new URL('./pyodide.sw.js', import.meta.url),
-        { type: 'module', scope: '/' }
-      ).then((registration) => {
-        console.log('Pyodide Service Worker registered with scope:', registration.scope);
-      }).catch((error) => {
-        console.error('Pyodide Service Worker registration failed:', error);
-      });
-    }
-  }
-
-  public resetWorker(): void {
-    if (!this.worker) return;
+  public reset(): void {
+    if (!this.webWorker) return;
 
     // Terminate existing worker and clear state
-    this.worker.terminate();
-    this.worker = null;
-    this.interruptBuffer = null;
-    this.isReadySignal.set(false);
-
-    this.initWorker(this.initialPackages);
-
+    this.webWorker.terminate();
+    this.webWorker = null;
     this.executionHandlers.forEach((handler) => {
       handler.onError?.('Python environment reset.');
       handler.isRunning?.set(false);
     });
     this.executionHandlers.clear();
+
+    this.interruptBuffer = null;
+    this.interruptRequests = [];
+
+    this.isReadySignal.set(false);
+
+    // Initialise workers again
+    this.init(this.initialPackages);
   }
 
   public run(
@@ -60,7 +51,7 @@ export class Pyodide implements OnDestroy {
     onPlot?: (base64: string) => void,
     onInput?: (text: string) => void
   ): string {
-    if (!this.worker || !this.isReadySignal()) {
+    if (!this.serviceWorkerRegistered || !this.webWorker || !this.isReadySignal()) {
       throw new Error('Pyodide is not ready yet.');
     }
 
@@ -82,7 +73,7 @@ export class Pyodide implements OnDestroy {
     isRunningSignal?.set(true);
 
     const msg: PyodideRequest = { type: 'RUN', id: executionId, code };
-    this.worker!.postMessage(msg);
+    this.webWorker.postMessage(msg);
 
     return executionId;
   }
@@ -99,7 +90,7 @@ export class Pyodide implements OnDestroy {
       const handler = this.executionHandlers.get(executionId);
       if (!handler) return;
       handler.onError?.('Interrupt signal ignored. Restarting kernel...');
-      this.resetWorker();
+      this.reset();
     }, 1000);
   }
 
@@ -115,23 +106,42 @@ export class Pyodide implements OnDestroy {
     }
   }
 
-  private initWorker(packages: string[] = []) {
+  private initWebWorker(packages: string[] = []) {
     try {
-      this.worker = new Worker(new URL('./pyodide.worker.ts', import.meta.url), { type: 'module' });
+      this.webWorker = new Worker(
+        new URL('./pyodide.worker.ts', import.meta.url),
+        { type: 'module' }
+      );
       
       try {
         const interruptSharedBuffer = new SharedArrayBuffer(1);
         this.interruptBuffer = new Uint8Array(interruptSharedBuffer);
         
-        this.worker.postMessage({ type: 'INIT', buffer: interruptSharedBuffer, packages });
+        this.webWorker.postMessage({ type: 'INIT', buffer: interruptSharedBuffer, packages });
       } catch {
         console.warn('SharedArrayBuffer is not available. Interrupts will not work.');
-        this.worker.postMessage({ type: 'INIT', buffer: null, packages });
+        this.webWorker.postMessage({ type: 'INIT', buffer: null, packages });
       }
 
-      this.worker.onmessage = this.handleWorkerMessage.bind(this);      
-    } catch {
-      console.error('Web Workers are not supported.');
+      this.webWorker.onmessage = this.handleWorkerMessage.bind(this);      
+    } catch (error) {
+      console.error('There was an error initialising the Web Worker: ', error);
+    }
+  }
+
+  private initServiceWorker() {
+    if (this.serviceWorkerRegistered || !('serviceWorker' in navigator)) return;
+
+    try {
+      this.serviceWorkerRegistered = true;
+      navigator.serviceWorker.register(
+        new URL('./pyodide.sw.js', import.meta.url),
+        { type: 'module', scope: '/' }
+      ).catch((error) => {
+        console.error('Pyodide Service Worker registration failed:', error);
+      });
+    } catch (error) {
+      console.error('There was an error initialising the Service Worker: ', error);
     }
   }
 
@@ -179,6 +189,6 @@ export class Pyodide implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.worker?.terminate();
+    this.webWorker?.terminate();
   }
 }
