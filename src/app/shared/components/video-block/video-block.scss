@@ -2,7 +2,7 @@
   display: flex;
   justify-content: center;
   iframe {
-    width: 50%;
+    width: max(300px,50%);
     aspect-ratio: 16/9;
   }
 }

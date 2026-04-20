@@ -101,7 +101,8 @@ remark {
 
   /* Images */
   img {
-    max-height: 200px;
+    width: max(300px, 40%);
+    max-height: 400px;
   }
   p:has(img){
     display: flex;

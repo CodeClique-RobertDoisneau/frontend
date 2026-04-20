@@ -6,7 +6,10 @@
         <h2>{{ outlineType() }}</h2> 
     </div>
     
-    <div [style.display]="isOpen() ? 'block' : 'none'" class="content-wrapper">
+    <div
+        [style.display]="(!isOpen() && outlineType() === 'AIDE') ? 'none' : 'block'"
+        class="content-wrapper"
+    >
         <remark id="markdown" [markdown]="markdown()" [processor]="processor()">
             <ng-template [remarkTemplate]="'code'" let-node>
                 @if(node.lang === 'mermaid') {
