@@ -48,9 +48,9 @@ export class NodeService {
     return this.http.patch<any>(`${this.apiUrl}/nodes/${id}/`, { content: { data } });
   }
 
-  verifyNode(id: string | number, submission: any = null): Observable<any> {
-    const payload = { submission };
-    return this.http.post<any>(`${this.apiUrl}/nodes/${id}/verif/`, payload);
+  verifyNode(id: string | number, submission: any = null, modified_at: string = ''): Observable<any> {
+    const payload = { answer: submission, modified_at };
+    return this.http.post<any>(`${this.apiUrl}/nodes/${id}/answer/`, payload);
   }
 }
 

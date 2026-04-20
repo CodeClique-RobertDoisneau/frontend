@@ -207,8 +207,14 @@ export class Course {
 
   onVerify() {
     this.isVerifying.set(true);
-    // For now, support lessons verification (empty submission). Quizzes and Exercises will need specific submissions later.
-    this.courseService.verifyNode(this.id()).subscribe({
+    // For now, support lessons verification (empty submission).
+    const d = this.data();
+    if (!d) {
+        this.isVerifying.set(false);
+        return;
+    }
+    
+    this.courseService.verifyNode(this.id(), null, d.item.modified_at).subscribe({
       next: (res) => {
         this.isVerifying.set(false);
         this.successMessage.set('Terminé !');

@@ -33,7 +33,12 @@
       
       <mat-sidenav-content class="edit-sidenav-content">
         <div class="content-wrapper preview-wrapper">
-          <app-markdown-viewer [markdown]="editedContent()" [pyodide]="this.pyodide" [packages]="['numpy']"></app-markdown-viewer>
+          @if (d.item.type === 'QU') {
+            <!-- L'aperçu d'un quiz se recharge en direct avec le json tapé grâce à previewData -->
+            <app-quiz [quizId]="d.item.id" [previewData]="editedContent()" [forceRestart]="true"></app-quiz>
+          } @else {
+            <app-markdown-viewer [markdown]="editedContent()" [pyodide]="this.pyodide" [packages]="['numpy']"></app-markdown-viewer>
+          }
         </div>
       </mat-sidenav-content>
     </mat-sidenav-container>

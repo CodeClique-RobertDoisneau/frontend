@@ -1,4 +1,4 @@
-import { Component, signal, input, inject, OnInit } from '@angular/core';
+import { Component, signal, input, inject, OnInit, effect, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -32,8 +32,14 @@ export class CodeBlock implements OnInit {
   executionId: string | null = null;
   isRunning = signal<boolean>(false);
 
+  constructor() {
+    effect(() => {
+      const initCode = this.initialCode();
+      untracked(() => this.code.set(initCode));
+    });
+  }
+
   ngOnInit() {
-    this.code.set(this.initialCode());
   }
 
   run(): void {

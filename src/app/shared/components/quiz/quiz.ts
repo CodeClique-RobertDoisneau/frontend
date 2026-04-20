@@ -42,10 +42,12 @@ export type QuizResult = [boolean[], string][];
 export class QuizComponent {
   quizId = input<string | number | undefined>(undefined);
   forceRestart = input<boolean>(false);
+  previewData = input<string | null>(null);
   // Bascule: `true` pour utiliser le système actuel en attendant le backend, `false` pour la nouvelle API
   useMockApi = false;
 
   quizResource = httpResource<any>(() => {
+    if (this.previewData()) return undefined; // Pas besoin d'appeler l'API si previewData est là
     const id = this.quizId();
     if (!id) return undefined;
 
@@ -63,11 +65,22 @@ export class QuizComponent {
 
   // 1. On parse la donnée UNE SEULE FOIS de manière centralisée
   parsedQuizData = computed(() => {
-    const resp = this.quizResource.value();
-    if (!resp?.content) return null;
+    let rawContent: any = null;
+    const preview = this.previewData();
+
+    if (preview) {
+      try {
+        rawContent = JSON.parse(preview);
+      } catch (e) {
+        return null;
+      }
+    } else {
+      const resp = this.quizResource.value();
+      if (!resp?.content) return null;
+      rawContent = resp.content || resp;
+    }
 
     try {
-      const rawContent: any = resp.content || resp;
       let items: QuizItem[] = [];
 
       // Nouvelle structure: le tableau de questions est dans .quiz
@@ -195,11 +208,14 @@ export class QuizComponent {
     if (!this.quizSubmitted()) return undefined;
     const id = this.quizId();
     if (!id) return undefined;
+    
+    const node = this.quizResource.value();
+    const modified_at = node?.modified_at;
 
     return {
-      url: `/api/nodes/${id}/verif/`,
+      url: `/api/nodes/${id}/answer/`,
       method: 'POST',
-      body: { submission: this.userAnswers() }
+      body: { answer: this.userAnswers(), modified_at }
     } as HttpResourceRequest;
   });
 
