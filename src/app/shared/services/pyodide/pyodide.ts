@@ -24,7 +24,7 @@ export class Pyodide implements OnDestroy {
   private initServiceWorker() {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register(
-        new URL('./pyodide.sw.ts', import.meta.url),
+        new URL('./pyodide.sw.js', import.meta.url),
         { type: 'module', scope: '/' }
       ).then((registration) => {
         console.log('Pyodide Service Worker registered with scope:', registration.scope);
