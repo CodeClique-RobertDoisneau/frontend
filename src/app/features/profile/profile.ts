@@ -162,9 +162,18 @@ export class Profile implements OnInit {
     });
   }
 
-  getGroupId(url: string): string {
-    if (!url) return '';
-    const parts = url.split('/').filter(p => !!p);
-    return parts[parts.length - 1];
+  getGroupId(urlOrId: any): string {
+    if (!urlOrId) return '';
+    if (typeof urlOrId === 'object') {
+      urlOrId = urlOrId.id || urlOrId.url || urlOrId;
+    }
+    if (typeof urlOrId === 'number') {
+      return urlOrId.toString();
+    }
+    if (typeof urlOrId === 'string') {
+      const parts = urlOrId.split('/').filter(p => !!p);
+      return parts[parts.length - 1];
+    }
+    return String(urlOrId);
   }
 }

@@ -28,7 +28,10 @@ export class HorizontalSlider {
 
 
   getChapterId(child: any): string {
-    return typeof child === 'object' ? child.id : child;
+    if (typeof child === 'object') {
+      return (child.child && child.child.id) ? child.child.id : child.id;
+    }
+    return child;
   }
 
 

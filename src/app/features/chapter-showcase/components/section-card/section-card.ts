@@ -25,7 +25,12 @@ export class SectionCard {
       const node = this.sectionInfo.value();
       if (!node || !node.children) return [];
       return node.children.map(
-        (child: any) => typeof child === 'object' ? child.id : child
+        (child: any) => {
+          if (typeof child === 'object') {
+            return (child.child && child.child.id) ? child.child.id : child.id;
+          }
+          return child;
+        }
       );
     }
   );

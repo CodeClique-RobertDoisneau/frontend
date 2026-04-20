@@ -90,7 +90,7 @@
             <div class="join-row">
               <mat-form-field appearance="outline">
                 <mat-label>Code d'invitation</mat-label>
-                <input matInput [ngModel]="joinCode()" (ngModelChange)="joinCode.set($event)" 
+                <input matInput name="joinCode" [ngModel]="joinCode()" (ngModelChange)="joinCode.set($event)" 
                        [ngModelOptions]="{standalone: true}" placeholder="Ex: AB1234" [disabled]="isJoining()" />
                 <mat-icon matPrefix>vpn_key</mat-icon>
               </mat-form-field>

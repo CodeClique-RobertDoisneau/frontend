@@ -49,9 +49,18 @@ export class SyllabusService {
     /**
      * Extrait l'ID numérique d'une URL de type "http://backend:3000/api/xxx/42/".
      */
-    private extractId(url: string): number {
-        const parts = url.replace(/\/$/, '').split('/');
-        return parseInt(parts[parts.length - 1], 10);
+    private extractId(urlOrId: any): number {
+        if (!urlOrId) return 0;
+        if (typeof urlOrId === 'number') return urlOrId;
+        if (typeof urlOrId === 'object') {
+            urlOrId = urlOrId.node || urlOrId.class_group || urlOrId.id || urlOrId.url || urlOrId;
+        }
+        if (typeof urlOrId === 'number') return urlOrId;
+        if (typeof urlOrId === 'string') {
+            const parts = urlOrId.replace(/\/$/, '').split('/');
+            return parseInt(parts[parts.length - 1], 10);
+        }
+        return Number(urlOrId) || 0;
     }
 
     /**
@@ -114,7 +123,7 @@ export class SyllabusService {
         );
     }
 
-    extractIdPublic(url: string): number {
-        return this.extractId(url);
+    extractIdPublic(urlOrId: any): number {
+        return this.extractId(urlOrId);
     }
 }

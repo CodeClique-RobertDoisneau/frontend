@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { forkJoin, of } from 'rxjs';
 import { BreadcrumbService } from '@shared/services/breadcrumb.service';
+import { AuthService } from '@shared/services/auth.service';
 
 const SUBJECT_LABELS: Record<string, string> = {
 
@@ -40,6 +41,7 @@ export class CoursesCatalog implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private breadcrumbService = inject(BreadcrumbService);
+  private authService = inject(AuthService);
 
 
   // Données
@@ -96,70 +98,63 @@ export class CoursesCatalog implements OnInit {
   ngOnInit() {
     this.breadcrumbService.setBreadcrumbs([]);
 
-    // Lire les query params
-
-
     this.route.queryParams.subscribe(params => {
       this.activeSubject.set(params['subject'] || null);
       this.activeGrade.set(params['grade'] || null);
       this.activeGroupId.set(params['group'] ? Number(params['group']) : null);
     });
 
-    // Charger les class groups + syllabi
-    this.syllabusService.getUserClassGroups(1).subscribe({
-      next: (groups: ClassGroupInfo[]) => {
-        this.classGroups.set(groups);
+    this.authService.getMe().subscribe({
+      next: (user: any) => {
+        const userId = user.id;
 
-        // Construire le mapping groupId → syllabusIds et charger tous les syllabi
-        const mappings: GroupSyllabi[] = [];
-        const allSyllabusIds = new Set<number>();
+        this.syllabusService.getUserClassGroups(userId).subscribe({
+          next: (groups: ClassGroupInfo[]) => {
+            this.classGroups.set(groups);
 
-        for (const group of groups) {
-          const ids = (group.syllabus || []).map(url => this.syllabusService.extractIdPublic(url));
-          mappings.push({ groupId: group.id, syllabusIds: ids });
-          ids.forEach(id => allSyllabusIds.add(id));
-        }
-        this.groupSyllabiMap.set(mappings);
+            const mappings: GroupSyllabi[] = [];
+            const allSyllabusIds = new Set<number>();
 
-        if (allSyllabusIds.size === 0) {
-          this.allSyllabi.set([]);
-          this.isLoading.set(false);
-          return;
-        }
+            for (const group of groups) {
+              const ids = (group.syllabus || []).map((url: any) => this.syllabusService.extractIdPublic(url));
+              mappings.push({ groupId: group.id, syllabusIds: ids });
+              ids.forEach((id: number) => allSyllabusIds.add(id));
+            }
+            this.groupSyllabiMap.set(mappings);
 
-        // Charger tous les syllabi uniques
-        const nodeService = this.syllabusService;
-        forkJoin(
-          [...allSyllabusIds].map(id =>
-            this.syllabusService.getClassGroupSyllabi(
-              // On a déjà les IDs, on va utiliser getUserSyllabi pour tout charger
-              groups[0].id // placeholder — on charge tout via getUserSyllabi
-            )
-          )
-        );
+            if (allSyllabusIds.size === 0) {
+              this.allSyllabi.set([]);
+              this.isLoading.set(false);
+              return;
+            }
 
-        // Plus simple : utiliser getUserSyllabi qui charge tout
-        this.syllabusService.getUserSyllabi(1).subscribe({
-          next: (nodes: NodeInfo[]) => {
-            this.allSyllabi.set(nodes);
-            this.isLoading.set(false);
+            this.syllabusService.getUserSyllabi(userId).subscribe({
+              next: (nodes: NodeInfo[]) => {
+                this.allSyllabi.set(nodes);
+                this.isLoading.set(false);
+              },
+              error: (err: any) => {
+                if (err.status === 403) {
+                  this.error.set("Vous n'êtes pas autorisé à accéder à cette page.");
+                } else {
+                  this.error.set('Impossible de charger les cours.');
+                }
+                this.isLoading.set(false);
+              }
+            });
           },
           error: (err: any) => {
             if (err.status === 403) {
               this.error.set("Vous n'êtes pas autorisé à accéder à cette page.");
             } else {
-              this.error.set('Impossible de charger les cours.');
+              this.error.set('Impossible de charger les groupes.');
             }
             this.isLoading.set(false);
           }
         });
       },
-      error: (err: any) => {
-        if (err.status === 403) {
-          this.error.set("Vous n'êtes pas autorisé à accéder à cette page.");
-        } else {
-          this.error.set('Impossible de charger les groupes.');
-        }
+      error: () => {
+        this.error.set("Veuillez vous connecter pour voir vos cours.");
         this.isLoading.set(false);
       }
     });

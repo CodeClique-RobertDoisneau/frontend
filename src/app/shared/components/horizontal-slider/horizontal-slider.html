@@ -5,7 +5,7 @@
 } @else if (nodeInfo.value(); as node) {
 <div class="slider-wrapper">
   @if (showLeftArrow()) {
-  <button matIconButton class="nav-btn left" (click)="scroll(-400)">
+  <button mat-icon-button class="nav-btn left" (click)="scroll(-400)">
     <mat-icon>chevron_left</mat-icon>
   </button>
   }
@@ -19,7 +19,7 @@
   </div>
 
   @if (showRightArrow()) {
-  <button matIconButton class="nav-btn right" (click)="scroll(400)">
+  <button mat-icon-button class="nav-btn right" (click)="scroll(400)">
     <mat-icon>chevron_right</mat-icon>
   </button>
   }
