@@ -3,4 +3,11 @@
   <remark-katex *remarkTemplate="'math'; let node" [expr]="node.value" />
   <remark-katex *remarkTemplate="'inlineMath'; let node" [expr]="node.value" />
   <app-outline *remarkTemplate="'outline'; let node" [outlineType]="node.attributes.outlineType ?? 'AIDE'" [content]="node" />
+  <iframe *remarkTemplate="'safeIframe'; let node"
+          [src]="trustUrl(node.src)"
+          [width]="node.width"
+          [height]="node.height"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
 </remark>
