@@ -2,155 +2,153 @@
   @if (data(); as d) {
 
   @if (editMode()) {
-    <mat-sidenav-container class="edit-sidenav-container">
-      <mat-sidenav mode="side" opened class="edit-sidenav">
-        <div class="edit-toolbar">
-          <h3 class="edit-title">Éditeur</h3>
-          <div class="edit-actions">
-            <button mat-button class="save-btn" color="primary" (click)="saveContent()" [disabled]="isSaving()">
-              @if (isSaving()) {
-                <mat-spinner diameter="20"></mat-spinner>
-              } @else {
-                <span>Enregistrer</span>
-              }
-            </button>
-            <button mat-icon-button (click)="toggleEditMode()" aria-label="Cancel">
-              <mat-icon>close</mat-icon>
-            </button>
-          </div>
-        </div>
-        <div class="editor-wrapper">
-          <code-editor 
-            class="code-editor" 
-            [ngModel]="editedContent()" 
-            (ngModelChange)="editedContent.set($event)"
-            [theme]="'dark'"
-            [language]="d.item.type === 'QU' ? 'json' : 'markdown'"
-            [languages]="languages">
-          </code-editor>
-        </div>
-      </mat-sidenav>
-      
-      <mat-sidenav-content class="edit-sidenav-content">
-        <div class="content-wrapper preview-wrapper">
-          @if (d.item.type === 'QU') {
-            <!-- L'aperçu d'un quiz se recharge en direct avec le json tapé grâce à previewData -->
-            <app-quiz [quizId]="d.item.id" [previewData]="editedContent()" [forceRestart]="true" [forceValidated]="true"></app-quiz>
-          } @else {
-            <app-markdown-viewer [markdown]="editedContent()" [pyodide]="this.pyodide" [packages]="['numpy']"></app-markdown-viewer>
-          }
-        </div>
-      </mat-sidenav-content>
-    </mat-sidenav-container>
-  } @else {
-    <div class="content-layout">
-      <!-- Main Content Column -->
-
-      <main class="main-column">
-        <div class="title-row">
-          <h1 class="chapter-title">{{ d.item.title }}</h1>
-          @if (isEditor()) {
-            <button mat-icon-button color="primary" (click)="toggleEditMode()" class="edit-toggle-btn" aria-label="Edit course">
-              <mat-icon>edit</mat-icon>
-            </button>
-          }
-        </div>
-
-        <!-- Paginator moved between title and content -->
-        <div class="paginator-wrapper">
-          <mat-paginator [length]="d.section?.children?.length || 0" [pageSize]="1" [pageIndex]="currentIndex()"
-            (page)="onPageChange($event)" hidePageSize showFirstLastButtons aria-label="Select item">
-          </mat-paginator>
-        </div>
-
-        <div class="content-wrapper">
-          @if (d.item.type === 'QU' && !restartMode() && isAlreadyFinished() && !reviewMode()) {
-            <div class="success-banner" style="display: flex; flex-direction: column; align-items: center; padding: 2rem; text-align: center; background: rgba(0,0,0,0.2); border-radius: 8px;">
-              <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #4caf50; margin-bottom: 1rem;">stars</mat-icon>
-              <h2>Quiz Terminé !</h2>
-              <p>Vous avez déjà passé ce quiz.</p>
-              <div class="quiz-review-actions" style="margin-top: 1rem; display: flex; gap: 1rem;">
-                <button mat-flat-button color="primary" (click)="doReview()">Revoir mes résultats</button>
-                <button mat-stroked-button (click)="doRestart()">Refaire le quiz</button>
-              </div>
-            </div>
-          } @else if (d.item.type === 'QU') {
-            <app-quiz [quizId]="d.item.id" [forceRestart]="restartMode()"></app-quiz>
-          } @else {
-            <app-markdown-viewer [markdown]="d.item.content?.data || ''" [pyodide]="this.pyodide"
-              [packages]="['numpy']"></app-markdown-viewer>
-          }
-        </div>
-
-        @if (d.item.type === 'LE') {
-        <div class="action-section">
-          @if (successMessage()) {
-          <div class="success-banner">
-            <mat-icon>check_circle</mat-icon>
-            <span>{{ successMessage() }}</span>
-          </div>
-          }
-
-          @if (error()) {
-          <div class="error-banner">
-            <mat-icon>error</mat-icon>
-            <span>{{ error() }}</span>
-          </div>
-          }
-
-          <button mat-flat-button color="primary" class="verify-btn" (click)="onVerify()"
-            [disabled]="isVerifying() || successMessage() !== '' || isAlreadyFinished()">
-            @if (isVerifying()) {
+  <mat-sidenav-container class="edit-sidenav-container">
+    <mat-sidenav mode="side" opened class="edit-sidenav">
+      <div class="edit-toolbar">
+        <h3 class="edit-title">Éditeur</h3>
+        <div class="edit-actions">
+          <button mat-button class="save-btn" color="primary" (click)="saveContent()" [disabled]="isSaving()">
+            @if (isSaving()) {
             <mat-spinner diameter="20"></mat-spinner>
-            } @else if (isAlreadyFinished()) {
-            <mat-icon>done_all</mat-icon> <span>Déjà terminé</span>
             } @else {
-            <mat-icon>check</mat-icon> <span>J'ai terminé ce cours</span>
+            <span>Enregistrer</span>
             }
           </button>
+          <button mat-icon-button (click)="toggleEditMode()" aria-label="Cancel">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+      <div class="editor-wrapper">
+        <code-editor class="code-editor" [ngModel]="editedContent()" (ngModelChange)="editedContent.set($event)"
+          [theme]="'dark'" [language]="d.item.type === 'QU' ? 'json' : 'markdown'" [languages]="languages">
+        </code-editor>
+      </div>
+    </mat-sidenav>
 
-          <!-- Dummy space for next button, handled automatically by goToNext for now -->
+    <mat-sidenav-content class="edit-sidenav-content">
+      <div class="content-wrapper preview-wrapper">
+        @if (d.item.type === 'QU') {
+        <!-- L'aperçu d'un quiz se recharge en direct avec le json tapé grâce à previewData -->
+        <app-quiz [quizId]="d.item.id" [previewData]="editedContent()" [forceRestart]="true"
+          [forceValidated]="true"></app-quiz>
+        } @else {
+        <app-markdown-viewer [markdown]="editedContent()" [pyodide]="this.pyodide"
+          [packages]="['numpy']"></app-markdown-viewer>
+        }
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+  } @else {
+  <div class="content-layout">
+    <!-- Main Content Column -->
+
+    <main class="main-column">
+      <div class="title-row">
+        <h1 class="chapter-title">{{ d.item.title }}</h1>
+        @if (isEditor()) {
+        <button mat-icon-button color="primary" (click)="toggleEditMode()" class="edit-toggle-btn"
+          aria-label="Edit course">
+          <mat-icon>edit</mat-icon>
+        </button>
+        }
+      </div>
+
+      <!-- Paginator moved between title and content -->
+      <div class="paginator-wrapper">
+        <mat-paginator [length]="d.section?.children?.length || 0" [pageSize]="1" [pageIndex]="currentIndex()"
+          (page)="onPageChange($event)" hidePageSize showFirstLastButtons aria-label="Select item">
+        </mat-paginator>
+      </div>
+
+      <div class="content-wrapper">
+        @if (d.item.type === 'QU' && !restartMode() && isAlreadyFinished() && !reviewMode()) {
+        <div class="success-banner quiz-success-banner">
+          <mat-icon class="quiz-success-icon">stars</mat-icon>
+          <h2>Quiz Terminé !</h2>
+          <p>Vous avez déjà passé ce quiz.</p>
+          <div class="quiz-review-actions">
+            <button mat-flat-button color="primary" (click)="doReview()">Revoir mes résultats</button>
+            <button mat-stroked-button (click)="doRestart()">Refaire le quiz</button>
+          </div>
+        </div>
+        } @else if (d.item.type === 'QU') {
+        <app-quiz [quizId]="d.item.id" [forceRestart]="restartMode()"></app-quiz>
+        } @else {
+        <app-markdown-viewer [markdown]="d.item.content?.data || ''" [pyodide]="this.pyodide"
+          [packages]="['numpy']"></app-markdown-viewer>
+        }
+      </div>
+
+      @if (d.item.type === 'LE') {
+      <div class="action-section">
+        @if (successMessage()) {
+        <div class="success-banner">
+          <mat-icon>check_circle</mat-icon>
+          <span>{{ successMessage() }}</span>
         </div>
         }
-      </main>
 
-      <!-- TOC Sidebar -->
-      <aside class="toc-sidebar">
-        @if (dataSource.data.length > 0) {
-        <h3 class="toc-header">Table of Contents</h3>
-        <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="toc-tree">
-          <!-- Leaf Node -->
-          <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
+        @if (error()) {
+        <div class="error-banner">
+          <mat-icon>error</mat-icon>
+          <span>{{ error() }}</span>
+        </div>
+        }
+
+        <button mat-flat-button color="primary" class="verify-btn" (click)="onVerify()"
+          [disabled]="isVerifying() || successMessage() !== '' || isAlreadyFinished()">
+          @if (isVerifying()) {
+          <mat-spinner diameter="20"></mat-spinner>
+          } @else if (isAlreadyFinished()) {
+          <mat-icon>done_all</mat-icon> <span>Déjà terminé</span>
+          } @else {
+          <mat-icon>check</mat-icon> <span>J'ai terminé ce cours</span>
+          }
+        </button>
+
+        <!-- Dummy space for next button, handled automatically by goToNext for now -->
+      </div>
+      }
+    </main>
+
+    <!-- TOC Sidebar -->
+    <aside class="toc-sidebar">
+      @if (dataSource.data.length > 0) {
+      <h3 class="toc-header">Table of Contents</h3>
+      <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="toc-tree">
+        <!-- Leaf Node -->
+        <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
+          <button mat-button (click)="scrollToHeader(node.name)" class="toc-link">
+            {{ node.name }}
+          </button>
+        </mat-tree-node>
+
+        <!-- Expandable Node -->
+        <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+          <div class="mat-tree-node">
+            <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name">
+              <mat-icon class="mat-icon-rtl-mirror">
+                {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+              </mat-icon>
+            </button>
             <button mat-button (click)="scrollToHeader(node.name)" class="toc-link">
               {{ node.name }}
             </button>
-          </mat-tree-node>
+          </div>
+          <div [class.toc-invisible]="!treeControl.isExpanded(node)" role="group">
+            <ng-container matTreeNodeOutlet></ng-container>
+          </div>
+        </mat-nested-tree-node>
+      </mat-tree>
+      }
+    </aside>
 
-          <!-- Expandable Node -->
-          <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
-            <div class="mat-tree-node">
-              <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name">
-                <mat-icon class="mat-icon-rtl-mirror">
-                  {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-                </mat-icon>
-              </button>
-              <button mat-button (click)="scrollToHeader(node.name)" class="toc-link">
-                {{ node.name }}
-              </button>
-            </div>
-            <div [class.toc-invisible]="!treeControl.isExpanded(node)" role="group">
-              <ng-container matTreeNodeOutlet></ng-container>
-            </div>
-          </mat-nested-tree-node>
-        </mat-tree>
-        }
-      </aside>
-
-    </div>
+  </div>
   }
   } @else if (error()) {
   <div class="loading-container">
-    <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: var(--mat-sys-error)">block</mat-icon>
+    <mat-icon class="error-icon">block</mat-icon>
     <p>{{ error() }}</p>
   </div>
   } @else {

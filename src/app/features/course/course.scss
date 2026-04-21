@@ -159,6 +159,30 @@
   }
 }
 
+.quiz-success-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  text-align: center;
+  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+}
+
+.quiz-success-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #4caf50;
+  margin-bottom: 1rem;
+}
+
+.quiz-review-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
 .error-banner {
   background-color: var(--mat-sys-error-container);
   color: var(--mat-sys-on-error-container);

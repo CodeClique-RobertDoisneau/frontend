@@ -108,47 +108,69 @@ export class QuizComponent {
   });
 
   // 1. On parse la donnée UNE SEULE FOIS de manière centralisée
-  parsedQuizData = computed(() => {
+  parsedQuizData = computed<QuizItem[] | null>(() => {
     let rawContent: any = null;
     const preview = this.previewData();
 
     if (preview) {
       try {
         rawContent = JSON.parse(preview);
-      } catch (e) {
-        return null;
-      }
+      } catch (e) { return null; }
     } else {
       const resp = this.quizResource.value();
-      if (!resp?.content) return null;
-      rawContent = resp.content || resp;
+      if (!resp) return null;
+      // On cherche le contenu soit dans .content, soit à la racine
+      rawContent = resp.content ?? resp;
+    }
+
+    if (!rawContent) return null;
+
+    // Si on a encore une string, on parse
+    if (typeof rawContent === 'string') {
+      try {
+        rawContent = JSON.parse(rawContent);
+      } catch (e) { return null; }
     }
 
     try {
-      let items: QuizItem[] = [];
+      // Fonction helper pour extraire les items d'un objet donné de manière récursive (profondeur limitée)
+      const extractItems = (obj: any, depth = 0): any[] | null => {
+        if (depth > 3) return null;
+        if (Array.isArray(obj)) return obj;
+        if (!obj || typeof obj !== 'object') return null;
+        
+        // On check les propriétés classiques : .quiz, .data, .content
+        const keys = ['quiz', 'data', 'content'];
+        for (const key of keys) {
+          const val = obj[key];
+          if (!val) continue;
 
-      // Nouvelle structure: le tableau de questions est dans .quiz
-      if (rawContent.quiz && Array.isArray(rawContent.quiz)) {
-        items = rawContent.quiz;
-      } else {
-        // Fallback: si rawContent lui même est un tableau ou .data est un tableau
-        const contentData = rawContent.data !== undefined ? rawContent.data : rawContent;
-        if (typeof contentData === 'string') {
-          items = JSON.parse(contentData) as QuizItem[];
-        } else if (Array.isArray(contentData)) {
-          items = contentData as QuizItem[];
+          if (Array.isArray(val)) return val;
+          if (typeof val === 'string') {
+            try {
+              const parsed = JSON.parse(val);
+              const found = extractItems(parsed, depth + 1);
+              if (found) return found;
+            } catch (e) {}
+          } else if (typeof val === 'object') {
+            const found = extractItems(val, depth + 1);
+            if (found) return found;
+          }
         }
-      }
+        return null;
+      };
 
-      if (!items || !Array.isArray(items)) return null;
+      const items = extractItems(rawContent);
 
-      // Si le backend oublie multiple_answers, on le déduit
+      if (items === null) return null;
+      if (items.length === 0) return [];
+
       return items.map(item => ({
         ...item,
-        multiple_answers: item.multiple_answers ?? (item.answers ? item.answers.filter(a => a).length > 1 : false)
-      }));
+        multiple_answers: item.multiple_answers ?? (item.answers ? item.answers.filter((a: any) => a).length > 1 : false)
+      })) as QuizItem[];
     } catch (e) {
-      console.error("Failed to parse quizResource content", e);
+      console.error("Failed to parse quiz content", e);
       return null;
     }
   });
@@ -160,30 +182,37 @@ export class QuizComponent {
       const data = this.parsedQuizData();
       if (!data) return;
 
+      const fRestart = this.forceRestart();
+      const fValidated = this.forceValidated();
+
       untracked(() => {
         // Cas 0: Mode edit forcé — on pré-coche les bonnes réponses
-        if (this.forceValidated()) {
+        if (fValidated) {
           this.quizSubmitted.set(true);
           const correctAnswersList = data.map((q: QuizItem) => q.answers || new Array(q.options.length).fill(false));
           this.userAnswers.set(correctAnswersList);
           return;
         }
 
-        // Cas 1: Restauration — l'utilisateur a déjà fait le quiz
+        // Cas 1: Restauration — l'utilisateur a déjà fait le quiz ET on ne force pas le restart
         const resp = this.quizResource.value();
-        if (resp?.user_progress?.done && !this.forceRestart()) {
+        if (resp?.user_progress?.done && !fRestart) {
           this.quizSubmitted.set(true);
-          if (resp.user_progress.submission) {
+          if (resp.user_progress.submission && Array.isArray(resp.user_progress.submission) && resp.user_progress.submission.length === data.length) {
             this.userAnswers.set(resp.user_progress.submission);
           } else {
+            // Fallback si pas de submission ou taille incohérente
             const initialState = data.map((q: QuizItem) => new Array(q.options.length).fill(false));
             this.userAnswers.set(initialState);
           }
           return;
         }
 
-        // Cas 2: Initialisation classique (quiz pas encore fait ou restart)
-        if (this.userAnswers().length === 0 || this.userAnswers().length !== data.length) {
+        // Cas 2: Initialisation classique ou RESTART
+        // On effectue le reset si on est en mode restart OU si on n'a pas encore de réponses
+        if (fRestart || this.userAnswers().length !== data.length) {
+          this.quizSubmitted.set(false);
+          this.userDidSubmit.set(false);
           const initialState = data.map((q: QuizItem) => new Array(q.options.length).fill(false));
           this.userAnswers.set(initialState);
         }
@@ -195,7 +224,8 @@ export class QuizComponent {
   // 3. FormState ne fait plus que lire les données déjà parsées !
   formState = computed(() => {
     const data = this.parsedQuizData();
-    if (!data) return null;
+    if (!data || data.length === 0) return null;
+    // On s'assure que userAnswers est synchro avant d'afficher
     if (this.userAnswers().length !== data.length) return null;
     return data;
   });
