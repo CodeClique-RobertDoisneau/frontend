@@ -35,7 +35,7 @@
         <div class="content-wrapper preview-wrapper">
           @if (d.item.type === 'QU') {
             <!-- L'aperçu d'un quiz se recharge en direct avec le json tapé grâce à previewData -->
-            <app-quiz [quizId]="d.item.id" [previewData]="editedContent()" [forceRestart]="true"></app-quiz>
+            <app-quiz [quizId]="d.item.id" [previewData]="editedContent()" [forceRestart]="true" [forceValidated]="true"></app-quiz>
           } @else {
             <app-markdown-viewer [markdown]="editedContent()" [pyodide]="this.pyodide" [packages]="['numpy']"></app-markdown-viewer>
           }

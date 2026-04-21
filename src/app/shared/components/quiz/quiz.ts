@@ -43,6 +43,7 @@ export class QuizComponent {
   quizId = input<string | number | undefined>(undefined);
   forceRestart = input<boolean>(false);
   previewData = input<string | null>(null);
+  forceValidated = input<boolean>(false);
   // Bascule: `true` pour utiliser le système actuel en attendant le backend, `false` pour la nouvelle API
   useMockApi = false;
 
@@ -59,9 +60,52 @@ export class QuizComponent {
 
   userAnswers = signal<boolean[][]>([]);
   quizSubmitted = signal(false);
-  QuizCorrection = signal<QuizResult>([]);
-  score = signal<number | null>(null);
-  maxScore = signal<number | null>(null);
+  userDidSubmit = signal(false);
+  QuizCorrection = computed<QuizResult>(() => {
+    if (!this.quizSubmitted()) return [];
+    const data = this.parsedQuizData();
+    if (!data) return [];
+    return data.map(q => [q.answers || [], q.explanation || '']);
+  });
+
+  score = computed<number | null>(() => {
+     const resp = this.quizResource.value();
+     if (resp?.user_progress?.done && !this.forceRestart() && resp.user_progress.score !== undefined) {
+         return resp.user_progress.score;
+     }
+
+     if (!this.quizSubmitted()) return null;
+     const correction = this.QuizCorrection();
+     if (!correction || correction.length === 0) return null;
+     
+     let currentScore = 0;
+     for (let i = 0; i < correction.length; i++) {
+        const userA = this.userAnswers()[i] || [];
+        const trueA = correction[i][0] || [];
+        for (let j = 0; j < trueA.length; j++) {
+            if (userA[j] === trueA[j]) currentScore++;
+        }
+     }
+     return currentScore;
+  });
+
+  maxScore = computed<number | null>(() => {
+     const resp = this.quizResource.value();
+     if (resp?.user_progress?.done && !this.forceRestart() && resp.user_progress.max_score !== undefined) {
+         return resp.user_progress.max_score;
+     }
+
+     if (!this.quizSubmitted()) return null;
+     const correction = this.QuizCorrection();
+     if (!correction || correction.length === 0) return null;
+     
+     let currentMax = 0;
+     for (let i = 0; i < correction.length; i++) {
+        const trueA = correction[i][0] || [];
+        currentMax += trueA.length;
+     }
+     return currentMax;
+  });
 
   // 1. On parse la donnée UNE SEULE FOIS de manière centralisée
   parsedQuizData = computed(() => {
@@ -111,77 +155,39 @@ export class QuizComponent {
 
   //Permet de setup le userAnswers
   constructor() {
-    // 2. L'effect écoute le signal computed (très propre)
+    // 2. Effect unifié : init userAnswers + restauration si déjà fait
     effect(() => {
       const data = this.parsedQuizData();
-      if (data) {
-        untracked(() => {
-          if (this.userAnswers().length === 0) {
-            const initialState = data.map((q: QuizItem) => new Array(q.options.length).fill(false));
-            this.userAnswers.set(initialState);
-          }
-        });
-      }
-    });
+      if (!data) return;
 
-    // Pour les corrections (après clic sur valider)
-    effect(() => {
-      const resp = this.submitResource.value();
-      if (resp?.content) {
-        try {
-          const rawContent: any = resp.content;
-          let items: QuizItem[] = [];
-
-          // On utilise la même logique que parsedQuizData pour trouver les questions
-          if (rawContent.quiz && Array.isArray(rawContent.quiz)) {
-            items = rawContent.quiz;
-          } else {
-            const contentData = rawContent.data !== undefined ? rawContent.data : rawContent;
-            if (Array.isArray(contentData)) {
-              items = contentData;
-            } else if (typeof contentData === 'string' && contentData.trim().startsWith('[')) {
-              items = JSON.parse(contentData);
-            }
-          }
-
-          if (items.length > 0) {
-            const correctionData: QuizResult = items.map(q => [q.answers || [], q.explanation || '']);
-            this.QuizCorrection.set(correctionData);
-          }
-
-          // On récupère aussi le score renvoyé par le back
-          if (resp.score !== undefined) {
-             this.score.set(resp.score);
-             this.maxScore.set(resp.max_score);
-          }
-        } catch (e) {
-          console.error("Erreur de parsing de la correction :", e);
+      untracked(() => {
+        // Cas 0: Mode edit forcé — on pré-coche les bonnes réponses
+        if (this.forceValidated()) {
+          this.quizSubmitted.set(true);
+          const correctAnswersList = data.map((q: QuizItem) => q.answers || new Array(q.options.length).fill(false));
+          this.userAnswers.set(correctAnswersList);
+          return;
         }
-      }
-    });
 
-    // Restaurer l'état si déjà terminé (chargement initial)
-    effect(() => {
-      const resp = this.quizResource.value();
-      if (resp?.user_progress?.done && !this.forceRestart()) {
-        untracked(() => {
+        // Cas 1: Restauration — l'utilisateur a déjà fait le quiz
+        const resp = this.quizResource.value();
+        if (resp?.user_progress?.done && !this.forceRestart()) {
           this.quizSubmitted.set(true);
           if (resp.user_progress.submission) {
             this.userAnswers.set(resp.user_progress.submission);
+          } else {
+            const initialState = data.map((q: QuizItem) => new Array(q.options.length).fill(false));
+            this.userAnswers.set(initialState);
           }
-          if (resp.user_progress.score !== undefined) {
-            this.score.set(resp.user_progress.score);
-            this.maxScore.set(resp.user_progress.max_score);
-          }
-          
-          // Re-generer la correction depuis les données déjà présentes (car done=true -> non filtré)
-          const data = this.parsedQuizData();
-          if (data && data.some(q => q.answers)) {
-            const correctionData: QuizResult = data.map(q => [q.answers || [], q.explanation || '']);
-            this.QuizCorrection.set(correctionData);
-          }
-        });
-      }
+          return;
+        }
+
+        // Cas 2: Initialisation classique (quiz pas encore fait ou restart)
+        if (this.userAnswers().length === 0 || this.userAnswers().length !== data.length) {
+          const initialState = data.map((q: QuizItem) => new Array(q.options.length).fill(false));
+          this.userAnswers.set(initialState);
+        }
+      });
     });
   }
 
@@ -203,9 +209,11 @@ export class QuizComponent {
     return `Réponse : ${indices.join('), ')}${indices.length > 0 ? ')' : ''}`;
   }
 
-  // Elle s'active automatiquement quand quizSubmitted passe à true
+  // Elle s'active UNIQUEMENT quand l'utilisateur clique sur "Vérifier mes réponses"
   submitResource = httpResource<any>(() => {
-    if (!this.quizSubmitted()) return undefined;
+    if (!this.userDidSubmit()) return undefined;
+    if (this.previewData()) return undefined; // Pas de POST en mode éditeur
+    if (this.forceValidated()) return undefined; // Pas de POST en mode forcé
     const id = this.quizId();
     if (!id) return undefined;
     
@@ -217,6 +225,15 @@ export class QuizComponent {
       method: 'POST',
       body: { answer: this.userAnswers(), modified_at }
     } as HttpResourceRequest;
+  });
+
+  // Quand le submitResource renvoie une réponse, on met à jour le quizResource pour récupérer les answers
+  submitEffect = effect(() => {
+    const resp = this.submitResource.value();
+    if (resp) {
+      // Le POST a réussi : on recharge le quiz pour obtenir les answers (maintenant qu'un Attempt existe)
+      this.quizResource.reload();
+    }
   });
 
 
