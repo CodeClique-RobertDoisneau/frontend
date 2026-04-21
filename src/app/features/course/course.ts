@@ -144,34 +144,34 @@ export class Course {
       this.treeControl.dataNodes = this.toc();
       this.treeControl.expandAll(); // Default to expanded
     });
-    
+
     // Ensure we have the user state for isEditor()
     if (!this.authService.currentUser()) {
-        this.authService.getMe().subscribe();
+      this.authService.getMe().subscribe();
     }
-    
+
     // Check initial queryParams for ?edit=true, ?review=true, ?restart=true
     this.route.queryParams.subscribe(params => {
-        const isEdit = params['edit'] === 'true';
-        this.editMode.set(isEdit);
-        this.reviewMode.set(params['review'] === 'true');
-        this.restartMode.set(params['restart'] === 'true');
-        if (isEdit) {
-            const d = this.data();
-            if (d?.item?.content?.data) {
-                const cData = d.item.content.data;
-                this.editedContent.set(typeof cData === 'string' ? cData : JSON.stringify(cData, null, 2));
-            }
+      const isEdit = params['edit'] === 'true';
+      this.editMode.set(isEdit);
+      this.reviewMode.set(params['review'] === 'true');
+      this.restartMode.set(params['restart'] === 'true');
+      if (isEdit) {
+        const d = this.data();
+        if (d?.item?.content?.data) {
+          const cData = d.item.content.data;
+          this.editedContent.set(typeof cData === 'string' ? cData : JSON.stringify(cData, null, 2));
         }
+      }
     });
 
     // Also populate when data finally arrive while in editMode
     effect(() => {
-        const d = this.data();
-        if (this.editMode() && d?.item?.content?.data && !this.editedContent()) {
-            const cData = d.item.content.data;
-            this.editedContent.set(typeof cData === 'string' ? cData : JSON.stringify(cData, null, 2));
-        }
+      const d = this.data();
+      if (this.editMode() && d?.item?.content?.data && !this.editedContent()) {
+        const cData = d.item.content.data;
+        this.editedContent.set(typeof cData === 'string' ? cData : JSON.stringify(cData, null, 2));
+      }
     });
   }
 
@@ -198,11 +198,11 @@ export class Course {
   }
 
   doReview() {
-      this.router.navigate([], { relativeTo: this.route, queryParams: { review: 'true' }, queryParamsHandling: 'merge' });
+    this.router.navigate([], { relativeTo: this.route, queryParams: { review: 'true' }, queryParamsHandling: 'merge' });
   }
 
   doRestart() {
-      this.router.navigate([], { relativeTo: this.route, queryParams: { restart: 'true', review: null }, queryParamsHandling: 'merge' });
+    this.router.navigate([], { relativeTo: this.route, queryParams: { restart: 'true', review: null }, queryParamsHandling: 'merge' });
   }
 
   onVerify() {
@@ -210,10 +210,10 @@ export class Course {
     // For now, support lessons verification (empty submission).
     const d = this.data();
     if (!d) {
-        this.isVerifying.set(false);
-        return;
+      this.isVerifying.set(false);
+      return;
     }
-    
+
     this.courseService.verifyNode(this.id(), null, d.item.modified_at).subscribe({
       next: (res) => {
         this.isVerifying.set(false);
@@ -245,29 +245,29 @@ export class Course {
     let finalContent: any = this.editedContent();
     const d = this.data();
     if (d?.item.type === 'QU') {
-        try {
-            finalContent = { data: JSON.parse(finalContent) };
-        } catch (e) {
-            this.error.set("Format JSON Invalide");
-            this.isSaving.set(false);
-            return;
-        }
+      try {
+        finalContent = { data: JSON.parse(finalContent) };
+      } catch (e) {
+        this.error.set("Format JSON Invalide");
+        this.isSaving.set(false);
+        return;
+      }
     } else {
-        finalContent = { data: finalContent };
+      finalContent = { data: finalContent };
     }
 
     // Pass the actual object payload. CourseService will just push it to the node.
     this.courseService.updateNodeContent(this.id(), finalContent).subscribe({
-        next: (res) => {
-            this.isSaving.set(false);
-            this.router.navigate([], { queryParams: { edit: null } }).then(() => {
-                window.location.reload();
-            });
-        },
-        error: () => {
-            this.isSaving.set(false);
-            this.error.set("Erreur lors de la sauvegarde.");
-        }
+      next: (res) => {
+        this.isSaving.set(false);
+        this.router.navigate([], { queryParams: { edit: null } }).then(() => {
+          window.location.reload();
+        });
+      },
+      error: () => {
+        this.isSaving.set(false);
+        this.error.set("Erreur lors de la sauvegarde.");
+      }
     })
   }
 
