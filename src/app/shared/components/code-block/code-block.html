@@ -29,12 +29,14 @@
 
     <code-editor [(ngModel)]="code" [languages]="languages" [theme]="this.theming.resolvedTheme()" language="python" />
 
-    @if (output()) {
-      <div class="python-output">
-        <div class="output-header">
-          <span>Out:</span>
+    @if (output() || waitingForInput()) {
+      <div class="python-console">
+        <div class="console-header">
+          <span>Console:</span>
         </div>
-        <pre class="output-content">{{ output() }}</pre>
+        <div class="console-body">
+          <pre class="console-content">{{ output() }}@if (waitingForInput()) {<span class="inline-input"><input type="text" [(ngModel)]="userInput" (keyup.enter)="submitInput()" autofocus /><button matIconButton (click)="submitInput()" class="mini-send"><mat-icon>send</mat-icon></button></span>}</pre>
+        </div>
       </div>
     }
 
@@ -43,7 +45,9 @@
         <div class="error-header">
           <span>Error:</span>
         </div>
-        <pre class="error-content">{{ error() }}</pre>
+        <div class="error-body">
+          <pre class="error-content">{{ error() }}</pre>
+        </div>
       </div>
     }
 

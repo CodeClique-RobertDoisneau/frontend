@@ -29,25 +29,66 @@ code-editor {
 }
 
 .code-block-interactive {
-  .python-output {
+  .python-console {
     display: flex;
-    .output-header { padding: 1em 1em 1em 0; }
-    .output-content {
-      width: 100%;
-      max-height: 15rem;
-      margin: 0;
+    gap: 1em;
+    .console-header { 
+      padding: 1em 0;
+      color: var(--mat-sys-primary);
+      font-weight: bold;
+    }
+    .console-body {
+      flex: 1;
+      .console-content {
+        max-height: 20rem;
+        margin: 0;
+        padding: 1em;
+        font-family: 'Roboto Mono', monospace;
+        white-space: pre-wrap;
+        overflow-y: auto;
+        .inline-input {
+          width: 100%;
+          display: inline-flex;
+          align-items: center;
+          vertical-align: middle;
+          input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            border-bottom: 1px solid var(--mat-sys-primary);
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            padding: 0;
+            &:focus {
+              border-bottom-width: 2px;
+            }
+          }
+        }
+      }
     }
   }
   .python-error {
-    color: var(--mat-sys-error);
     display: flex;
-    .error-header { padding: 1em 1em 1em 0; }
-    .error-content {
-      width: 100%;
-      max-height: 15rem;
-      margin: 0;
+    gap: 1em;
+    color: var(--mat-sys-error);
+    .error-header { 
+      padding: 1em 0;
+      font-weight: bold;
+    }
+    .error-body {
+      flex: 1;
+      .error-content {
+        max-height: 20rem;
+        margin: 0;
+        padding: 1em;
+        font-family: 'Roboto Mono', monospace;
+        white-space: pre-wrap;
+        overflow-y: auto;
+      }
     }
   }
+
   .python-plot {
     display: flex;
     justify-content: center;

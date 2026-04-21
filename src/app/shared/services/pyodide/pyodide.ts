@@ -1,58 +1,56 @@
 import { Injectable, OnDestroy, signal, WritableSignal } from '@angular/core';
-import { PyodideRequest, PyodideResponse } from './pyodide.worker';
-
-interface ExecutionHandler {
-  onOutput?: (text: string) => void;
-  onError?: (text: string) => void;
-  isRunning?: WritableSignal<boolean>;
-  onPlot?: (base64: string) => void;
-}
+import { ExecutionHandler, PyodideRequest, PyodideResponse } from './pyodide.types';
 
 @Injectable()
 export class Pyodide implements OnDestroy {
-  private packages: string[] = [];
-  private worker: Worker | null = null;
+  private webWorker: Worker | null = null;
+  private serviceWorkerRegistered = false;
+  private initialPackages: string[] = [];
+  private executionHandlers = new Map<string, ExecutionHandler>();
+
   private interruptBuffer: Uint8Array | null = null;
   private interruptRequests: string[] = [];
-  private executionHandlers = new Map<string, ExecutionHandler>();
 
   private isReadySignal = signal<boolean>(false);
   public readonly isReady = this.isReadySignal.asReadonly();
 
   public init(packages?: string[]) {
-    if (this.worker) return;
-    if (packages) this.packages = packages;
+    if (this.webWorker) return;
+    if (packages) this.initialPackages = packages;
 
-    this.initWorker(this.packages);
+    this.initWebWorker(this.initialPackages);
+    this.initServiceWorker();
   }
 
-  public resetWorker(packages?: string[]): void {
-    if (!this.worker) return;
-    if (packages) this.packages = packages;
+  public reset(): void {
+    if (!this.webWorker) return;
 
-    this.worker.terminate();
-    this.worker = null;
-
-    this.interruptBuffer = null;
-    
-    this.isReadySignal.set(false);
-    this.initWorker(packages);
-
+    // Terminate existing worker and clear state
+    this.webWorker.terminate();
+    this.webWorker = null;
     this.executionHandlers.forEach((handler) => {
       handler.onError?.('Python environment reset.');
       handler.isRunning?.set(false);
     });
     this.executionHandlers.clear();
+
+    this.interruptBuffer = null;
+    this.interruptRequests = [];
+
+    this.isReadySignal.set(false);
+
+    // Initialise workers again
+    this.init(this.initialPackages);
   }
 
   public run(
     code: string, 
     onOutput?: (text: string) => void,
     onError?: (text: string) => void,
-    isRunningSignal?: WritableSignal<boolean>,
-    onPlot?: (base64: string) => void
-  ): string {
-    if (!this.worker || !this.isReadySignal()) {
+    onPlot?: (base64: string) => void,
+    onInput?: (text: string) => void
+  ): { executionId: string, isRunning: WritableSignal<boolean> } {
+    if (!this.serviceWorkerRegistered || !this.webWorker || !this.isReadySignal()) {
       throw new Error('Pyodide is not ready yet.');
     }
 
@@ -61,21 +59,21 @@ export class Pyodide implements OnDestroy {
     }
 
     const executionId: string = crypto.randomUUID();
+    const isRunning = signal<boolean>(true);
 
     const handler: ExecutionHandler = {
       onOutput: onOutput,
       onError: onError,
-      isRunning: isRunningSignal,
-      onPlot: onPlot
+      isRunning: isRunning,
+      onPlot: onPlot,
+      onInput: onInput
     }
     this.executionHandlers.set(executionId, handler);
 
-    isRunningSignal?.set(true);
-
     const msg: PyodideRequest = { type: 'RUN', id: executionId, code };
-    this.worker!.postMessage(msg);
+    this.webWorker.postMessage(msg);
 
-    return executionId;
+    return { executionId, isRunning };
   }
 
   public interruptExecution(executionId: string): void {
@@ -90,34 +88,73 @@ export class Pyodide implements OnDestroy {
       const handler = this.executionHandlers.get(executionId);
       if (!handler) return;
       handler.onError?.('Interrupt signal ignored. Restarting kernel...');
-      this.resetWorker();
+      this.reset();
     }, 1000);
   }
 
-  private initWorker(packages: string[] = []) {
+  public sendInput(executionId: string, value: string): void {
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'INPUT_RESPONSE',
+        id: executionId,
+        value: value + '\n'
+      });
+    } else {
+      console.error('Service Worker controller not available to send input.');
+    }
+  }
+
+  private initWebWorker(packages: string[] = []) {
     try {
-      this.worker = new Worker(new URL('./pyodide.worker.ts', import.meta.url), { type: 'module' });
+      this.webWorker = new Worker(
+        new URL('./pyodide.worker.ts', import.meta.url),
+        { type: 'module' }
+      );
       
       try {
         const interruptSharedBuffer = new SharedArrayBuffer(1);
         this.interruptBuffer = new Uint8Array(interruptSharedBuffer);
         
-        this.worker.postMessage({ type: 'INIT', buffer: interruptSharedBuffer, packages });
+        this.webWorker.postMessage({ type: 'INIT', buffer: interruptSharedBuffer, packages });
       } catch {
         console.warn('SharedArrayBuffer is not available. Interrupts will not work.');
-        this.worker.postMessage({ type: 'INIT', buffer: null, packages });
+        this.webWorker.postMessage({ type: 'INIT', buffer: null, packages });
       }
 
-      this.worker.onmessage = this.handleWorkerMessage.bind(this);      
-    } catch {
-      console.error('Web Workers are not supported.');
+      this.webWorker.onmessage = this.handleWorkerMessage.bind(this);      
+    } catch (error) {
+      console.error('There was an error initialising the Web Worker: ', error);
+    }
+  }
+
+  private initServiceWorker() {
+    if (this.serviceWorkerRegistered || !('serviceWorker' in navigator)) return;
+
+    try {
+      this.serviceWorkerRegistered = true;
+      navigator.serviceWorker.register(
+        new URL('./pyodide.sw.js', import.meta.url),
+        { type: 'module', scope: '/' }
+      ).catch((error) => {
+        console.error('Pyodide Service Worker registration failed:', error);
+      });
+    } catch (error) {
+      console.error('There was an error initialising the Service Worker: ', error);
     }
   }
 
   private handleWorkerMessage({ data }: { data: PyodideResponse }) {
     switch (data.type) {
+      case 'LOADING':
+        this.isReadySignal.set(false);
+        break;
+
       case 'READY':
         this.isReadySignal.set(true);
+        break;
+
+      case 'RUN_STDIN_REQUEST':
+        this.executionHandlers.get(data.id)?.onInput?.('Input requested');
         break;
 
       case 'RUN_STDOUT':
@@ -150,6 +187,6 @@ export class Pyodide implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.worker?.terminate();
+    this.webWorker?.terminate();
   }
 }
