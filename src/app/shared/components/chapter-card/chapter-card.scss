@@ -1,11 +1,13 @@
-@use 'components';
+ 
 
 :host {
   display: contents; // Necessary for subgrid to "see" the parent grid
 }
 
 .chapter-card {
-  @include components.premium-card;
+  background-color: var(--mat-sys-surface-container-lowest);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 12px;
   display: grid;
   grid-row: span 3;
   grid-template-rows: subgrid;

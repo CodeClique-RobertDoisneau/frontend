@@ -1,4 +1,4 @@
-@use 'components';
+ 
 
 .landing-container {
   display: flex;
@@ -68,7 +68,9 @@
   }
 
   .feature-card {
-    @include components.premium-card;
+    background-color: var(--mat-sys-surface-container-lowest);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 12px;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
 

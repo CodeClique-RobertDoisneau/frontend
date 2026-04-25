@@ -1,4 +1,4 @@
-@use 'components';
+ 
 
 .profile-container {
   display: flex;
@@ -9,7 +9,9 @@
 }
 
 .profile-card {
-  @include components.premium-card;
+  background-color: var(--mat-sys-surface-container-lowest);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 12px;
   width: 100%;
   max-width: 520px;
   padding: 36px;

@@ -1,7 +1,9 @@
-@use 'components';
+
 
 mat-expansion-panel {
-    @include components.premium-card;
+    background-color: var(--mat-sys-surface-container-lowest);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 12px;
     margin-bottom: 24px;
 }
 

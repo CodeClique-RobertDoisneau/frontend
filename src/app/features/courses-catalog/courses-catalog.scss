@@ -1,11 +1,13 @@
-@use 'components';
+
 
 .features-section {
   padding: 24px;
 }
 
 .filters {
-  @include components.premium-card;
+  background-color: var(--mat-sys-surface-container-lowest);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 12px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
