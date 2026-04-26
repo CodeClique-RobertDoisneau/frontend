@@ -139,8 +139,8 @@ export class QuizComponent {
         if (Array.isArray(obj)) return obj;
         if (!obj || typeof obj !== 'object') return null;
         
-        // On check les propriétés classiques : .quiz, .data, .content
-        const keys = ['quiz', 'data', 'content'];
+        // On check les propriétés classiques : .quiz, .content
+        const keys = ['quiz', 'content'];
         for (const key of keys) {
           const val = obj[key];
           if (!val) continue;

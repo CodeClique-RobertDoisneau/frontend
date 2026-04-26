@@ -18,10 +18,18 @@
 
       <div class="meta-chips">
         <mat-chip-set>
+          @if (chapterData.grade_level) {
           <mat-chip class="grade-chip">
             <mat-icon matChipAvatar>school</mat-icon>
-            {{ chapterData.grade_level }}
+            {{ GRADE_LABELS[chapterData.grade_level] || chapterData.grade_level }}
           </mat-chip>
+          }
+          @if (chapterData.subject) {
+          <mat-chip class="subject-chip">
+            <mat-icon matChipAvatar>menu_book</mat-icon>
+            {{ SUBJECT_LABELS[chapterData.subject] || chapterData.subject }}
+          </mat-chip>
+          }
           <mat-chip>
             <mat-icon matChipAvatar>list</mat-icon>
             {{ sectionIds().length }} éléments

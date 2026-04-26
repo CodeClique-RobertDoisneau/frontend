@@ -108,7 +108,7 @@ export class Course {
 
   // Compute TOC from markdown content
   readonly toc = computed(() => {
-    const content = this.data()?.item.content?.data;
+    const content = this.data()?.item.content?.content;
     if (!content || typeof content !== 'string') return [];
     return this.buildToc(content);
   });
@@ -158,8 +158,8 @@ export class Course {
       this.restartMode.set(params['restart'] === 'true');
       if (isEdit) {
         const d = this.data();
-        if (d?.item?.content?.data) {
-          const cData = d.item.content.data;
+        if (d?.item?.content?.content) {
+          const cData = d.item.content.content;
           this.editedContent.set(typeof cData === 'string' ? cData : JSON.stringify(cData, null, 2));
         }
       }
@@ -168,8 +168,8 @@ export class Course {
     // Also populate when data finally arrive while in editMode
     effect(() => {
       const d = this.data();
-      if (this.editMode() && d?.item?.content?.data && !this.editedContent()) {
-        const cData = d.item.content.data;
+      if (this.editMode() && d?.item?.content?.content && !this.editedContent()) {
+        const cData = d.item.content.content;
         this.editedContent.set(typeof cData === 'string' ? cData : JSON.stringify(cData, null, 2));
       }
     });
@@ -246,14 +246,14 @@ export class Course {
     const d = this.data();
     if (d?.item.type === 'QU') {
       try {
-        finalContent = { data: JSON.parse(finalContent) };
+        finalContent = { content: JSON.parse(finalContent) };
       } catch (e) {
         this.error.set("Format JSON Invalide");
         this.isSaving.set(false);
         return;
       }
     } else {
-      finalContent = { data: finalContent };
+      finalContent = { content: finalContent };
     }
 
     // Pass the actual object payload. NodeService will just push it to the node.

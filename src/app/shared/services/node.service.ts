@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, forkJoin, of, switchMap } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 
 export interface NodeInfo {
   id: number | string;
@@ -66,6 +66,7 @@ export const SUBJECT_LABELS: Record<string, string> = {
   'MA': 'Maths',
   'PH': 'Physique',
   'NS': 'NSI',
+  'CO': 'NSI',
 
   //Temporaire TODO
   'Maths': 'Maths',
@@ -87,14 +88,12 @@ export class NodeService {
   private http = inject(HttpClient);
   private API_URL = '/api';
 
-  //GET
   getNode(id: string | number): Observable<NodeInfo> {
     return this.http.get<NodeInfo>(`${this.API_URL}/nodes/${id}/`);
   }
 
-  //PATCH
-  updateNodeContent(id: string | number, data: string): Observable<any> {
-    return this.http.patch<any>(`${this.API_URL}/nodes/${id}/`, { content: { data } });
+  updateNodeContent(id: string | number, payload: any): Observable<any> {
+    return this.http.patch<any>(`${this.API_URL}/nodes/${id}/`, { content: payload });
   }
 
 
@@ -112,10 +111,18 @@ export class NodeService {
   }
 
   getClassGroupSyllabus(): Observable<ClassGroupSyllabusInfo[]> {
-    return this.http.get<ClassGroupSyllabusInfo[]>(`${this.API_URL}/classgroupsyllabus/`);
+    return this.http.get<ClassGroupSyllabusInfo[]>(`${this.API_URL}/classgroupsyllabus/`).pipe(
+      tap(res => console.log('getClassGroupSyllabus result:', res))
+    );
   }
 
 
+  getCodeCliqueSyllabus(): Observable<NodeInfo[]> {
+    return this.http.get<NodeInfo[]>(`${this.API_URL}/nodes/codeclique/`).pipe(
+      map(nodes => nodes.map(n => ({ ...n, children: [] }))),
+      tap(res => console.log('getCodeCliqueSyllabus result:', res))
+    );
+  }
 }
 
 

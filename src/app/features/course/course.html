@@ -75,7 +75,7 @@
         } @else if (d.item.type === 'QU') {
         <app-quiz [quizId]="d.item.id" [forceRestart]="restartMode()"></app-quiz>
         } @else {
-        <app-markdown-viewer [markdown]="d.item.content?.data || ''" [pyodide]="this.pyodide"
+        <app-markdown-viewer [markdown]="d.item.content?.content || ''" [pyodide]="this.pyodide"
           [packages]="['numpy']"></app-markdown-viewer>
         }
       </div>

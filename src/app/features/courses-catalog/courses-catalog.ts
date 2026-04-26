@@ -1,5 +1,5 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of, catchError } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HorizontalSlider } from '@shared/components/horizontal-slider/horizontal-slider';
 
@@ -86,18 +86,25 @@ export class CoursesCatalog implements OnInit {
       this.activeGroupId.set(params['group'] ? Number(params['group']) : null);
     });
 
-    // Un seul point d'entrée : classgroupsyllabus
-    this.NodeService.getClassGroupSyllabus().subscribe({
-      next: (entries) => {
-        if (!entries || entries.length === 0) {
-          this.allSyllabi.set([]);
-          this.isLoading.set(false);
-          return;
-        }
-
+    // Récupérer les syllabus class-group ET les syllabus publics CodeClique en parallèle
+    forkJoin({
+      classGroupEntries: this.NodeService.getClassGroupSyllabus().pipe(
+        catchError((err: any) => {
+          console.error('Error fetching classGroupSyllabus:', err);
+          return of([] as ClassGroupSyllabusInfo[]);
+        })
+      ),
+      codeCliqueSyllabi: this.NodeService.getCodeCliqueSyllabus().pipe(
+        catchError((err: any) => {
+          console.error('Error fetching codeCliqueSyllabi:', err);
+          return of([] as NodeInfo[]);
+        })
+      )
+    }).subscribe({
+      next: ({ classGroupEntries, codeCliqueSyllabi }) => {
         // Construire le mapping groupe → nodes
         const groupMap = new Map<number, number[]>();
-        for (const entry of entries) {
+        for (const entry of classGroupEntries) {
           if (!groupMap.has(entry.class_group)) {
             groupMap.set(entry.class_group, []);
           }
@@ -108,16 +115,25 @@ export class CoursesCatalog implements OnInit {
         );
 
         const uniqueGroupIds = [...groupMap.keys()];
-        const uniqueNodeIds = [...new Set(entries.map(e => e.node))];
+        const uniqueNodeIds = [...new Set(classGroupEntries.map(e => e.node))];
 
-        // Fetch groups (pour le dropdown) et nodes en parallèle
-        forkJoin({
-          groups: forkJoin(uniqueGroupIds.map(id => this.NodeService.getClassGroup(id))),
-          nodes: forkJoin(uniqueNodeIds.map(id => this.NodeService.getNode(id)))
-        }).subscribe({
-          next: ({ groups, nodes }) => {
+        // Fetch groups et nodes class-group en parallèle (si il y en a)
+        const groupsFetch$ = uniqueGroupIds.length > 0
+          ? forkJoin(uniqueGroupIds.map(id => this.NodeService.getClassGroup(id)))
+          : of([] as ClassGroupInfo[]);
+        const nodesFetch$ = uniqueNodeIds.length > 0
+          ? forkJoin(uniqueNodeIds.map(id => this.NodeService.getNode(id)))
+          : of([] as NodeInfo[]);
+
+        forkJoin({ groups: groupsFetch$, classGroupNodes: nodesFetch$ }).subscribe({
+          next: ({ groups, classGroupNodes }) => {
             this.classGroups.set(groups);
-            this.allSyllabi.set(nodes);
+
+            // Fusionner les nodes : class-group + codeclique, dédupliquer par id
+            const nodeMap = new Map<number | string, NodeInfo>();
+            for (const n of classGroupNodes) { nodeMap.set(n.id, n); }
+            for (const n of codeCliqueSyllabi) { if (!nodeMap.has(n.id)) nodeMap.set(n.id, n); }
+            this.allSyllabi.set([...nodeMap.values()]);
             this.isLoading.set(false);
           },
           error: () => {

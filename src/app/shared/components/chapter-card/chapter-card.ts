@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { httpResource } from '@angular/common/http';
-import { NodeInfo } from '@shared/services/node.service';
+import { NodeInfo, GRADE_LABELS, SUBJECT_LABELS } from '@shared/services/node.service';
 import { RouterLink } from '@angular/router';
 
 @Component({
