@@ -1,57 +1,101 @@
-<div class="landing-container">
-  <header class="hero-section">
-    <div class="hero-content">
-      <h1>Bienvenue sur CodeClique</h1>
-      <p class="subtitle">La plateforme d'apprentissage pour les étudiants du lycée Robert Doisneau.</p>
-      <p class="description">
-        CodeClique est votre espace pour apprendre, partager et progresser ensemble.
-        Accédez à des cours interactifs, suivez des parcours personnalisés et rejoignez une communauté passionnée.
+<div class="landing">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-copy">
+      <h1 class="hero-title">
+        Le code,<br>
+        <mark>à ton rythme.</mark>
+      </h1>
+      <p class="mat-body-large">
+        Cours interactifs, exercices Python en un clic et progression suivie semaine après semaine.
+        Tout pour réussir, rien d'inutile.
       </p>
-      <div class="hero-actions">
-        <button mat-raised-button color="primary" routerLink="/courses">Découvrir les cours</button>
-        <button mat-stroked-button color="primary" routerLink="/login">Se connecter</button>
+      <div style="display:flex; flex-wrap:wrap; gap:0.75rem; margin-top:1.5rem;">
+        <button mat-flat-button color="primary" routerLink="/courses">
+          Commencer un cours
+          <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+        </button>
+        <button mat-stroked-button routerLink="/free-python-ide">
+          <mat-icon>play_arrow</mat-icon>
+          Essayer l'éditeur Python
+        </button>
+      </div>
+      <div style="display:flex; flex-wrap:wrap; gap:2rem; margin-top:2rem;">
+        <div><div class="mat-headline-medium" style="color:var(--mat-sys-primary)">142</div><div>Élèves</div></div>
+        <div><div class="mat-headline-medium" style="color:var(--mat-sys-primary)">28</div><div>Cours dispo.</div></div>
+        <div><div class="mat-headline-medium" style="color:var(--mat-sys-primary)">94%</div><div>Taux de complétion</div></div>
       </div>
     </div>
-  </header>
+    <div class="hero-visual" aria-hidden="true">
+      <img [src]="theming.resolvedTheme() === 'dark' ? 'img/persona/maths-darkmode.png' : 'img/persona/Maths-Happy.webp'" alt="" style="max-height:360px; max-width:100%; display:block; margin:0 auto;">
+    </div>
+  </section>
 
-  <section class="features-section">
-    <h2>Accès Rapide</h2>
-    <div class="features-grid">
-      <mat-card class="feature-card">
-        <mat-card-header>
-          <div mat-card-avatar class="feature-icon-container">
-            <mat-icon>map</mat-icon>
-          </div>
-          <mat-card-title>Parcours</mat-card-title>
-        </mat-card-header>
+  <!-- POURQUOI CODECLIQUE -->
+  <section>
+    <h2 class="mat-headline-medium" style="margin:0 0 1.5rem;">Pourquoi CodeClique</h2>
+    <div class="cards-grid">
+      <mat-card appearance="outlined">
         <mat-card-content>
-          <p>Suivez des chemins d'apprentissage structurés pour maîtriser de nouvelles compétences.</p>
+          <div class="feature-visual">
+            <mat-icon>terminal</mat-icon>
+          </div>
+          <h3 class="mat-title-large">Python directement dans le cours</h3>
+          <p>Pas d'installation, pas de config. Tu lis, tu codes, tu vois le résultat — tout au même endroit.</p>
         </mat-card-content>
       </mat-card>
-
-      <mat-card class="feature-card">
-        <mat-card-header>
-          <div mat-card-avatar class="feature-icon-container">
-            <mat-icon>school</mat-icon>
-          </div>
-          <mat-card-title>Cours</mat-card-title>
-        </mat-card-header>
+      <mat-card appearance="outlined">
         <mat-card-content>
-          <p>Explorez notre catalogue de cours interactifs sur divers langages et technologies.</p>
+          <div class="feature-visual">
+            <mat-icon>quiz</mat-icon>
+          </div>
+          <h3 class="mat-title-large">Quiz à la fin de chaque partie</h3>
+          <p>Vérifie ce que tu as compris avant de passer à la suite. Correction immédiate.</p>
         </mat-card-content>
       </mat-card>
-
-      <mat-card class="feature-card">
-        <mat-card-header>
-          <div mat-card-avatar class="feature-icon-container">
-            <mat-icon>login</mat-icon>
-          </div>
-          <mat-card-title>Connexion</mat-card-title>
-        </mat-card-header>
+      <mat-card appearance="outlined">
         <mat-card-content>
-          <p>Connectez-vous pour suivre votre progression et accéder à votre espace personnel.</p>
+          <div class="feature-visual">
+            <mat-icon>play_circle</mat-icon>
+          </div>
+          <h3 class="mat-title-large">Vidéos d'introduction</h3>
+          <p>Une vidéo courte pour bien démarrer chaque notion avant de te lancer dans le code.</p>
         </mat-card-content>
       </mat-card>
+    </div>
+  </section>
+
+  <!-- ACCÈS RAPIDE -->
+  <section>
+    <h2 class="mat-headline-medium" style="margin:0 0 1.5rem;">Accès rapide</h2>
+    <div class="cards-grid">
+      <a routerLink="/dashboard" style="text-decoration:none; color:inherit;">
+        <mat-card appearance="outlined">
+          <mat-card-content>
+            <mat-icon style="color:var(--mat-sys-primary); font-size:32px; width:32px; height:32px;">dashboard</mat-icon>
+            <h3 class="mat-title-large">Dashboard</h3>
+            <p>Reprends où tu t'es arrêté.</p>
+          </mat-card-content>
+        </mat-card>
+      </a>
+      <a routerLink="/courses" style="text-decoration:none; color:inherit;">
+        <mat-card appearance="outlined">
+          <mat-card-content>
+            <mat-icon style="color:var(--mat-sys-primary); font-size:32px; width:32px; height:32px;">school</mat-icon>
+            <h3 class="mat-title-large">Catalogue</h3>
+            <p>Python, web, algorithmes…</p>
+          </mat-card-content>
+        </mat-card>
+      </a>
+      <a routerLink="/free-python-ide" style="text-decoration:none; color:inherit;">
+        <mat-card appearance="outlined">
+          <mat-card-content>
+            <mat-icon style="color:var(--mat-sys-primary); font-size:32px; width:32px; height:32px;">terminal</mat-icon>
+            <h3 class="mat-title-large">Éditeur Python</h3>
+            <p>Code en un clic, sans installer.</p>
+          </mat-card-content>
+        </mat-card>
+      </a>
     </div>
   </section>
 </div>
