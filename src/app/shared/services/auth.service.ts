@@ -86,6 +86,7 @@ export class AuthService {
     return this.http.put(`${this.apiUrl}/users/me/`, data);
   }
 
+  // TODO a supp ou pas, garder un seul getUser
   /**
    * Get a specific user by ID (admin only).
    */

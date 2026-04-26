@@ -1,30 +1,20 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { forkJoin } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HorizontalSlider } from '@shared/components/horizontal-slider/horizontal-slider';
-import { SyllabusService, ClassGroupInfo } from '@shared/services/syllabus.service';
-import { NodeInfo } from '@shared/services/node.service';
+
+
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { forkJoin, of } from 'rxjs';
+
+
+import { NodeInfo, NodeService, ClassGroupInfo, ClassGroupSyllabusInfo, SUBJECT_LABELS, GRADE_LABELS } from '@shared/services/node.service';
 import { BreadcrumbService } from '@shared/services/breadcrumb.service';
-import { AuthService } from '@shared/services/auth.service';
 
-const SUBJECT_LABELS: Record<string, string> = {
 
-  'MA': 'Maths',
-  'PH': 'Physique',
-  'NS': 'NSI',
-};
-
-const GRADE_LABELS: Record<string, string> = {
-  'SE': 'Seconde',
-  'PR': 'Première',
-  'TE': 'Terminale',
-};
-
-// Mapping groupId → liste d'IDs syllabus
+// Mapping groupId → liste d'IDs syllabus // TODO
 interface GroupSyllabi {
   groupId: number;
   syllabusIds: number[];
@@ -37,17 +27,17 @@ interface GroupSyllabi {
   styleUrl: './courses-catalog.scss',
 })
 export class CoursesCatalog implements OnInit {
-  private syllabusService = inject(SyllabusService);
+  private NodeService = inject(NodeService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private breadcrumbService = inject(BreadcrumbService);
-  private authService = inject(AuthService);
+
 
 
   // Données
   allSyllabi = signal<NodeInfo[]>([]);
-  classGroups = signal<ClassGroupInfo[]>([]);
-  groupSyllabiMap = signal<GroupSyllabi[]>([]);
+  classGroups = signal<ClassGroupInfo[]>([]);       //TODO pourquoi on a besoin des classgroups ici ???? dans courses-catalog ???
+  groupSyllabiMap = signal<GroupSyllabi[]>([]);     // TODO a comprendre
   isLoading = signal(true);
   error = signal<string | null>(null);
 
@@ -87,14 +77,6 @@ export class CoursesCatalog implements OnInit {
     return syllabi.map(s => s.id);
   });
 
-  getSubjectLabel(code: string): string {
-    return SUBJECT_LABELS[code] || code;
-  }
-
-  getGradeLabel(code: string): string {
-    return GRADE_LABELS[code] || code;
-  }
-
   ngOnInit() {
     this.breadcrumbService.setBreadcrumbs([]);
 
@@ -104,62 +86,58 @@ export class CoursesCatalog implements OnInit {
       this.activeGroupId.set(params['group'] ? Number(params['group']) : null);
     });
 
-    this.authService.getMe().subscribe({
-      next: (user: any) => {
-        const userId = user.id;
+    // Un seul point d'entrée : classgroupsyllabus
+    this.NodeService.getClassGroupSyllabus().subscribe({
+      next: (entries) => {
+        if (!entries || entries.length === 0) {
+          this.allSyllabi.set([]);
+          this.isLoading.set(false);
+          return;
+        }
 
-        this.syllabusService.getUserClassGroups(userId).subscribe({
-          next: (groups: ClassGroupInfo[]) => {
+        // Construire le mapping groupe → nodes
+        const groupMap = new Map<number, number[]>();
+        for (const entry of entries) {
+          if (!groupMap.has(entry.class_group)) {
+            groupMap.set(entry.class_group, []);
+          }
+          groupMap.get(entry.class_group)!.push(entry.node);
+        }
+        this.groupSyllabiMap.set(
+          Array.from(groupMap, ([groupId, syllabusIds]) => ({ groupId, syllabusIds }))
+        );
+
+        const uniqueGroupIds = [...groupMap.keys()];
+        const uniqueNodeIds = [...new Set(entries.map(e => e.node))];
+
+        // Fetch groups (pour le dropdown) et nodes en parallèle
+        forkJoin({
+          groups: forkJoin(uniqueGroupIds.map(id => this.NodeService.getClassGroup(id))),
+          nodes: forkJoin(uniqueNodeIds.map(id => this.NodeService.getNode(id)))
+        }).subscribe({
+          next: ({ groups, nodes }) => {
             this.classGroups.set(groups);
-
-            const mappings: GroupSyllabi[] = [];
-            const allSyllabusIds = new Set<number>();
-
-            for (const group of groups) {
-              const ids = (group.syllabus || []).map((url: any) => this.syllabusService.extractIdPublic(url));
-              mappings.push({ groupId: group.id, syllabusIds: ids });
-              ids.forEach((id: number) => allSyllabusIds.add(id));
-            }
-            this.groupSyllabiMap.set(mappings);
-
-            if (allSyllabusIds.size === 0) {
-              this.allSyllabi.set([]);
-              this.isLoading.set(false);
-              return;
-            }
-
-            this.syllabusService.getUserSyllabi(userId).subscribe({
-              next: (nodes: NodeInfo[]) => {
-                this.allSyllabi.set(nodes);
-                this.isLoading.set(false);
-              },
-              error: (err: any) => {
-                if (err.status === 403) {
-                  this.error.set("Vous n'êtes pas autorisé à accéder à cette page.");
-                } else {
-                  this.error.set('Impossible de charger les cours.');
-                }
-                this.isLoading.set(false);
-              }
-            });
+            this.allSyllabi.set(nodes);
+            this.isLoading.set(false);
           },
-          error: (err: any) => {
-            if (err.status === 403) {
-              this.error.set("Vous n'êtes pas autorisé à accéder à cette page.");
-            } else {
-              this.error.set('Impossible de charger les groupes.');
-            }
+          error: () => {
+            this.error.set('Impossible de charger les cours.');
             this.isLoading.set(false);
           }
         });
       },
-      error: () => {
-        this.error.set("Veuillez vous connecter pour voir vos cours.");
+      error: (err: any) => {
+        if (err.status === 401 || err.status === 403) {
+          this.error.set("Vous n'êtes pas autorisé à accéder à cette page.");
+        } else {
+          this.error.set('Impossible de charger les données.');
+        }
         this.isLoading.set(false);
       }
     });
   }
 
+  //Fonctions pour actualiser lorsque l'on clique sur les chips pour les filtres
   toggleSubject(code: string) {
     const newVal = this.activeSubject() === code ? null : code;
     this.updateQueryParams({ subject: newVal });

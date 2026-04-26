@@ -11,7 +11,7 @@ import { languages } from '@codemirror/language-data';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, ActivatedRoute } from '@angular/router';
 import { QuizComponent } from '@shared/components/quiz/quiz';
-import { CourseService, Item, Section, NodeInfo } from '@shared/services/node.service';
+import { NodeService, NodeInfo } from '@shared/services/node.service';
 import { MarkdownViewer } from '@shared/components/markdown-viewer/markdown-viewer';
 import { MatPaginatorModule, PageEvent, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatTreeModule, MatTreeNestedDataSource } from '@angular/material/tree';
@@ -51,7 +51,7 @@ export class Course {
   readonly id = input.required<string>(); // Item ID from route
   pyodide = inject(Pyodide);
 
-  private courseService = inject(CourseService);
+  private NodeService = inject(NodeService);
   private location = inject(Location);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -82,7 +82,7 @@ export class Course {
   // Combined data signal: Item + Section (using the first section as context)
   readonly data = toSignal(
     toObservable(this.id).pipe(
-      switchMap((id: string) => this.courseService.getNode(id)),
+      switchMap((id: string) => this.NodeService.getNode(id)),
       switchMap((item: NodeInfo) => {
         // If item has no children (sections), return just item with undefined section
         if (!item.children || item.children.length === 0) {
@@ -91,7 +91,7 @@ export class Course {
         // Extract section ID (could be number or NodeInfo object)
         const firstSection = item.children[0];
         const sectionId = typeof firstSection === 'object' ? firstSection.id : firstSection;
-        return this.courseService.getNode(sectionId).pipe(
+        return this.NodeService.getNode(sectionId).pipe(
           map((section: NodeInfo) => ({ item, section }))
         );
       }),
@@ -214,7 +214,7 @@ export class Course {
       return;
     }
 
-    this.courseService.verifyNode(this.id(), null, d.item.modified_at).subscribe({
+    this.NodeService.verifyNode(this.id(), null, d.item.modified_at).subscribe({
       next: (res) => {
         this.isVerifying.set(false);
         this.successMessage.set('Terminé !');
@@ -256,8 +256,8 @@ export class Course {
       finalContent = { data: finalContent };
     }
 
-    // Pass the actual object payload. CourseService will just push it to the node.
-    this.courseService.updateNodeContent(this.id(), finalContent).subscribe({
+    // Pass the actual object payload. NodeService will just push it to the node.
+    this.NodeService.updateNodeContent(this.id(), finalContent).subscribe({
       next: (res) => {
         this.isSaving.set(false);
         this.router.navigate([], { queryParams: { edit: null } }).then(() => {

@@ -1,14 +1,7 @@
 import { Component, input, computed, inject, SecurityContext } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-const SUBJECT_NAMES: Record<string, string> = {
-  'MA': 'Maths',
-  'Maths': 'Maths',
-  'PH': 'Physique',
-  'Physique': 'Physique',
-  'NS': 'NSI',
-  'NSI': 'NSI',
-};
+import { SUBJECT_LABELS } from '@shared/services/node.service'
 
 @Component({
   selector: 'app-persona',
@@ -23,7 +16,7 @@ export class Persona {
   pose = input<string>('Default');
 
   subjectName = computed(
-    () => SUBJECT_NAMES[this.subject()] || 'Maths'
+    () => SUBJECT_LABELS[this.subject()] || 'Maths'
   );
 
   imagePath = computed<SafeResourceUrl>(() => {
