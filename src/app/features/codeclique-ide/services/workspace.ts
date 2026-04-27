@@ -95,11 +95,15 @@ export class WorkspaceService implements OnDestroy {
   saveName(index: number) {
     const contexts = this.contexts();
     if (contexts[index]) {
-      let newName = this.editingName().trim();
-      if (newName && !newName.endsWith('.py')) {
+      let newName = this.editingName().trim().replace(/[^a-zA-Z0-9._-]/g, '_');
+      
+      if (!newName || newName === '.py') {
+        newName = `script_${index + 1}.py`;
+      } else if (!newName.endsWith('.py')) {
         newName += '.py';
       }
-      contexts[index].name.set(newName || 'script.py');
+      
+      contexts[index].name.set(newName);
     }
     this.editingTabIndex.set(null);
   }

@@ -1,28 +1,33 @@
 <div class="tab-bar">
   @for (context of workspace.contexts(); track context.id; let i = $index) {
-  <div class="tab" [class.active]="workspace.activeContextIndex() === i" (click)="selectTab(i)" (dblclick)="startEditing(i, context.name(), $event)">
+  <div class="tab" [class.active]="workspace.activeContextIndex() === i" (click)="selectTab(i)"
+    (dblclick)="startEditing(i, context.name(), $event)">
     <mat-icon class="file-icon">description</mat-icon>
-    
+
     <div class="tab-content">
       @if (workspace.editingTabIndex() === i) {
-        <input class="rename-input" [(ngModel)]="workspace.editingName" (keyup.enter)="saveName(i)" (blur)="saveName(i)" (keyup.escape)="cancelEditing()" autofocus (click)="$event.stopPropagation()">
+      <input class="rename-input" [(ngModel)]="workspace.editingName" (keyup.enter)="saveName(i)" (blur)="saveName(i)"
+        (keyup.escape)="cancelEditing()" autofocus (click)="$event.stopPropagation()">
       } @else {
-        <span class="tab-name">{{ context.name() }}</span>
+      <span class="tab-name">{{ context.name() }}</span>
       }
     </div>
-    
-    <button mat-icon-button class="close-btn" (click)="closeTab(i, $event)">
+
+    <button mat-icon-button class="close-btn" (click)="closeTab(i, $event)" matTooltip="Fermer l'onglet"
+      aria-label="Fermer l'onglet">
       <mat-icon>close</mat-icon>
     </button>
   </div>
   }
-  <button mat-icon-button class="add-tab-btn" (click)="addNewTab()" matTooltip="Nouvel onglet" aria-label="Ajouter un nouvel onglet">
+  <button mat-icon-button class="add-tab-btn" (click)="addNewTab()" matTooltip="Nouvel onglet"
+    aria-label="Ajouter un nouvel onglet">
     <mat-icon>add</mat-icon>
   </button>
 
   <div class="spacer"></div>
 
-  <button mat-icon-button (click)="onToggleConsole()" matTooltip="Basculer la console (Ctrl+B)" class="toggle-console-btn" aria-label="Afficher/Masquer la console">
+  <button mat-icon-button (click)="onToggleConsole()" matTooltip="Basculer la console (Ctrl+B)"
+    class="toggle-console-btn" aria-label="Afficher/Masquer la console">
     <mat-icon>vertical_split</mat-icon>
   </button>
 </div>

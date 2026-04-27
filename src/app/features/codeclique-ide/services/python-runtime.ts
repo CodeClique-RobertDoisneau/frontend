@@ -27,6 +27,9 @@ export class PythonRuntime implements IdeRuntime {
     onInputRequest?: () => void,
     isRunningSignal?: WritableSignal<boolean>
   ): void {
+    if (this.executionId) {
+      this.stop();
+    }
     const targetRunningSignal = isRunningSignal || this.isRunning;
     const { executionId } = this.pyodide.run(
       code,

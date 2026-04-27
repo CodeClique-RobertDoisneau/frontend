@@ -96,12 +96,17 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
 
   @HostListener('window:mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
+    // Only resize if the flag is set and we have the container reference
     if (!this.isResizing || !this.ideContainer) return;
 
     const container = this.ideContainer.nativeElement as HTMLElement;
     const rect = container.getBoundingClientRect();
+    
+    // Calculate new width: since the panel is on the right, 
+    // the width is the distance from the mouse to the right edge of the container
     const newWidth = rect.right - event.clientX;
 
+    // Define constraints (20% to 80% of container width)
     const min = rect.width * 0.2;
     const max = rect.width * 0.8;
 

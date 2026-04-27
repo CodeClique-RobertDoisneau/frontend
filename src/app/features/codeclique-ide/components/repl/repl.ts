@@ -33,12 +33,8 @@ export class Repl {
         setTimeout(() => this.scrollToBottom(), 50);
       }
 
-      // Focus handling
-      if (context.waitingForInput()) {
-        setTimeout(() => this.waitingInput?.nativeElement.focus(), 50);
-      } else {
-        this.focus();
-      }
+      // Focus handling based on state
+      this.focus();
     });
   }
 
@@ -65,7 +61,7 @@ export class Repl {
       context.run((type, content) => this.workspace.addToRepl(context, type, content), cmd);
       context.replCommand.set('');
       // Refocus after execution
-      setTimeout(() => this.replInput?.nativeElement.focus(), 50);
+      this.focus();
     }
   }
 
