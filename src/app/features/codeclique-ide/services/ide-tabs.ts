@@ -14,7 +14,11 @@ export class IdeTabs implements OnDestroy {
   activeTab = computed(() => this.tabs()[this.activeTabIndex()]);
 
   maxTabs = navigator.hardwareConcurrency || 4;
-  availablePackageList = ['numpy', 'matplotlib', 'pandas', 'scipy', 'scikit-learn', 'networkx'];
+  availablePackageList = [
+    'numpy', 'matplotlib', 'pandas', 'scipy', 'scikit-learn', 'networkx',
+    'beautifulsoup4', 'pillow', 'requests', 'sympy', 'scikit-image',
+    'statsmodels', 'tqdm', 'sqlalchemy', 'biopython', 'astropy', 'opencv-python'
+  ];
 
   constructor() {
     // Initial tab is added by the component if needed, or we can do it here
