@@ -1,14 +1,14 @@
 import { TestBed } from '@angular/core/testing';
-import { IdeTabs } from './ide-tabs';
+import { WorkspaceService } from './workspace';
 
-describe('IdeTabs', () => {
-  let service: IdeTabs;
+describe('WorkspaceService', () => {
+  let service: WorkspaceService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [IdeTabs]
+      providers: [WorkspaceService]
     });
-    service = TestBed.inject(IdeTabs);
+    service = TestBed.inject(WorkspaceService);
   });
 
   it('should be created', () => {

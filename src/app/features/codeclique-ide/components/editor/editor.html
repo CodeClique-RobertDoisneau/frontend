@@ -1,0 +1,11 @@
+<div class="editor-wrapper">
+  @if (workspace.activeContext(); as context) {
+  <code-editor 
+    [ngModel]="context.code()" 
+    (ngModelChange)="onCodeChange($event)"
+    [extensions]="editorExtensions"
+    [languages]="languages"
+    [theme]="theming.resolvedTheme()"
+  ></code-editor>
+  }
+</div>

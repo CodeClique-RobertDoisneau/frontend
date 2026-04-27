@@ -1,11 +1,10 @@
-import { Component, input, output, signal, effect, ElementRef, ViewChild, inject } from '@angular/core';
+import { Component, signal, effect, ElementRef, ViewChild, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { IdeTab } from '../../codeclique-ide.types';
-import { IdeTabs } from '../../services/ide-tabs';
+import { WorkspaceService } from '../../services/workspace';
 
 @Component({
   selector: 'app-repl',
@@ -14,29 +13,30 @@ import { IdeTabs } from '../../services/ide-tabs';
   templateUrl: './repl.html',
   styleUrl: './repl.scss'
 })
-export class IdeReplComponent {
-  tab = input.required<IdeTab>();
-  execute = output<string>();
+export class Repl {
+  workspace = inject(WorkspaceService);
+  activeContext = this.workspace.activeContext;
 
-  replCommand = signal('');
-  private ideService = inject(IdeTabs);
+
   @ViewChild('replScrollContainer') private replScrollContainer!: ElementRef;
   @ViewChild('waitingInput') private waitingInput!: ElementRef<HTMLInputElement>;
   @ViewChild('replInput') private replInput!: ElementRef<HTMLInputElement>;
 
   constructor() {
     effect(() => {
+      const context = this.activeContext();
+      if (!context) return;
+
       // Auto-scroll when history changes
-      const history = this.tab().replHistory();
+      const history = context.replHistory();
       if (history) {
         setTimeout(() => this.scrollToBottom(), 50);
       }
 
-      // Focus waiting input if it appears
-      if (this.tab().waitingForInput()) {
+      // Focus handling
+      if (context.waitingForInput()) {
         setTimeout(() => this.waitingInput?.nativeElement.focus(), 50);
       } else {
-        // Focus main input otherwise
         this.focus();
       }
     });
@@ -44,7 +44,10 @@ export class IdeReplComponent {
 
   focus() {
     setTimeout(() => {
-      if (this.tab().waitingForInput()) {
+      const context = this.activeContext();
+      if (!context) return;
+
+      if (context.waitingForInput()) {
         this.waitingInput?.nativeElement.focus();
       } else {
         this.replInput?.nativeElement.focus();
@@ -53,24 +56,32 @@ export class IdeReplComponent {
   }
 
   handleExecute() {
-    const cmd = this.replCommand().trim();
+    const context = this.activeContext();
+    if (!context) return;
+    
+    const cmd = context.replCommand().trim();
     if (cmd) {
-      this.execute.emit(cmd);
-      this.replCommand.set('');
+      this.workspace.addToRepl(context, 'input', cmd);
+      context.run((type, content) => this.workspace.addToRepl(context, type, content), cmd);
+      context.replCommand.set('');
       // Refocus after execution
       setTimeout(() => this.replInput?.nativeElement.focus(), 50);
     }
   }
 
   submitInput() {
-    const tab = this.tab();
-    if (tab && tab.executionId && tab.waitingForInput()) {
-      const input = tab.userInput();
-      this.ideService.addToRepl(tab, 'output', input + '\n');
-      tab.pyodide.sendInput(tab.executionId, input);
-      tab.waitingForInput.set(false);
-      tab.userInput.set('');
+    const context = this.activeContext();
+    if (context && context.waitingForInput()) {
+      const input = context.userInput();
+      this.workspace.addToRepl(context, 'output', input + '\n');
+      context.runtime.sendInput(input);
+      context.waitingForInput.set(false);
+      context.userInput.set('');
     }
+  }
+
+  clearConsole() {
+    this.activeContext()?.replHistory.set([]);
   }
 
   private scrollToBottom() {

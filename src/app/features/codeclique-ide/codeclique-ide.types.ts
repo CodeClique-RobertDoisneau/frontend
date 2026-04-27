@@ -1,5 +1,4 @@
-import { WritableSignal } from '@angular/core';
-import { Pyodide } from '@shared/services/pyodide/pyodide';
+import { Signal, WritableSignal } from '@angular/core';
 
 export interface PythonExample {
   name: string;
@@ -13,16 +12,22 @@ export interface ReplLine {
   content: string;
 }
 
-export interface IdeTab {
-  id: string;
-  name: string;
-  code: WritableSignal<string>;
-  pyodide: Pyodide;
-  replHistory: WritableSignal<ReplLine[]>;
-  isRunning: WritableSignal<boolean>;
-  executionId: string | null;
-  plot: WritableSignal<string>;
-  waitingForInput: WritableSignal<boolean>;
-  userInput: WritableSignal<string>;
-  packages: { name: string; loaded: boolean }[];
+export interface IdeRuntime {
+  readonly isReady: Signal<boolean>;
+  readonly isRunning: WritableSignal<boolean>;
+  
+  init(dependencies?: string[]): void;
+  run(
+    code: string,
+    onOutput: (text: string) => void,
+    onError: (text: string) => void,
+    onPlot?: (base64: string) => void,
+    onInputRequest?: () => void,
+    isRunningSignal?: WritableSignal<boolean>
+  ): void;
+  stop(): void;
+  sendInput(text: string): void;
+  reset(): void;
+  loadPackage?(packages: string[]): void;
+  destroy(): void;
 }

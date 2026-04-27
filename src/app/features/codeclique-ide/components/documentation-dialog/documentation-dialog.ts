@@ -24,23 +24,23 @@ export class DocumentationDialog {
   dialogRef = inject(MatDialogRef<DocumentationDialog>);
 
   documentation = `
-Bienvenue dans votre environnement de développement Python intégré !
-
 ## Fonctionnalités
-- **Éditeur de code** : Coloration syntaxique et support complet de Python.
-- **Console REPL** : Exécutez des commandes Python en direct et interagissez avec vos scripts.
-- **Graphiques** : Support complet de \`matplotlib\` pour l'affichage de graphiques directement dans la console.
-- **Gestion des packages** : Chargez des bibliothèques populaires comme \`numpy\`, \`pandas\`, et \`scipy\`.
+- **Console REPL** : Exécutez des commandes Python en direct.
+- **Gestion des packages** : Chargez des bibliothèques comme \`numpy\`, \`pandas\`, etc. via le menu dédié.
 
-## Raccourcis Clavier
-- **F5** : Exécuter le code de l'onglet actif.
+## Exécution
+- **F5** ou **Ctrl + Enter** : Exécuter le code de l'onglet actif.
 - **Ctrl + B** : Afficher/Masquer la console.
-- **Ctrl + S** : Enregistrer (Exporter) le fichier actuel.
 - **Ctrl + L** : Effacer l'historique de la console.
-- **Ctrl + Alt + N** : Créer un nouvel onglet.
 
-## Bibliothèques Disponibles
-L'IDE utilise **Pyodide**, une distribution WebAssembly de CPython. Vous pouvez importer les packages standard ainsi que ceux installés via le menu "Bibliothèques".
+## Édition
+- **Ctrl + /** : Commenter/Décommenter les lignes sélectionnées.
+- **Ctrl + F** : Rechercher dans le fichier.
+- **Ctrl + H** : Remplacer.
+- **Ctrl + D** : Dupliquer la ligne actuelle.
+- **Ctrl + Alt + N** : Créer un nouvel onglet.
+- **Ctrl + S** : Enregistrer (Exporter) le fichier actuel.
+- **Double-clic sur l'onglet** : Renommer le fichier.
   `;
 
   close() {

@@ -1,0 +1,24 @@
+.menu-bar {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 8px;
+  gap: 4px;
+  background: var(--mat-sys-surface-container);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+
+  button {
+    font-size: 0.9rem;
+  }
+
+  .spacer {
+    flex: 1;
+  }
+
+  .execution-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-right: 8px;
+  }
+}

@@ -1,6 +1,15 @@
 <div class="repl-container">
+  @if (activeContext(); as context) {
+  <div class="panel-header">
+    <mat-icon>terminal</mat-icon>
+    <span>Console Python</span>
+    <div class="spacer"></div>
+    <button mat-icon-button (click)="clearConsole()" matTooltip="Effacer la console (Ctrl+L)" aria-label="Effacer le contenu de la console">
+      <mat-icon>delete_sweep</mat-icon>
+    </button>
+  </div>
   <div class="repl-output" #replScrollContainer>
-    @for (line of tab().replHistory(); track $index) {
+    @for (line of context.replHistory(); track $index) {
     <div class="repl-line" [ngClass]="line.type">
       @if (line.type === 'input') {
       <span class="prompt">>>></span>
@@ -9,22 +18,22 @@
     </div>
     }
 
-    @if (tab().plot()) {
-    <div class="plot-container">
-      <img [src]="'data:image/png;base64,' + tab().plot()" alt="Python Plot">
-    </div>
-    }
-
-    @if (tab().waitingForInput()) {
-    <div class="repl-line input-request">
+    @if (context.waitingForInput()) {
+    <div class="repl-line input">
       <span class="prompt">?</span>
       <div class="inline-input">
-        <input #waitingInput type="text" [ngModel]="tab().userInput()" (ngModelChange)="tab().userInput.set($event)" (keyup.enter)="submitInput()"
-          placeholder="En attente d'entrée..." autofocus>
+        <input #waitingInput type="text" [(ngModel)]="context.userInput" (keyup.enter)="submitInput()"
+          placeholder="Entrée attendue...">
         <button mat-icon-button (click)="submitInput()" class="mini-send" matTooltip="Envoyer">
           <mat-icon>send</mat-icon>
         </button>
       </div>
+    </div>
+    }
+
+    @if (context.plot()) {
+    <div class="plot-container">
+      <img [src]="'data:image/png;base64,' + context.plot()" alt="Matplotlib Plot">
     </div>
     }
   </div>
@@ -33,13 +42,14 @@
     <div class="repl-input-area">
       <span class="prompt">>>></span>
       <div class="inline-input">
-        <input #replInput type="text" [ngModel]="replCommand()" (ngModelChange)="replCommand.set($event)" (keyup.enter)="handleExecute()" placeholder="Taper du code ici..."
-          [disabled]="!tab().pyodide.isReady() || tab().waitingForInput()">
+        <input #replInput type="text" [ngModel]="context.replCommand()" (ngModelChange)="context.replCommand.set($event)" (keyup.enter)="handleExecute()" placeholder="Taper du code ici..."
+          [disabled]="!context.runtime.isReady() || context.waitingForInput()">
         <button mat-icon-button (click)="handleExecute()" class="mini-send" matTooltip="Exécuter"
-          [disabled]="!tab().pyodide.isReady() || tab().waitingForInput()">
+          [disabled]="!context.runtime.isReady() || context.waitingForInput()">
           <mat-icon>send</mat-icon>
         </button>
       </div>
     </div>
   </div>
+  }
 </div>

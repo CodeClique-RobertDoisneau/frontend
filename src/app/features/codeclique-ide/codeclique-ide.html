@@ -1,152 +1,19 @@
 <div class="desktop-wrapper">
-  <!-- Desktop-style Menu Bar -->
-  <div class="menu-bar">
-    <button mat-button [matMenuTriggerFor]="fileMenu">Fichier</button>
-    <mat-menu #fileMenu="matMenu">
-      <button mat-menu-item (click)="addNewTab()">
-        <mat-icon>add</mat-icon>
-        <span>Nouveau fichier</span>
-      </button>
-      <button mat-menu-item [matMenuTriggerFor]="exampleMenu">
-        <mat-icon>description</mat-icon>
-        <span>Exemples</span>
-      </button>
-      <mat-divider></mat-divider>
-      <button mat-menu-item (click)="importFile()">
-        <mat-icon>file_upload</mat-icon>
-        <span>Importer</span>
-      </button>
-      <button mat-menu-item (click)="exportFile()">
-        <mat-icon>file_download</mat-icon>
-        <span>Enregistrer</span>
-      </button>
-    </mat-menu>
-
-    <button mat-button [matMenuTriggerFor]="libMenu">Bibliothèques</button>
-
-    <mat-menu #libMenu="matMenu">
-      @if (activeTab(); as tab) {
-        @for (pkg of tab.packages; track pkg.name) {
-        <button mat-menu-item (click)="loadPackage(pkg.name)" [disabled]="pkg.loaded">
-          <mat-icon>{{ pkg.loaded ? 'check_circle' : 'add_circle_outline' }}</mat-icon>
-          <span>{{ pkg.name }}</span>
-        </button>
-        }
-      }
-    </mat-menu>
-
-    <mat-menu #exampleMenu="matMenu">
-      @for (ex of examples; track ex.name) {
-      <button mat-menu-item (click)="loadExample(ex)">
-        <span>{{ ex.name }}</span>
-      </button>
-      }
-    </mat-menu>
-
-    <button mat-button [matMenuTriggerFor]="helpMenu">Aide</button>
-    <mat-menu #helpMenu="matMenu">
-      <button mat-menu-item (click)="openDocumentation()">
-        <mat-icon>help_outline</mat-icon>
-        <span>Documentation</span>
-      </button>
-      <button mat-menu-item (click)="openAbout()">
-        <mat-icon>info_outline</mat-icon>
-        <span>À propos</span>
-      </button>
-    </mat-menu>
-
-    <div class="spacer"></div>
-
-    <div class="execution-controls">
-      @if (activeTab(); as tab) {
-        @if (!tab.isRunning()) {
-          @if (!tab.pyodide.isReady()) {
-            <button mat-icon-button disabled matTooltip="Chargement de Python...">
-              <mat-progress-spinner diameter="24" mode="indeterminate"></mat-progress-spinner>
-            </button>
-          } @else {
-            <button mat-icon-button color="primary" (click)="runCode()" matTooltip="Exécuter (F5)" aria-label="Exécuter le code">
-              <mat-icon>play_arrow</mat-icon>
-            </button>
-          }
-        } @else {
-          <button mat-icon-button color="warn" (click)="stopExecution()" matTooltip="Arrêter" aria-label="Arrêter l'exécution">
-            <mat-icon>stop</mat-icon>
-          </button>
-        }
-      }
-
-      <button mat-icon-button (click)="resetEnvironment()" matTooltip="Réinitialiser l'environnement" aria-label="Réinitialiser l'environnement Python">
-        <mat-icon>refresh</mat-icon>
-      </button>
-    </div>
-  </div>
+  <app-menu-bar></app-menu-bar>
 
   <div class="ide-container" #ideContainer>
-    <!-- Main Content Area -->
     <div class="editor-section">
-      <!-- Tab Bar -->
-      <div class="tab-bar">
-        @for (tab of tabs(); track tab.id; let i = $index) {
-        <div class="tab" [class.active]="activeTabIndex() === i" (click)="activeTabIndex.set(i)">
-          <mat-icon class="file-icon">description</mat-icon>
-          <span class="tab-name">{{ tab.name }}</span>
-          <button mat-icon-button class="close-btn" (click)="closeTab(i, $event)">
-            <mat-icon>close</mat-icon>
-          </button>
-        </div>
-        }
-        <button mat-icon-button class="add-tab-btn" (click)="addNewTab()" matTooltip="Nouvel onglet" aria-label="Ajouter un nouvel onglet">
-          <mat-icon>add</mat-icon>
-        </button>
-
-        <div class="spacer"></div>
-
-        @if (!isConsoleVisible()) {
-          <button mat-icon-button (click)="toggleConsole()" matTooltip="Afficher la console (Ctrl+B)" class="toggle-console-btn" aria-label="Afficher la console">
-            <mat-icon>terminal</mat-icon>
-          </button>
-        }
-      </div>
-
-      <!-- Editor for Active Tab -->
-      <div class="editor-wrapper">
-        @if (activeTab()) {
-        <code-editor [ngModel]="activeTab()!.code()" (ngModelChange)="activeTab()!.code.set($event)" [languages]="languages" [theme]="theming.resolvedTheme()"
-          language="python" />
-        }
-      </div>
+      <app-tab-bar (toggleConsole)="toggleConsole()"></app-tab-bar>
+      <app-editor></app-editor>
     </div>
 
     <!-- Resize Handle -->
     @if (isConsoleVisible()) {
-      <div class="resize-handle" (mousedown)="startResizing($event)"></div>
+    <div class="resize-handle" (mousedown)="startResizing($event)"></div>
     }
 
     <div class="repl-panel" [style.width.px]="consoleWidth()" [class.hidden]="!isConsoleVisible()">
-      <div class="panel-header">
-        <mat-icon>terminal</mat-icon>
-        <span>Console Python</span>
-        <span class="spacer"></span>
-
-
-        <button mat-icon-button (click)="clearConsole()" matTooltip="Effacer la console (Ctrl+L)" aria-label="Effacer le contenu de la console">
-          <mat-icon>block</mat-icon>
-        </button>
-
-        <button mat-icon-button (click)="toggleConsole()" matTooltip="Masquer la console (Ctrl+B)" class="toggle-btn" aria-label="Masquer la console">
-          <mat-icon>chevron_right</mat-icon>
-        </button>
-      </div>
-
-      <div class="panel-body">
-        @if (activeTab(); as tab) {
-          <app-repl [tab]="tab" (execute)="executeRepl($event)" />
-        }
-      </div>
+      <app-repl></app-repl>
     </div>
   </div>
 </div>
-
-<!-- Hidden file input for importing -->
-<input type="file" #fileInput style="display: none" (change)="onFileSelected($event)" accept=".py,.txt">
