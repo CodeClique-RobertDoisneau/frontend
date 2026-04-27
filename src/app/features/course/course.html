@@ -45,36 +45,6 @@
         }
       </div>
 
-      @if (d.item.type === 'LE') { ¹
-      <div class="action-section">
-        @if (successMessage()) {
-        <div class="success-banner">
-          <mat-icon>check_circle</mat-icon>
-          <span>{{ successMessage() }}</span>
-        </div>
-        }
-
-        @if (error()) {
-        <div class="error-banner">
-          <mat-icon>error</mat-icon>
-          <span>{{ error() }}</span>
-        </div>
-        }
-
-        <button mat-flat-button color="primary" class="verify-btn" (click)="onVerify()"
-          [disabled]="isVerifying() || successMessage() !== '' || isAlreadyFinished()">
-          @if (isVerifying()) {
-          <mat-spinner diameter="20"></mat-spinner>
-          } @else if (isAlreadyFinished()) {
-          <mat-icon>done_all</mat-icon> <span>Déjà terminé</span>
-          } @else {
-          <mat-icon>check</mat-icon> <span>J'ai terminé ce cours</span>
-          }
-        </button>
-
-        <!-- Dummy space for next button, handled automatically by goToNext for now -->
-      </div>
-      }
     </main>
 
     <!-- TOC Sidebar -->

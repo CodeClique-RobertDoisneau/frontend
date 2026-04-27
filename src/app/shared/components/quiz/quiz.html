@@ -50,24 +50,6 @@
     </div>
     }
 
-
-
-    <div class="quiz-actions">
-        @if (!quizSubmitted()) {
-        <button mat-flat-button color="primary" (click)="quizSubmitted.set(true); userDidSubmit.set(true)"
-            [disabled]="submitResource.isLoading()">
-            @if (submitResource.isLoading()) { <mat-progress-bar mode="indeterminate"></mat-progress-bar> }
-            Vérifier mes réponses
-        </button>
-        } @else if (score() !== null) {
-        <div class="score-display">
-            <span class="score-text">Votre score : {{ score() }} / {{ maxScore() }}</span>
-            <mat-progress-bar mode="determinate" [value]="(score()! / maxScore()!) * 100" color="accent">
-            </mat-progress-bar>
-        </div>
-        }
-    </div>
-
     }
 
     @else if (quizResource.error()) {

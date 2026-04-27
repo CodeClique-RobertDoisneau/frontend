@@ -1,9 +1,8 @@
-import { Component, inject, signal, computed, ChangeDetectionStrategy, effect, untracked, input } from '@angular/core';
+import { Component, signal, computed, ChangeDetectionStrategy, effect, untracked, input } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { HttpResourceRequest } from '@angular/common/http';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
@@ -28,7 +27,7 @@ export type QuizResult = [boolean[], string][];
 
 @Component({
   selector: 'app-quiz',
-  imports: [MatCheckboxModule, MatRadioModule, MatIconModule, MatButtonModule, MatProgressBarModule],
+  imports: [MatCheckboxModule, MatRadioModule, MatIconModule, MatProgressBarModule],
   templateUrl: './quiz.html',
   styleUrl: './quiz.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,7 +47,6 @@ export class QuizComponent {
 
   userAnswers = signal<boolean[][]>([]);
   quizSubmitted = signal(false);
-  userDidSubmit = signal(false);
 
 
   quizResource = httpResource<any>(() => {
@@ -70,44 +68,8 @@ export class QuizComponent {
     return data.map(q => [q.answers || [], q.explanation || '']);
   });
 
-  score = computed<number | null>(() => {
-    const resp = this.quizResource.value();
-    if (resp?.user_progress?.done && !this.forceRestart() && resp.user_progress.score !== undefined) {
-      return resp.user_progress.score;
-    }
-
-    if (!this.quizSubmitted()) return null;
-    const correction = this.QuizCorrection();
-    if (!correction || correction.length === 0) return null;
-
-    let currentScore = 0;
-    for (let i = 0; i < correction.length; i++) {
-      const userA = this.userAnswers()[i] || [];
-      const trueA = correction[i][0] || [];
-      for (let j = 0; j < trueA.length; j++) {
-        if (userA[j] === trueA[j]) currentScore++;
-      }
-    }
-    return currentScore;
-  });
-
-  maxScore = computed<number | null>(() => {
-    const resp = this.quizResource.value();
-    if (resp?.user_progress?.done && !this.forceRestart() && resp.user_progress.max_score !== undefined) {
-      return resp.user_progress.max_score;
-    }
-
-    if (!this.quizSubmitted()) return null;
-    const correction = this.QuizCorrection();
-    if (!correction || correction.length === 0) return null;
-
-    let currentMax = 0;
-    for (let i = 0; i < correction.length; i++) {
-      const trueA = correction[i][0] || [];
-      currentMax += trueA.length;
-    }
-    return currentMax;
-  });
+  //score
+  //maxScore
 
   // 1. On parse la donnée UNE SEULE FOIS de manière centralisée
   parsedQuizData = computed<QuizItem[] | null>(() => {
@@ -214,7 +176,6 @@ export class QuizComponent {
         // On effectue le reset si on est en mode restart OU si on n'a pas encore de réponses
         if (fRestart || this.userAnswers().length !== data.length) {
           this.quizSubmitted.set(false);
-          this.userDidSubmit.set(false);
           const initialState = data.map((q: QuizItem) => new Array(q.options.length).fill(false));
           this.userAnswers.set(initialState);
         }
@@ -243,7 +204,6 @@ export class QuizComponent {
 
   // Elle s'active UNIQUEMENT quand l'utilisateur clique sur "Vérifier mes réponses"
   submitResource = httpResource<any>(() => {
-    if (!this.userDidSubmit()) return undefined;
     if (this.previewData()) return undefined; // Pas de POST en mode éditeur
     if (this.showCorrectionOnly()) return undefined; // Pas de POST en mode forcé
     const id = this.quizId();
@@ -257,15 +217,6 @@ export class QuizComponent {
       method: 'POST',
       body: { answer: this.userAnswers(), modified_at }
     } as HttpResourceRequest;
-  });
-
-  // Quand le submitResource renvoie une réponse, on met à jour le quizResource pour récupérer les answers
-  submitEffect = effect(() => {
-    const resp = this.submitResource.value();
-    if (resp) {
-      // Le POST a réussi : on recharge le quiz pour obtenir les answers (maintenant qu'un Attempt existe)
-      this.quizResource.reload();
-    }
   });
 
 

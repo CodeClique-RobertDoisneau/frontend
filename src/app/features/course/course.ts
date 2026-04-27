@@ -66,7 +66,6 @@ export class Course {
 
   error = signal('');
   isVerifying = signal(false);
-  successMessage = signal('');
 
   // Tree control for TOC
   treeControl = new NestedTreeControl<TocNode>((node: TocNode) => node.children);
@@ -156,31 +155,6 @@ export class Course {
 
   doRestart() {
     this.router.navigate([], { relativeTo: this.route, queryParams: { restart: 'true', review: null }, queryParamsHandling: 'merge' });
-  }
-
-  onVerify() {
-    this.isVerifying.set(true);
-    // For now, support lessons verification (empty submission).
-    const d = this.data();
-    if (!d) {
-      this.isVerifying.set(false);
-      return;
-    }
-
-    this.NodeService.verifyNode(this.id(), null, d.item.modified_at).subscribe({
-      next: (res) => {
-        this.isVerifying.set(false);
-        this.successMessage.set('Terminé !');
-        // Let user see success message for a brief moment before moving to next item
-        setTimeout(() => {
-          this.successMessage.set('');
-        }, 1500);
-      },
-      error: () => {
-        this.isVerifying.set(false);
-        this.error.set("Erreur lors de la validation.");
-      }
-    });
   }
 
   hasChild = (_: number, node: TocNode) => !!node.children && node.children.length > 0;
