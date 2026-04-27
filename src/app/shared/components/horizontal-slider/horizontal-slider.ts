@@ -1,13 +1,11 @@
-import { Component, ElementRef, viewChild, signal, computed, input, effect } from '@angular/core';
+import { Component, ElementRef, viewChild, signal, computed, input } from '@angular/core';
 import { httpResource } from '@angular/common/http';
-
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { ChapterCard } from '../chapter-card/chapter-card';
-import { Persona } from '../persona/persona';
-
+import { ChapterCard } from '@shared/components/chapter-card/chapter-card';
+import { Persona } from '@shared/components/persona/persona';
 import { NodeInfo } from '@shared/services/node.service';
 
 

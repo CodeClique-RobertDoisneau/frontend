@@ -1,15 +1,15 @@
-import { Component, input, computed } from '@angular/core';
+import { Component, input, computed, inject } from '@angular/core';
 import { httpResource } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { AuthService } from '@shared/services/auth.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
-import { NodeInfo } from '@shared/services/node.service';
 import { MatDividerModule } from '@angular/material/divider';
 import { RouterLink, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+
+
+import { NodeInfo, TYPE_LABELS } from '@shared/services/node.service';
 
 
 @Component({
@@ -21,26 +21,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 export class ItemCard {
   readonly id = input.required<string>();
-  
-  private authService = inject(AuthService);
   private router = inject(Router);
 
   itemInfo = httpResource<NodeInfo>(() => `/api/nodes/${this.id()}/`);
 
-  isEditor = computed(() => {
-    const user = this.authService.currentUser();
-    return user && (user.role === 'TE' || user.role === 'AD');
-  });
-
   onCardClick(event: Event, id: string | number) {
     this.router.navigate(['/course', id]);
   }
-
-  onEditClick(event: Event, id: string | number) {
-    event.stopPropagation();
-    this.router.navigate(['/course', id], { queryParams: { edit: 'true' } });
-  }
-
 
   typeIcon = computed(() => {
     const node = this.itemInfo.value();
@@ -56,12 +43,8 @@ export class ItemCard {
   typeLabel = computed(() => {
     const node = this.itemInfo.value();
     if (!node) return '';
-    switch (node.type) {
-      case 'LE': case 'lesson': return 'Cours';
-      case 'QU': case 'quiz': return 'Quiz';
-      case 'EX': case 'exercise': return 'Exercice';
-      default: return node.type;
-    }
+    // On utilise la clé node.type pour récupérer le label, sinon on renvoie le type brut
+    return TYPE_LABELS[node.type] || node.type;
   });
 
   isDone = computed(() => {

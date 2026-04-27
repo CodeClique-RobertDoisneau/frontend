@@ -8,9 +8,11 @@
 }
 
 .item-card-inner {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: "icon title status";
     align-items: center;
-    justify-content: space-between;
+    gap: 16px;
     padding: 16px 20px;
     margin-bottom: 12px;
     border-radius: 12px;
@@ -27,13 +29,8 @@
     }
 }
 
-.item-main-info {
-    display: flex;
-    align-items: center;
-}
-
 .item-icon {
-    margin-right: 16px;
+    grid-area: icon;
     color: var(--mat-sys-primary); // Bleu
     display: flex;
     align-items: center;
@@ -41,15 +38,41 @@
 }
 
 .item-title {
+    grid-area: title;
     font-size: 1.05rem;
     font-weight: 600;
     color: var(--mat-sys-on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .item-status-group {
+    grid-area: status;
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 12px;
+}
+
+@media (max-width: 600px) {
+    .item-card-inner {
+        grid-template-columns: auto 1fr;
+        grid-template-areas: 
+            "title title"
+            "icon status";
+        row-gap: 8px;
+        column-gap: 12px;
+        padding: 12px 16px;
+    }
+
+    .item-title {
+        white-space: normal; // Allows wrapping naturally so title is fully readable on mobile
+    }
+    
+    .item-status-group {
+        justify-content: flex-end;
+    }
 }
 
 .item-type-badge {

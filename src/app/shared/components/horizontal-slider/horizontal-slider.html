@@ -3,6 +3,11 @@
   <mat-spinner diameter="40"></mat-spinner>
 </div>
 } @else if (nodeInfo.value(); as node) {
+<div class="slider-header">
+  <h3 class="slider-title">
+    {{ node.title }}
+  </h3>
+</div>
 <div class="slider-wrapper">
   @if (showLeftArrow()) {
   <button mat-icon-button class="nav-btn left" (click)="scroll(-400)">

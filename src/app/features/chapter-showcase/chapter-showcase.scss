@@ -91,3 +91,39 @@
   color: var(--mat-sys-on-surface-variant);
   font-style: italic;
 }
+
+// ng-deep override to center chips when they wrap
+.meta-chips {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+  ::ng-deep {
+
+    mat-chip-set,
+    .mat-mdc-chip-set,
+    .mdc-evolution-chip-set,
+    .mdc-evolution-chip-set__chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center !important;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 40px 16px 40px;
+  }
+
+  .chapter-title {
+    font-size: 2rem;
+    margin-bottom: 12px;
+  }
+
+  .chapter-description {
+    font-size: 1rem;
+    margin-bottom: 24px;
+    line-height: 1.4;
+  }
+}

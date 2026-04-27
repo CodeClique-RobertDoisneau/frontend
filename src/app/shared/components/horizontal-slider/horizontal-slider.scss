@@ -1,3 +1,40 @@
+:host {
+  display: block;
+  padding: 2rem 0;
+}
+
+.slider-header {
+  padding: 0 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.slider-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+
+  .badge {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+
+    &.grade {
+      background-color: var(--mat-sys-primary-container);
+      color: var(--mat-sys-on-primary-container);
+    }
+
+    &.subject {
+      background-color: var(--mat-sys-tertiary-container);
+      color: var(--mat-sys-on-tertiary-container);
+    }
+  }
+}
+
 .slider-wrapper {
   position: relative;
   display: flex;
@@ -53,4 +90,9 @@
 
 app-persona {
   height: 15rem;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 }
