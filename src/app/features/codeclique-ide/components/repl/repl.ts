@@ -20,8 +20,9 @@ export class IdeReplComponent {
 
   replCommand = signal('');
   private ideService = inject(IdeTabs);
-
   @ViewChild('replScrollContainer') private replScrollContainer!: ElementRef;
+  @ViewChild('waitingInput') private waitingInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('replInput') private replInput!: ElementRef<HTMLInputElement>;
 
   constructor() {
     effect(() => {
@@ -30,7 +31,25 @@ export class IdeReplComponent {
       if (history) {
         setTimeout(() => this.scrollToBottom(), 50);
       }
+
+      // Focus waiting input if it appears
+      if (this.tab().waitingForInput()) {
+        setTimeout(() => this.waitingInput?.nativeElement.focus(), 50);
+      } else {
+        // Focus main input otherwise
+        this.focus();
+      }
     });
+  }
+
+  focus() {
+    setTimeout(() => {
+      if (this.tab().waitingForInput()) {
+        this.waitingInput?.nativeElement.focus();
+      } else {
+        this.replInput?.nativeElement.focus();
+      }
+    }, 50);
   }
 
   handleExecute() {
@@ -38,6 +57,19 @@ export class IdeReplComponent {
     if (cmd) {
       this.execute.emit(cmd);
       this.replCommand.set('');
+      // Refocus after execution
+      setTimeout(() => this.replInput?.nativeElement.focus(), 50);
+    }
+  }
+
+  submitInput() {
+    const tab = this.tab();
+    if (tab && tab.executionId && tab.waitingForInput()) {
+      const input = tab.userInput();
+      this.ideService.addToRepl(tab, 'output', input + '\n');
+      tab.pyodide.sendInput(tab.executionId, input);
+      tab.waitingForInput.set(false);
+      tab.userInput.set('');
     }
   }
 

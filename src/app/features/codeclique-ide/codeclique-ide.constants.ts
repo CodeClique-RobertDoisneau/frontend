@@ -1,9 +1,4 @@
-export interface PythonExample {
-  name: string;
-  filename: string;
-  code: string;
-  dependencies: string[];
-}
+import { PythonExample } from './codeclique-ide.types';
 
 export const EXAMPLES: PythonExample[] = [
   {

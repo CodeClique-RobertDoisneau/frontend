@@ -14,13 +14,26 @@
       <img [src]="'data:image/png;base64,' + tab().plot()" alt="Python Plot">
     </div>
     }
+
+    @if (tab().waitingForInput()) {
+    <div class="repl-line input-request">
+      <span class="prompt">?</span>
+      <div class="inline-input">
+        <input #waitingInput type="text" [ngModel]="tab().userInput()" (ngModelChange)="tab().userInput.set($event)" (keyup.enter)="submitInput()"
+          placeholder="En attente d'entrée..." autofocus>
+        <button mat-icon-button (click)="submitInput()" class="mini-send" matTooltip="Envoyer">
+          <mat-icon>send</mat-icon>
+        </button>
+      </div>
+    </div>
+    }
   </div>
 
   <div class="repl-footer">
     <div class="repl-input-area">
       <span class="prompt">>>></span>
       <div class="inline-input">
-        <input type="text" [ngModel]="replCommand()" (ngModelChange)="replCommand.set($event)" (keyup.enter)="handleExecute()" placeholder="Taper du code ici..."
+        <input #replInput type="text" [ngModel]="replCommand()" (ngModelChange)="replCommand.set($event)" (keyup.enter)="handleExecute()" placeholder="Taper du code ici..."
           [disabled]="!tab().pyodide.isReady() || tab().waitingForInput()">
         <button mat-icon-button (click)="handleExecute()" class="mini-send" matTooltip="Exécuter"
           [disabled]="!tab().pyodide.isReady() || tab().waitingForInput()">

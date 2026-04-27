@@ -9,20 +9,20 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { DragDropModule, CdkDragMove } from '@angular/cdk/drag-drop';
 import { HostListener } from '@angular/core';
 
 import { CodeEditor } from '@acrodata/code-editor';
 import { languages } from '@codemirror/language-data';
 
-import { Pyodide } from '@shared/services/pyodide/pyodide';
 import { Theming } from '@shared/services/theming/theming';
 
-import { EXAMPLES, PythonExample } from './codeclique-ide-examples';
+import { EXAMPLES } from './codeclique-ide.constants';
 import { DocumentationDialog } from './components/documentation-dialog/documentation-dialog';
 import { AboutDialog } from './components/about-dialog/about-dialog';
-import { IdeTab, ReplLine } from './codeclique-ide.types';
+import { PythonExample } from './codeclique-ide.types';
 import { IdeTabs } from './services/ide-tabs';
+import { IdeReplComponent } from './components/repl/repl';
+import { ShortcutService } from '@shared/services/shortcut/shortcut';
 
 @Component({
   selector: 'app-codeclique-ide',
@@ -36,10 +36,9 @@ import { IdeTabs } from './services/ide-tabs';
     MatMenuModule,
     MatDividerModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
     MatDialogModule,
-    DragDropModule,
-    CodeEditor
+    CodeEditor,
+    IdeReplComponent
   ],
   templateUrl: './codeclique-ide.html',
   styleUrl: './codeclique-ide.scss'
@@ -49,11 +48,11 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
   snackBar = inject(MatSnackBar);
   dialog = inject(MatDialog);
   ideService = inject(IdeTabs);
+  shortcutService = inject(ShortcutService);
+  private shortcutUnregister: (() => void)[] = [];
 
-  @ViewChild('replScrollContainer') private replScrollContainer!: ElementRef;
   @ViewChild('fileInput') private fileInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('replInput') private replInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('waitingInput') private waitingInput!: ElementRef<HTMLInputElement>;
+  @ViewChild(IdeReplComponent) private replComponent?: IdeReplComponent;
 
   languages = languages;
 
@@ -69,55 +68,65 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
 
   consoleWidth = signal<number>(450);
   isConsoleVisible = signal<boolean>(true);
+  private isResizing = false;
 
-  constructor() {
-    effect(() => {
-      const tab = this.activeTab();
-      if (tab) {
-        // Trigger scroll when history changes
-        tab.replHistory();
-        setTimeout(() => this.scrollToBottom(), 0);
-
-        // Refocus waiting input if it appears
-        if (tab.waitingForInput()) {
-          setTimeout(() => this.waitingInput?.nativeElement.focus(), 50);
-        }
-      }
-    });
-  }
+  constructor() { }
 
   ngOnInit() {
     // Initial tab is handled by the service constructor or here
     if (this.tabs().length === 0) {
       this.ideService.addNewTab();
     }
+
+    this.registerShortcuts();
   }
 
   ngOnDestroy() {
-    // We don't destroy the service if it's providedIn root, 
-    // but we might want to clean up tabs if this component is the only consumer.
-    // However, the user said "fragmented", so maybe root service is what they want.
+    // Cleanup shortcuts
+    this.shortcutUnregister.forEach(unreg => unreg());
   }
 
-  onDragMoved(event: CdkDragMove) {
-    if (!this.ideContainer) return;
+  private registerShortcuts() {
+    this.shortcutUnregister.push(
+      this.shortcutService.register({ key: 'F5', action: () => this.runCode() }),
+      this.shortcutService.register({ key: 'b', ctrl: true, action: () => this.toggleConsole() }),
+      this.shortcutService.register({ key: 's', ctrl: true, action: () => this.exportFile() }),
+      this.shortcutService.register({ key: 'l', ctrl: true, action: () => this.clearConsole() }),
+      this.shortcutService.register({ key: 'n', ctrl: true, alt: true, action: () => this.addNewTab() })
+    );
+  }
+
+  startResizing(event: MouseEvent) {
+    this.isResizing = true;
+    event.preventDefault();
+  }
+
+  @HostListener('window:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (!this.isResizing || !this.ideContainer) return;
 
     const container = this.ideContainer.nativeElement as HTMLElement;
     const rect = container.getBoundingClientRect();
+    const newWidth = rect.right - event.clientX;
 
-    const newWidth = rect.right - event.pointerPosition.x;
-    const min = rect.width * 0.25;
-    const max = rect.width * 0.75;
+    const min = rect.width * 0.2;
+    const max = rect.width * 0.8;
 
     if (newWidth >= min && newWidth <= max) {
       this.consoleWidth.set(newWidth);
     }
+  }
 
-    event.source._dragRef.reset();
+  @HostListener('window:mouseup')
+  onMouseUp() {
+    this.isResizing = false;
   }
 
   toggleConsole() {
     this.isConsoleVisible.update(v => !v);
+    if (this.isConsoleVisible()) {
+      this.replComponent?.focus();
+    }
   }
 
   addNewTab(name?: string, code?: string, dependencies: string[] = []) {
@@ -158,13 +167,11 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
     this.ideService.resetEnvironment();
   }
 
-  executeRepl() {
+  executeRepl(cmd: string) {
     const tab = this.activeTab();
-    const cmd = this.replCommand().trim();
     if (!tab || !cmd || !tab.pyodide.isReady()) return;
 
     this.ideService.addToRepl(tab, 'input', cmd);
-    this.replCommand.set('');
 
     tab.pyodide.run(
       cmd,
@@ -174,20 +181,6 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
       () => tab.waitingForInput.set(true),
       tab.isRunning
     );
-    
-    // Refocus the REPL input
-    setTimeout(() => this.replInput?.nativeElement.focus(), 0);
-  }
-
-  submitInput() {
-    const tab = this.activeTab();
-    if (tab && tab.executionId && tab.waitingForInput()) {
-      const input = tab.userInput();
-      this.ideService.addToRepl(tab, 'output', input + '\n');
-      tab.pyodide.sendInput(tab.executionId, input);
-      tab.waitingForInput.set(false);
-      tab.userInput.set('');
-    }
   }
 
   clearConsole() {
@@ -232,13 +225,6 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
     window.URL.revokeObjectURL(url);
   }
 
-  private scrollToBottom() {
-    if (this.replScrollContainer) {
-      const el = this.replScrollContainer.nativeElement;
-      el.scrollTop = el.scrollHeight;
-    }
-  }
-
   openDocumentation() {
     this.dialog.open(DocumentationDialog, {
       width: '800px',
@@ -250,38 +236,5 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
     this.dialog.open(AboutDialog, {
       width: '500px'
     });
-  }
-
-  @HostListener('window:keydown', ['$event'])
-  handleKeyboardEvent(event: KeyboardEvent) {
-    // F5: Run
-    if (event.key === 'F5') {
-      event.preventDefault();
-      this.runCode();
-    }
-
-    // Ctrl + B: Toggle Console
-    if (event.ctrlKey && event.key.toLowerCase() === 'b') {
-      event.preventDefault();
-      this.toggleConsole();
-    }
-
-    // Ctrl + S: Export
-    if (event.ctrlKey && event.key.toLowerCase() === 's') {
-      event.preventDefault();
-      this.exportFile();
-    }
-
-    // Ctrl + L: Clear Console
-    if (event.ctrlKey && event.key.toLowerCase() === 'l') {
-      event.preventDefault();
-      this.clearConsole();
-    }
-
-    // Ctrl + Alt + N: New Tab
-    if (event.ctrlKey && event.altKey && event.key.toLowerCase() === 'n') {
-      event.preventDefault();
-      this.addNewTab();
-    }
   }
 }

@@ -1,6 +1,13 @@
 import { WritableSignal } from '@angular/core';
 import { Pyodide } from '@shared/services/pyodide/pyodide';
 
+export interface PythonExample {
+  name: string;
+  filename: string;
+  code: string;
+  dependencies: string[];
+}
+
 export interface ReplLine {
   type: 'input' | 'output' | 'error';
   content: string;
