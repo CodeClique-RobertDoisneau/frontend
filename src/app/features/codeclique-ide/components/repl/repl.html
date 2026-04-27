@@ -1,0 +1,32 @@
+<div class="repl-container">
+  <div class="repl-output" #replScrollContainer>
+    @for (line of tab().replHistory(); track $index) {
+    <div class="repl-line" [ngClass]="line.type">
+      @if (line.type === 'input') {
+      <span class="prompt">>>></span>
+      }
+      <pre>{{ line.content }}</pre>
+    </div>
+    }
+
+    @if (tab().plot()) {
+    <div class="plot-container">
+      <img [src]="'data:image/png;base64,' + tab().plot()" alt="Python Plot">
+    </div>
+    }
+  </div>
+
+  <div class="repl-footer">
+    <div class="repl-input-area">
+      <span class="prompt">>>></span>
+      <div class="inline-input">
+        <input type="text" [ngModel]="replCommand()" (ngModelChange)="replCommand.set($event)" (keyup.enter)="handleExecute()" placeholder="Taper du code ici..."
+          [disabled]="!tab().pyodide.isReady() || tab().waitingForInput()">
+        <button mat-icon-button (click)="handleExecute()" class="mini-send" matTooltip="Exécuter"
+          [disabled]="!tab().pyodide.isReady() || tab().waitingForInput()">
+          <mat-icon>send</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

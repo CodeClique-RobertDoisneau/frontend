@@ -18,31 +18,14 @@ import { languages } from '@codemirror/language-data';
 import { Pyodide } from '@shared/services/pyodide/pyodide';
 import { Theming } from '@shared/services/theming/theming';
 
-import { EXAMPLES, PythonExample } from './examples/python-examples';
-import { IdeDocumentationDialog } from './dialogs/ide-documentation-dialog/ide-documentation-dialog';
-import { IdeAboutDialog } from './dialogs/ide-about-dialog/ide-about-dialog';
-
-interface ReplLine {
-  type: 'input' | 'output' | 'error';
-  content: string;
-}
-
-interface IdeTab {
-  id: string;
-  name: string;
-  code: WritableSignal<string>;
-  pyodide: Pyodide;
-  replHistory: WritableSignal<ReplLine[]>;
-  isRunning: WritableSignal<boolean>;
-  executionId: string | null;
-  plot: WritableSignal<string>;
-  waitingForInput: WritableSignal<boolean>;
-  userInput: WritableSignal<string>;
-  packages: { name: string; loaded: boolean }[];
-}
+import { EXAMPLES, PythonExample } from './codeclique-ide-examples';
+import { DocumentationDialog } from './components/documentation-dialog/documentation-dialog';
+import { AboutDialog } from './components/about-dialog/about-dialog';
+import { IdeTab, ReplLine } from './codeclique-ide.types';
+import { IdeTabs } from './services/ide-tabs';
 
 @Component({
-  selector: 'app-free-python-ide',
+  selector: 'app-codeclique-ide',
   standalone: true,
   imports: [
     CommonModule,
@@ -58,31 +41,30 @@ interface IdeTab {
     DragDropModule,
     CodeEditor
   ],
-  templateUrl: './free-python-ide.html',
-  styleUrl: './free-python-ide.scss'
+  templateUrl: './codeclique-ide.html',
+  styleUrl: './codeclique-ide.scss'
 })
-export class FreePythonIde implements OnInit, OnDestroy {
+export class CodeCliqueIde implements OnInit, OnDestroy {
   theming = inject(Theming);
   snackBar = inject(MatSnackBar);
   dialog = inject(MatDialog);
+  ideService = inject(IdeTabs);
 
   @ViewChild('replScrollContainer') private replScrollContainer!: ElementRef;
   @ViewChild('fileInput') private fileInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('replInput') private replInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('waitingInput') private waitingInput!: ElementRef<HTMLInputElement>;
 
   languages = languages;
 
-  tabs = signal<IdeTab[]>([]);
-  activeTabIndex = signal<number>(0);
-
-  activeTab = computed<IdeTab | undefined>(() => this.tabs()[this.activeTabIndex()]);
+  tabs = this.ideService.tabs;
+  activeTabIndex = this.ideService.activeTabIndex;
+  activeTab = this.ideService.activeTab;
 
   @ViewChild('resizeHandle') resizeHandle!: ElementRef;
   @ViewChild('ideContainer') ideContainer!: ElementRef;
 
   replCommand = signal<string>('');
-  maxTabs = navigator.hardwareConcurrency || 4;
-
-  availablePackageList = ['numpy', 'matplotlib', 'pandas', 'scipy', 'scikit-learn', 'networkx'];
   examples = EXAMPLES;
 
   consoleWidth = signal<number>(450);
@@ -95,16 +77,26 @@ export class FreePythonIde implements OnInit, OnDestroy {
         // Trigger scroll when history changes
         tab.replHistory();
         setTimeout(() => this.scrollToBottom(), 0);
+
+        // Refocus waiting input if it appears
+        if (tab.waitingForInput()) {
+          setTimeout(() => this.waitingInput?.nativeElement.focus(), 50);
+        }
       }
     });
   }
 
   ngOnInit() {
-    this.addNewTab();
+    // Initial tab is handled by the service constructor or here
+    if (this.tabs().length === 0) {
+      this.ideService.addNewTab();
+    }
   }
 
   ngOnDestroy() {
-    this.tabs().forEach(tab => tab.pyodide.ngOnDestroy());
+    // We don't destroy the service if it's providedIn root, 
+    // but we might want to clean up tabs if this component is the only consumer.
+    // However, the user said "fragmented", so maybe root service is what they want.
   }
 
   onDragMoved(event: CdkDragMove) {
@@ -129,50 +121,11 @@ export class FreePythonIde implements OnInit, OnDestroy {
   }
 
   addNewTab(name?: string, code?: string, dependencies: string[] = []) {
-    if (this.tabs().length >= this.maxTabs) {
-      this.snackBar.open(`Limite de ${this.maxTabs} onglets atteinte`, 'OK', { duration: 3000 });
-      return;
-    }
-
-    const pyodide = new Pyodide();
-    pyodide.init(dependencies);
-
-    const newTab: IdeTab = {
-      id: crypto.randomUUID(),
-      name: name || `script_${this.tabs().length + 1}.py`,
-      code: signal(code || '# Écrivez votre code Python ici\nprint("Bonjour de CodeClique !")\n'),
-      pyodide: pyodide,
-      replHistory: signal([]),
-      isRunning: signal(false),
-      executionId: null,
-      plot: signal(''),
-      waitingForInput: signal(false),
-      userInput: signal(''),
-      packages: this.availablePackageList.map(name => ({
-        name,
-        loaded: dependencies.includes(name)
-      }))
-    };
-
-    this.tabs.update(prev => [...prev, newTab]);
-    this.activeTabIndex.set(this.tabs().length - 1);
+    this.ideService.addNewTab(name, code, dependencies);
   }
 
   closeTab(index: number, event?: Event) {
-    if (event) event.stopPropagation();
-
-    const tabToRemove = this.tabs()[index];
-    tabToRemove.pyodide.ngOnDestroy();
-
-    this.tabs.update(prev => prev.filter((_, i) => i !== index));
-
-    if (this.activeTabIndex() >= this.tabs().length) {
-      this.activeTabIndex.set(Math.max(0, this.tabs().length - 1));
-    }
-
-    if (this.tabs().length === 0) {
-      this.addNewTab();
-    }
+    this.ideService.closeTab(index, event);
   }
 
   runCode() {
@@ -181,16 +134,16 @@ export class FreePythonIde implements OnInit, OnDestroy {
 
     tab.plot.set('');
 
-    const { executionId, isRunning } = tab.pyodide.run(
+    const { executionId } = tab.pyodide.run(
       tab.code(),
-      (out) => this.addToRepl(tab, 'output', out),
-      (err) => this.addToRepl(tab, 'error', err),
+      (out) => this.ideService.addToRepl(tab, 'output', out),
+      (err) => this.ideService.addToRepl(tab, 'error', err),
       (base64) => tab.plot.set(base64),
-      () => tab.waitingForInput.set(true)
+      () => tab.waitingForInput.set(true),
+      tab.isRunning
     );
 
     tab.executionId = executionId;
-    tab.isRunning = isRunning;
   }
 
   stopExecution() {
@@ -202,13 +155,7 @@ export class FreePythonIde implements OnInit, OnDestroy {
   }
 
   resetEnvironment() {
-    const tab = this.activeTab();
-    if (tab) {
-      tab.pyodide.reset();
-      tab.replHistory.set([]);
-      tab.plot.set('');
-      this.snackBar.open('Environnement réinitialisé', 'OK', { duration: 2000 });
-    }
+    this.ideService.resetEnvironment();
   }
 
   executeRepl() {
@@ -216,41 +163,35 @@ export class FreePythonIde implements OnInit, OnDestroy {
     const cmd = this.replCommand().trim();
     if (!tab || !cmd || !tab.pyodide.isReady()) return;
 
-    this.addToRepl(tab, 'input', cmd);
+    this.ideService.addToRepl(tab, 'input', cmd);
     this.replCommand.set('');
 
-    const { isRunning } = tab.pyodide.run(
+    tab.pyodide.run(
       cmd,
-      (out) => this.addToRepl(tab, 'output', out),
-      (err) => this.addToRepl(tab, 'error', err),
+      (out) => this.ideService.addToRepl(tab, 'output', out),
+      (err) => this.ideService.addToRepl(tab, 'error', err),
       (base64) => tab.plot.set(base64),
-      () => tab.waitingForInput.set(true)
+      () => tab.waitingForInput.set(true),
+      tab.isRunning
     );
-
-    tab.isRunning = isRunning;
+    
+    // Refocus the REPL input
+    setTimeout(() => this.replInput?.nativeElement.focus(), 0);
   }
 
   submitInput() {
     const tab = this.activeTab();
     if (tab && tab.executionId && tab.waitingForInput()) {
       const input = tab.userInput();
-      this.addToRepl(tab, 'output', input + '\n');
+      this.ideService.addToRepl(tab, 'output', input + '\n');
       tab.pyodide.sendInput(tab.executionId, input);
       tab.waitingForInput.set(false);
       tab.userInput.set('');
     }
   }
 
-  addToRepl(tab: IdeTab, type: 'input' | 'output' | 'error', content: string) {
-    if (!content) return;
-    tab.replHistory.update(prev => [...prev, { type, content }]);
-  }
-
   clearConsole() {
-    const tab = this.activeTab();
-    if (tab) {
-      tab.replHistory.set([]);
-    }
+    this.ideService.clearConsole();
   }
 
   loadExample(example: PythonExample) {
@@ -258,23 +199,16 @@ export class FreePythonIde implements OnInit, OnDestroy {
   }
 
   loadPackage(pkgName: string) {
-    const tab = this.activeTab();
-    if (tab) {
-      const pkg = tab.packages.find(p => p.name === pkgName);
-      if (pkg && !pkg.loaded) {
-        tab.pyodide.loadPackage([pkgName]);
-        pkg.loaded = true;
-        this.snackBar.open(`Chargement de ${pkgName}...`, 'OK', { duration: 2000 });
-      }
-    }
+    this.ideService.loadPackage(pkgName);
   }
 
   importFile() {
     this.fileInput.nativeElement.click();
   }
 
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -306,14 +240,14 @@ export class FreePythonIde implements OnInit, OnDestroy {
   }
 
   openDocumentation() {
-    this.dialog.open(IdeDocumentationDialog, {
+    this.dialog.open(DocumentationDialog, {
       width: '800px',
       maxWidth: '90vw'
     });
   }
 
   openAbout() {
-    this.dialog.open(IdeAboutDialog, {
+    this.dialog.open(AboutDialog, {
       width: '500px'
     });
   }

@@ -4,22 +4,24 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MarkdownViewer } from '@shared/components/markdown-viewer/markdown-viewer';
+import { DialogLayout } from '../../../../shared/components/dialog-layout/dialog-layout';
 
 @Component({
-  selector: 'app-ide-documentation-dialog',
+  selector: 'app-documentation-dialog',
   standalone: true,
   imports: [
     CommonModule,
     MatDialogModule,
     MatButtonModule,
     MatIconModule,
-    MarkdownViewer
+    MarkdownViewer,
+    DialogLayout
   ],
-  templateUrl: './ide-documentation-dialog.html',
-  styleUrl: './ide-documentation-dialog.scss',
+  templateUrl: './documentation-dialog.html',
+  styleUrl: './documentation-dialog.scss',
 })
-export class IdeDocumentationDialog {
-  dialogRef = inject(MatDialogRef<IdeDocumentationDialog>);
+export class DocumentationDialog {
+  dialogRef = inject(MatDialogRef<DocumentationDialog>);
 
   documentation = `
 Bienvenue dans votre environnement de développement Python intégré !
@@ -32,10 +34,10 @@ Bienvenue dans votre environnement de développement Python intégré !
 
 ## Raccourcis Clavier
 - **F5** : Exécuter le code de l'onglet actif.
-*   **Ctrl + B** : Afficher/Masquer la console.
-*   **Ctrl + S** : Enregistrer (Exporter) le fichier actuel.
-*   **Ctrl + L** : Effacer l'historique de la console.
-*   **Ctrl + Alt + N** : Créer un nouvel onglet.
+- **Ctrl + B** : Afficher/Masquer la console.
+- **Ctrl + S** : Enregistrer (Exporter) le fichier actuel.
+- **Ctrl + L** : Effacer l'historique de la console.
+- **Ctrl + Alt + N** : Créer un nouvel onglet.
 
 ## Bibliothèques Disponibles
 L'IDE utilise **Pyodide**, une distribution WebAssembly de CPython. Vous pouvez importer les packages standard ainsi que ceux installés via le menu "Bibliothèques".

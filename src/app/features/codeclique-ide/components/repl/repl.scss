@@ -1,0 +1,112 @@
+.repl-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--mat-sys-surface-container-lowest);
+  border-left: 1px solid var(--mat-sys-outline-variant);
+}
+
+.repl-output {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.9rem;
+
+  .repl-line {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+    line-height: 1.4;
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    &.input {
+      color: var(--mat-sys-primary);
+      font-weight: 500;
+    }
+
+    &.error {
+      color: var(--mat-sys-error);
+    }
+  }
+
+  .prompt {
+    color: var(--mat-sys-outline);
+    user-select: none;
+    min-width: 2rem;
+  }
+}
+
+.repl-footer {
+  padding: 8px 16px;
+  background: var(--mat-sys-surface-container-low);
+  border-top: 1px solid var(--mat-sys-outline-variant);
+
+  .repl-input-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .prompt {
+      color: var(--mat-sys-primary);
+      font-weight: bold;
+    }
+
+    .inline-input {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+
+      input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: var(--mat-sys-on-surface);
+        font-family: 'Roboto Mono', monospace;
+        font-size: 0.9rem;
+        padding: 4px 0;
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+
+  .mini-send {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+.plot-container {
+  margin: 1rem 0;
+  text-align: center;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}

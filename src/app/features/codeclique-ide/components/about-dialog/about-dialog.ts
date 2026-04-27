@@ -3,21 +3,23 @@ import { CommonModule } from '@angular/common';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { DialogLayout } from '../../../../shared/components/dialog-layout/dialog-layout';
 
 @Component({
-  selector: 'app-ide-about-dialog',
+  selector: 'app-about-dialog',
   standalone: true,
   imports: [
     CommonModule,
     MatDialogModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    DialogLayout
   ],
-  templateUrl: './ide-about-dialog.html',
-  styleUrl: './ide-about-dialog.scss',
+  templateUrl: './about-dialog.html',
+  styleUrl: './about-dialog.scss',
 })
-export class IdeAboutDialog {
-  dialogRef = inject(MatDialogRef<IdeAboutDialog>);
+export class AboutDialog {
+  dialogRef = inject(MatDialogRef<AboutDialog>);
 
   close() {
     this.dialogRef.close();

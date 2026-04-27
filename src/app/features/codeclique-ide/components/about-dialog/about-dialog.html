@@ -1,11 +1,4 @@
-<div class="dialog-header">
-  <span class="title-text">À propos de CodeClique IDE</span>
-  <button mat-icon-button (click)="close()" class="close-header-btn">
-    <mat-icon>close</mat-icon>
-  </button>
-</div>
-
-<mat-dialog-content class="dialog-content">
+<app-dialog-layout title="À propos de CodeClique IDE" (close)="close()">
   <div class="about-content">
     <div class="logo-area">
       <mat-icon class="large-icon">terminal</mat-icon>
@@ -23,4 +16,4 @@
       </ul>
     </div>
   </div>
-</mat-dialog-content>
+</app-dialog-layout>

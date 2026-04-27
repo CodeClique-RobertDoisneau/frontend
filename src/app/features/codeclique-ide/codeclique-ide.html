@@ -25,11 +25,13 @@
     <button mat-button [matMenuTriggerFor]="libMenu">Bibliothèques</button>
 
     <mat-menu #libMenu="matMenu">
-      @for (pkg of activeTab()?.packages; track pkg.name) {
-      <button mat-menu-item (click)="loadPackage(pkg.name)" [disabled]="pkg.loaded">
-        <mat-icon>{{ pkg.loaded ? 'check_circle' : 'add_circle_outline' }}</mat-icon>
-        <span>{{ pkg.name }}</span>
-      </button>
+      @if (activeTab(); as tab) {
+        @for (pkg of tab.packages; track pkg.name) {
+        <button mat-menu-item (click)="loadPackage(pkg.name)" [disabled]="pkg.loaded">
+          <mat-icon>{{ pkg.loaded ? 'check_circle' : 'add_circle_outline' }}</mat-icon>
+          <span>{{ pkg.name }}</span>
+        </button>
+        }
       }
     </mat-menu>
 
@@ -54,11 +56,30 @@
     </mat-menu>
 
     <div class="spacer"></div>
-    @if (!isConsoleVisible()) {
-      <button mat-icon-button (click)="toggleConsole()" matTooltip="Afficher la console (Ctrl+B)">
-        <mat-icon>terminal</mat-icon>
+
+    <div class="execution-controls">
+      @if (activeTab(); as tab) {
+        @if (!tab.isRunning()) {
+          @if (!tab.pyodide.isReady()) {
+            <button mat-icon-button disabled matTooltip="Chargement de Python...">
+              <mat-progress-spinner diameter="24" mode="indeterminate"></mat-progress-spinner>
+            </button>
+          } @else {
+            <button mat-icon-button color="primary" (click)="runCode()" matTooltip="Exécuter (F5)">
+              <mat-icon>play_arrow</mat-icon>
+            </button>
+          }
+        } @else {
+          <button mat-icon-button color="warn" (click)="stopExecution()" matTooltip="Arrêter">
+            <mat-icon>stop</mat-icon>
+          </button>
+        }
+      }
+
+      <button mat-icon-button (click)="resetEnvironment()" matTooltip="Réinitialiser l'environnement">
+        <mat-icon>refresh</mat-icon>
       </button>
-    }
+    </div>
   </div>
 
   <div class="ide-container" #ideContainer>
@@ -78,6 +99,14 @@
         <button mat-icon-button class="add-tab-btn" (click)="addNewTab()" matTooltip="Nouvel onglet">
           <mat-icon>add</mat-icon>
         </button>
+
+        <div class="spacer"></div>
+
+        @if (!isConsoleVisible()) {
+          <button mat-icon-button (click)="toggleConsole()" matTooltip="Afficher la console (Ctrl+B)" class="toggle-console-btn">
+            <mat-icon>terminal</mat-icon>
+          </button>
+        }
       </div>
 
       <!-- Editor for Active Tab -->
@@ -100,25 +129,6 @@
         <span>Console Python</span>
         <span class="spacer"></span>
 
-        @if (activeTab() && !activeTab()!.isRunning()) {
-          @if (!activeTab()!.pyodide.isReady()) {
-            <button mat-icon-button disabled matTooltip="Chargement de Python...">
-              <mat-progress-spinner diameter="24" mode="indeterminate"></mat-progress-spinner>
-            </button>
-          } @else {
-            <button mat-icon-button color="primary" (click)="runCode()" matTooltip="Exécuter (F5)">
-              <mat-icon>play_arrow</mat-icon>
-            </button>
-          }
-        } @else if (activeTab()?.isRunning()) {
-        <button mat-icon-button color="warn" (click)="stopExecution()" matTooltip="Arrêter">
-          <mat-icon>stop</mat-icon>
-        </button>
-        }
-
-        <button mat-icon-button (click)="resetEnvironment()" matTooltip="Réinitialiser l'environnement">
-          <mat-icon>refresh</mat-icon>
-        </button>
 
         <button mat-icon-button (click)="clearConsole()" matTooltip="Effacer la console (Ctrl+L)">
           <mat-icon>block</mat-icon>
@@ -150,7 +160,7 @@
         <div class="repl-input-line active">
           <span class="prompt">?</span>
           <div class="inline-input">
-            <input type="text" [ngModel]="activeTab()!.userInput()" (ngModelChange)="activeTab()!.userInput.set($event)" (keyup.enter)="submitInput()"
+            <input #waitingInput type="text" [ngModel]="activeTab()!.userInput()" (ngModelChange)="activeTab()!.userInput.set($event)" (keyup.enter)="submitInput()"
               placeholder="En attente d'entrée..." autofocus>
             <button mat-icon-button (click)="submitInput()" class="mini-send" matTooltip="Envoyer">
               <mat-icon>send</mat-icon>
@@ -162,16 +172,18 @@
       </div>
 
       <div class="repl-footer">
+        @if (activeTab(); as tab) {
         <div class="repl-input-line">
           <span class="prompt">>>></span>
           <div class="inline-input">
-            <input type="text" [ngModel]="replCommand()" (ngModelChange)="replCommand.set($event)" (keyup.enter)="executeRepl()" placeholder="Taper du code ici..."
-              [disabled]="!activeTab()?.pyodide?.isReady() || activeTab()?.waitingForInput() === true">
-            <button mat-icon-button (click)="executeRepl()" class="mini-send" matTooltip="Exécuter" [disabled]="!activeTab()?.pyodide?.isReady() || activeTab()?.waitingForInput() === true">
+            <input #replInput type="text" [ngModel]="replCommand()" (ngModelChange)="replCommand.set($event)" (keyup.enter)="executeRepl()" placeholder="Taper du code ici..."
+              [disabled]="!tab.pyodide.isReady() || tab.waitingForInput() === true">
+            <button mat-icon-button (click)="executeRepl()" class="mini-send" matTooltip="Exécuter" [disabled]="!tab.pyodide.isReady() || tab.waitingForInput() === true">
               <mat-icon>send</mat-icon>
             </button>
           </div>
         </div>
+        }
       </div>
     </div>
   </div>
