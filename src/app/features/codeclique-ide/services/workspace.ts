@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CodeCliqueIdeContext } from '../codeclique-ide.context';
+import { TabHandler } from './tab-handler';
 import { PythonRuntime } from './python-runtime';
 import { IdeRuntime } from '../codeclique-ide.types';
 
@@ -10,9 +10,9 @@ import { IdeRuntime } from '../codeclique-ide.types';
 export class WorkspaceService implements OnDestroy {
   private snackBar = inject(MatSnackBar);
 
-  contexts = signal<CodeCliqueIdeContext[]>([]);
-  activeContextIndex = signal<number>(0);
-  activeContext = computed(() => this.contexts()[this.activeContextIndex()]);
+  tabHandlers = signal<TabHandler[]>([]);
+  activeTabHandlerIndex = signal<number>(0);
+  activeTabHandler = computed(() => this.tabHandlers()[this.activeTabHandlerIndex()]);
 
   editingTabIndex = signal<number | null>(null);
   editingName = signal<string>('');
@@ -36,13 +36,13 @@ export class WorkspaceService implements OnDestroy {
   }
 
   addNewTab(name?: string, code?: string, dependencies: string[] = []) {
-    if (this.contexts().length >= this.maxTabs) {
+    if (this.tabHandlers().length >= this.maxTabs) {
       this.snackBar.open(`Limite de ${this.maxTabs} onglets atteinte`, 'OK', { duration: 3000 });
       return;
     }
 
     const runtime = this.createRuntime('python');
-    const newContext = new CodeCliqueIdeContext(
+    const newContext = new TabHandler(
       runtime,
       name,
       code,
@@ -50,39 +50,39 @@ export class WorkspaceService implements OnDestroy {
       this.availablePackageList
     );
 
-    this.contexts.update(prev => [...prev, newContext]);
-    this.activeContextIndex.set(this.contexts().length - 1);
+    this.tabHandlers.update(prev => [...prev, newContext]);
+    this.activeTabHandlerIndex.set(this.tabHandlers().length - 1);
   }
 
   closeTab(index: number, event?: Event) {
     if (event) event.stopPropagation();
 
-    const contextToRemove = this.contexts()[index];
+    const contextToRemove = this.tabHandlers()[index];
     if (!contextToRemove) return;
 
     contextToRemove.destroy();
-    this.contexts.update(prev => prev.filter((_, i) => i !== index));
+    this.tabHandlers.update(prev => prev.filter((_, i) => i !== index));
 
-    if (this.activeContextIndex() >= this.contexts().length) {
-      this.activeContextIndex.set(Math.max(0, this.contexts().length - 1));
+    if (this.activeTabHandlerIndex() >= this.tabHandlers().length) {
+      this.activeTabHandlerIndex.set(Math.max(0, this.tabHandlers().length - 1));
     }
 
-    if (this.contexts().length === 0) {
+    if (this.tabHandlers().length === 0) {
       this.addNewTab();
     }
   }
 
-  addToRepl(context: CodeCliqueIdeContext, type: 'input' | 'output' | 'error', content: string) {
+  addToRepl(tabHandler: TabHandler, type: 'input' | 'output' | 'error', content: string) {
     if (!content) return;
-    context.replHistory.update(prev => [...prev, { type, content }]);
+    tabHandler.replHistory.update(prev => [...prev, { type, content }]);
   }
 
-  exportFile(context: CodeCliqueIdeContext) {
-    const blob = new Blob([context.code()], { type: 'text/plain' });
+  exportFile(tabHandler: TabHandler) {
+    const blob = new Blob([tabHandler.code()], { type: 'text/plain' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = context.name();
+    a.download = tabHandler.name();
     a.click();
     window.URL.revokeObjectURL(url);
   }
@@ -93,8 +93,8 @@ export class WorkspaceService implements OnDestroy {
   }
 
   saveName(index: number) {
-    const contexts = this.contexts();
-    if (contexts[index]) {
+    const tabHandlers = this.tabHandlers();
+    if (tabHandlers[index]) {
       let newName = this.editingName().trim().replace(/[^a-zA-Z0-9._-]/g, '_');
       
       if (!newName || newName === '.py') {
@@ -103,7 +103,7 @@ export class WorkspaceService implements OnDestroy {
         newName += '.py';
       }
       
-      contexts[index].name.set(newName);
+      tabHandlers[index].name.set(newName);
     }
     this.editingTabIndex.set(null);
   }
@@ -113,6 +113,6 @@ export class WorkspaceService implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.contexts().forEach(ctx => ctx.destroy());
+    this.tabHandlers().forEach(tab => tab.destroy());
   }
 }

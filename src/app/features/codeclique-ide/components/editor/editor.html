@@ -1,9 +1,8 @@
 <div class="editor-wrapper">
-  @if (workspace.activeContext(); as context) {
+  @if (workspace.activeTabHandler(); as tabHandler) {
   <code-editor 
-    [ngModel]="context.code()" 
-    (ngModelChange)="onCodeChange($event)"
-    [extensions]="editorExtensions"
+    [(ngModel)]="tabHandler.code" 
+    language="python"
     [languages]="languages"
     [theme]="theming.resolvedTheme()"
   ></code-editor>

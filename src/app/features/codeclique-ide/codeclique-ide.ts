@@ -36,7 +36,7 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
   constructor() { }
 
   ngOnInit() {
-    if (this.workspace.contexts().length === 0) {
+    if (this.workspace.tabHandlers().length === 0) {
       this.workspace.addNewTab();
     }
     this.registerShortcuts();
@@ -47,9 +47,9 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
   }
 
   private runActiveContext() {
-    const context = this.workspace.activeContext();
-    if (context) {
-      context.run((type, content) => this.workspace.addToRepl(context, type, content));
+    const tabHandler = this.workspace.activeTabHandler();
+    if (tabHandler) {
+      tabHandler.run((type, content) => this.workspace.addToRepl(tabHandler, type, content));
     }
   }
 
@@ -69,14 +69,14 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
         key: 's',
         ctrl: true,
         action: () => {
-          const context = this.workspace.activeContext();
-          if (context) this.workspace.exportFile(context);
+          const tabHandler = this.workspace.activeTabHandler();
+          if (tabHandler) this.workspace.exportFile(tabHandler);
         }
       }),
       this.shortcutService.register({
         key: 'l',
         ctrl: true,
-        action: () => this.workspace.activeContext()?.replHistory.set([])
+        action: () => this.workspace.activeTabHandler()?.replHistory.set([])
       }),
       this.shortcutService.register({ key: 'n', ctrl: true, alt: true, action: () => this.workspace.addNewTab() })
     );

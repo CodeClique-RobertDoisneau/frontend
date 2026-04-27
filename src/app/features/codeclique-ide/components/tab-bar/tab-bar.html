@@ -1,7 +1,7 @@
 <div class="tab-bar">
-  @for (context of workspace.contexts(); track context.id; let i = $index) {
-  <div class="tab" [class.active]="workspace.activeContextIndex() === i" (click)="selectTab(i)"
-    (dblclick)="startEditing(i, context.name(), $event)">
+  @for (tabHandler of workspace.tabHandlers(); track tabHandler.id; let i = $index) {
+  <div class="tab" [class.active]="workspace.activeTabHandlerIndex() === i" (click)="selectTab(i)"
+    (dblclick)="startEditing(i, tabHandler.name(), $event)">
     <mat-icon class="file-icon">description</mat-icon>
 
     <div class="tab-content">
@@ -9,7 +9,7 @@
       <input class="rename-input" [(ngModel)]="workspace.editingName" (keyup.enter)="saveName(i)" (blur)="saveName(i)"
         (keyup.escape)="cancelEditing()" autofocus (click)="$event.stopPropagation()">
       } @else {
-      <span class="tab-name">{{ context.name() }}</span>
+      <span class="tab-name">{{ tabHandler.name() }}</span>
       }
     </div>
 

@@ -37,7 +37,7 @@ export class TabBar {
   }
 
   selectTab(index: number) {
-    this.workspace.activeContextIndex.set(index);
+    this.workspace.activeTabHandlerIndex.set(index);
   }
 
   startEditing(index: number, name: string, event: Event) {

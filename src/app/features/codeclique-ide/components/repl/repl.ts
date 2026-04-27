@@ -15,7 +15,7 @@ import { WorkspaceService } from '../../services/workspace';
 })
 export class Repl {
   workspace = inject(WorkspaceService);
-  activeContext = this.workspace.activeContext;
+  activeTabHandler = this.workspace.activeTabHandler;
 
 
   @ViewChild('replScrollContainer') private replScrollContainer!: ElementRef;
@@ -24,11 +24,11 @@ export class Repl {
 
   constructor() {
     effect(() => {
-      const context = this.activeContext();
-      if (!context) return;
+      const tabHandler = this.activeTabHandler();
+      if (!tabHandler) return;
 
       // Auto-scroll when history changes
-      const history = context.replHistory();
+      const history = tabHandler.replHistory();
       if (history) {
         setTimeout(() => this.scrollToBottom(), 50);
       }
@@ -40,10 +40,10 @@ export class Repl {
 
   focus() {
     setTimeout(() => {
-      const context = this.activeContext();
-      if (!context) return;
+      const tabHandler = this.activeTabHandler();
+      if (!tabHandler) return;
 
-      if (context.waitingForInput()) {
+      if (tabHandler.waitingForInput()) {
         this.waitingInput?.nativeElement.focus();
       } else {
         this.replInput?.nativeElement.focus();
@@ -52,32 +52,32 @@ export class Repl {
   }
 
   handleExecute() {
-    const context = this.activeContext();
-    if (!context) return;
+    const tabHandler = this.activeTabHandler();
+    if (!tabHandler) return;
     
-    const cmd = context.replCommand().trim();
+    const cmd = tabHandler.replCommand().trim();
     if (cmd) {
-      this.workspace.addToRepl(context, 'input', cmd);
-      context.run((type, content) => this.workspace.addToRepl(context, type, content), cmd);
-      context.replCommand.set('');
+      this.workspace.addToRepl(tabHandler, 'input', cmd);
+      tabHandler.run((type, content) => this.workspace.addToRepl(tabHandler, type, content), cmd);
+      tabHandler.replCommand.set('');
       // Refocus after execution
       this.focus();
     }
   }
 
   submitInput() {
-    const context = this.activeContext();
-    if (context && context.waitingForInput()) {
-      const input = context.userInput();
-      this.workspace.addToRepl(context, 'output', input + '\n');
-      context.runtime.sendInput(input);
-      context.waitingForInput.set(false);
-      context.userInput.set('');
+    const tabHandler = this.activeTabHandler();
+    if (tabHandler && tabHandler.waitingForInput()) {
+      const input = tabHandler.userInput();
+      this.workspace.addToRepl(tabHandler, 'output', input + '\n');
+      tabHandler.runtime.sendInput(input);
+      tabHandler.waitingForInput.set(false);
+      tabHandler.userInput.set('');
     }
   }
 
   clearConsole() {
-    this.activeContext()?.replHistory.set([]);
+    this.activeTabHandler()?.replHistory.set([]);
   }
 
   private scrollToBottom() {

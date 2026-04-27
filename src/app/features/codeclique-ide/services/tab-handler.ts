@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
-import { ReplLine, IdeRuntime } from './codeclique-ide.types';
+import { ReplLine, IdeRuntime } from '../codeclique-ide.types';
 
-export class CodeCliqueIdeContext {
+export class TabHandler {
   readonly id = crypto.randomUUID();
   readonly name = signal<string>('script.py');
   readonly code = signal<string>('# Écrivez votre code Python ici\nprint("Bonjour de CodeClique !")\n');

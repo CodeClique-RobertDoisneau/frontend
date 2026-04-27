@@ -28,8 +28,8 @@
   <button mat-button [matMenuTriggerFor]="libMenu">Bibliothèques</button>
 
   <mat-menu #libMenu="matMenu">
-    @if (workspace.activeContext(); as context) {
-      @for (pkg of context.packages; track pkg.name) {
+    @if (workspace.activeTabHandler(); as tabHandler) {
+      @for (pkg of tabHandler.packages; track pkg.name) {
       <button mat-menu-item (click)="loadPackage(pkg.name)" [disabled]="pkg.loaded">
         <mat-icon>{{ pkg.loaded ? 'check_circle' : 'add_circle_outline' }}</mat-icon>
         <span>{{ pkg.name }}</span>
@@ -61,9 +61,9 @@
   <div class="spacer"></div>
 
   <div class="execution-controls">
-    @if (workspace.activeContext(); as context) {
-      @if (!context.runtime.isRunning()) {
-        @if (!context.runtime.isReady()) {
+    @if (workspace.activeTabHandler(); as tabHandler) {
+      @if (!tabHandler.runtime.isRunning()) {
+        @if (!tabHandler.runtime.isReady()) {
           <button mat-icon-button disabled matTooltip="Chargement de Python...">
             <mat-progress-spinner diameter="24" mode="indeterminate"></mat-progress-spinner>
           </button>

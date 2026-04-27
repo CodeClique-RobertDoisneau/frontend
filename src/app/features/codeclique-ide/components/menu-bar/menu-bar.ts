@@ -43,18 +43,18 @@ export class MenuBar {
   }
 
   runCode() {
-    const context = this.workspace.activeContext();
-    if (context) {
-      context.run((type, content) => this.workspace.addToRepl(context, type, content));
+    const tabHandler = this.workspace.activeTabHandler();
+    if (tabHandler) {
+      tabHandler.run((type, content) => this.workspace.addToRepl(tabHandler, type, content));
     }
   }
 
   stopExecution() {
-    this.workspace.activeContext()?.stop();
+    this.workspace.activeTabHandler()?.stop();
   }
 
   resetEnvironment() {
-    this.workspace.activeContext()?.reset();
+    this.workspace.activeTabHandler()?.reset();
   }
 
   loadExample(example: PythonExample) {
@@ -62,7 +62,7 @@ export class MenuBar {
   }
 
   loadPackage(pkgName: string) {
-    this.workspace.activeContext()?.loadPackage(pkgName);
+    this.workspace.activeTabHandler()?.loadPackage(pkgName);
   }
 
   importFile() {
@@ -83,14 +83,14 @@ export class MenuBar {
   }
 
   exportFile() {
-    const context = this.workspace.activeContext();
-    if (context) this.workspace.exportFile(context);
+    const tabHandler = this.workspace.activeTabHandler();
+    if (tabHandler) this.workspace.exportFile(tabHandler);
   }
 
   renameActiveFile() {
-    const context = this.workspace.activeContext();
-    if (context) {
-      this.workspace.startEditing(this.workspace.activeContextIndex(), context.name());
+    const tabHandler = this.workspace.activeTabHandler();
+    if (tabHandler) {
+      this.workspace.startEditing(this.workspace.activeTabHandlerIndex(), tabHandler.name());
     }
   }
 
