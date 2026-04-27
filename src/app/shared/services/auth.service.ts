@@ -2,12 +2,14 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, switchMap, catchError, throwError } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private http = inject(HttpClient);
+  private router = inject(Router);
   private apiUrl = '/api';
 
   /**
@@ -58,12 +60,18 @@ export class AuthService {
     );
   }
 
-  /**
-   * Logout — destroys the session server-side.
-   */
-  logout(): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/logout/`, null, {
+  logout(): void {
+    this.http.post(`${this.apiUrl}/auth/logout/`, null, {
       responseType: 'text',
+    }).subscribe({
+      next: () => {
+        this.currentUser.set(null);
+        this.router.navigate(['/']);
+      },
+      error: () => {
+        this.currentUser.set(null);
+        this.router.navigate(['/']);
+      }
     });
   }
 

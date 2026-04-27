@@ -22,10 +22,21 @@
 
         <div class="vertical-fill"></div>
 
+        @if (authService.currentUser()) {
+        <a mat-list-item (click)="logout()" aria-label="Logout menu button" style="cursor: pointer;">
+          <mat-icon matListItemIcon>logout</mat-icon>
+          <span matListItemTitle>Se déconnecter</span>
+        </a>
         <a mat-list-item routerLink="/profile" aria-label="Profile menu button">
           <mat-icon matListItemIcon>account_circle</mat-icon>
           <span matListItemTitle>Mon Profil</span>
         </a>
+        } @else {
+        <a mat-list-item routerLink="/connexion" aria-label="Login menu button">
+          <mat-icon matListItemIcon>login</mat-icon>
+          <span matListItemTitle>Se connecter</span>
+        </a>
+        }
         <a mat-list-item routerLink="/settings" aria-label="Settings menu button">
           <mat-icon matListItemIcon>settings</mat-icon>
           <span matListItemTitle>Paramètres</span>
