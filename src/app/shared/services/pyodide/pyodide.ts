@@ -104,6 +104,11 @@ export class Pyodide implements OnDestroy {
     }
   }
 
+  public loadPackage(packages: string[]): void {
+    if (!this.webWorker) return;
+    this.webWorker.postMessage({ type: 'LOAD_PKG', packages });
+  }
+
   private initWebWorker(packages: string[] = []) {
     try {
       this.webWorker = new Worker(
