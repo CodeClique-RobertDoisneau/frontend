@@ -1,86 +1,51 @@
 <div class="course-container">
   @if (data(); as d) {
-
-  @if (editMode()) {
-  <mat-sidenav-container class="edit-sidenav-container">
-    <mat-sidenav mode="side" opened class="edit-sidenav">
-      <div class="edit-toolbar">
-        <h3 class="edit-title">Éditeur</h3>
-        <div class="edit-actions">
-          <button mat-button class="save-btn" color="primary" (click)="saveContent()" [disabled]="isSaving()">
-            @if (isSaving()) {
-            <mat-spinner diameter="20"></mat-spinner>
-            } @else {
-            <span>Enregistrer</span>
-            }
-          </button>
-          <button mat-icon-button (click)="toggleEditMode()" aria-label="Cancel">
-            <mat-icon>close</mat-icon>
-          </button>
-        </div>
-      </div>
-      <div class="editor-wrapper">
-        <code-editor class="code-editor" [ngModel]="editedContent()" (ngModelChange)="editedContent.set($event)"
-          [theme]="'dark'" [language]="d.item.type === 'QU' ? 'json' : 'markdown'" [languages]="languages">
-        </code-editor>
-      </div>
-    </mat-sidenav>
-
-    <mat-sidenav-content class="edit-sidenav-content">
-      <div class="content-wrapper preview-wrapper">
-        @if (d.item.type === 'QU') {
-        <!-- L'aperçu d'un quiz se recharge en direct avec le json tapé grâce à previewData -->
-        <app-quiz [quizId]="d.item.id" [previewData]="editedContent()" [forceRestart]="true"
-          [forceValidated]="true"></app-quiz>
-        } @else {
-        <app-markdown-viewer [markdown]="editedContent()" [pyodide]="this.pyodide"
-          [packages]="['numpy']"></app-markdown-viewer>
-        }
-      </div>
-    </mat-sidenav-content>
-  </mat-sidenav-container>
-  } @else {
   <div class="content-layout">
     <!-- Main Content Column -->
 
     <main class="main-column">
       <div class="title-row">
         <h1 class="chapter-title">{{ d.item.title }}</h1>
-        @if (isEditor()) {
-        <button mat-icon-button color="primary" (click)="toggleEditMode()" class="edit-toggle-btn"
-          aria-label="Edit course">
-          <mat-icon>edit</mat-icon>
-        </button>
-        }
-      </div>
-
-      <!-- Paginator moved between title and content -->
-      <div class="paginator-wrapper">
-        <mat-paginator [length]="d.section?.children?.length || 0" [pageSize]="1" [pageIndex]="currentIndex()"
-          (page)="onPageChange($event)" hidePageSize showFirstLastButtons aria-label="Select item">
-        </mat-paginator>
       </div>
 
       <div class="content-wrapper">
-        @if (d.item.type === 'QU' && !restartMode() && isAlreadyFinished() && !reviewMode()) {
-        <div class="success-banner quiz-success-banner">
+        @if (d.item.type === 'QU') {
+        @if (restartMode()) {
+        <app-quiz [quizId]="d.item.id" [forceRestart]="true"></app-quiz>
+
+        } @else if (isAlreadyFinished()) {
+        <div class="success-banner quiz-success-banner" style="margin-bottom: 2rem;">
           <mat-icon class="quiz-success-icon">stars</mat-icon>
           <h2>Quiz Terminé !</h2>
-          <p>Vous avez déjà passé ce quiz.</p>
+          <p>
+            @if (d.item.user_progress?.score != null) {
+            Votre score : {{ d.item.user_progress?.score }} @if (d.item.user_progress?.max_score != null) { / {{
+            d.item.user_progress?.max_score }} }
+            } @else {
+            Vous avez déjà passé ce quiz.
+            }
+          </p>
           <div class="quiz-review-actions">
-            <button mat-flat-button color="primary" (click)="doReview()">Revoir mes résultats</button>
-            <button mat-stroked-button (click)="doRestart()">Refaire le quiz</button>
+            <button mat-flat-button color="primary" (click)="doRestart()">Refaire le quiz</button>
           </div>
         </div>
-        } @else if (d.item.type === 'QU') {
-        <app-quiz [quizId]="d.item.id" [forceRestart]="restartMode()"></app-quiz>
+        <app-quiz [quizId]="d.item.id" [showCorrectionOnly]="true"></app-quiz>
         } @else {
+        <app-quiz [quizId]="d.item.id"></app-quiz>
+        }
+        }
+        @if (d.item.type === 'EX') {
+        <!--TODO add verification des exercices-->
+        <app-markdown-viewer [markdown]="d.item.content?.content || ''" [pyodide]="this.pyodide"
+          [packages]="['numpy']"></app-markdown-viewer>
+        }
+        @if (d.item.type === 'LE') {
         <app-markdown-viewer [markdown]="d.item.content?.content || ''" [pyodide]="this.pyodide"
           [packages]="['numpy']"></app-markdown-viewer>
         }
       </div>
 
-      @if (d.item.type === 'LE') {
+      @if (d.item.type === 'LE') { ¹
       <div class="action-section">
         @if (successMessage()) {
         <div class="success-banner">
@@ -145,7 +110,6 @@
     </aside>
 
   </div>
-  }
   } @else if (error()) {
   <div class="loading-container">
     <mat-icon class="error-icon">block</mat-icon>

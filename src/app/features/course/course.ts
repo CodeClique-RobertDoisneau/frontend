@@ -1,22 +1,24 @@
 import { Component, ChangeDetectionStrategy, input, inject, computed, effect, signal } from '@angular/core';
-import { toSignal, toObservable } from '@angular/core/rxjs-interop';
-import { switchMap, map, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { FormsModule } from '@angular/forms';
-import { CodeEditor } from '@acrodata/code-editor';
-import { languages } from '@codemirror/language-data';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, ActivatedRoute } from '@angular/router';
-import { QuizComponent } from '@shared/components/quiz/quiz';
-import { NodeService, NodeInfo } from '@shared/services/node.service';
-import { MarkdownViewer } from '@shared/components/markdown-viewer/markdown-viewer';
 import { MatPaginatorModule, PageEvent, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatTreeModule, MatTreeNestedDataSource } from '@angular/material/tree';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Location } from '@angular/common';
+
+
+import { toSignal, toObservable } from '@angular/core/rxjs-interop';
+import { switchMap, map, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
+
+
+import { QuizComponent } from '@shared/components/quiz/quiz';
+import { NodeService, NodeInfo } from '@shared/services/node.service';
+import { MarkdownViewer } from '@shared/components/markdown-viewer/markdown-viewer';
 import { CustomPaginatorIntl } from '@shared/providers/custom-paginator-intl';
 import { Pyodide } from '@shared/services/pyodide/pyodide';
 import { BreadcrumbService, BreadcrumbItem } from '@shared/services/breadcrumb.service';
@@ -38,7 +40,6 @@ interface TocNode {
     MatTreeModule,
     MatSidenavModule,
     FormsModule,
-    CodeEditor,
     MarkdownViewer,
     QuizComponent
   ],
@@ -58,18 +59,10 @@ export class Course {
   private breadcrumbService = inject(BreadcrumbService);
   private authService = inject(AuthService);
 
-  languages = languages;
-  editMode = signal(false);
-  editedContent = signal('');
-  isSaving = signal(false);
   reviewMode = signal(false);
   restartMode = signal(false);
 
-  // Compute isEditor dynamically based on role
-  readonly isEditor = computed(() => {
-    const user = this.authService.currentUser();
-    return user && (user.role === 'TE' || user.role === 'AD');
-  });
+
 
   error = signal('');
   isVerifying = signal(false);
@@ -113,14 +106,6 @@ export class Course {
     return this.buildToc(content);
   });
 
-  // Compute current page index for paginator
-  readonly currentIndex = computed(() => {
-    const d = this.data();
-    if (!d || !d.section || !d.section.children) return 0;
-    const index = d.section.children.findIndex((i: any) => i.id === d.item.id);
-    return index >= 0 ? index : 0;
-  });
-
   constructor() {
     // Update tree data source and breadcrumb when data changes
     effect(() => {
@@ -150,40 +135,12 @@ export class Course {
       this.authService.getMe().subscribe();
     }
 
-    // Check initial queryParams for ?edit=true, ?review=true, ?restart=true
+    // Check initial queryParams for ?review=true, ?restart=true
     this.route.queryParams.subscribe(params => {
-      const isEdit = params['edit'] === 'true';
-      this.editMode.set(isEdit);
       this.reviewMode.set(params['review'] === 'true');
       this.restartMode.set(params['restart'] === 'true');
-      if (isEdit) {
-        const d = this.data();
-        if (d?.item?.content?.content) {
-          const cData = d.item.content.content;
-          this.editedContent.set(typeof cData === 'string' ? cData : JSON.stringify(cData, null, 2));
-        }
-      }
     });
 
-    // Also populate when data finally arrive while in editMode
-    effect(() => {
-      const d = this.data();
-      if (this.editMode() && d?.item?.content?.content && !this.editedContent()) {
-        const cData = d.item.content.content;
-        this.editedContent.set(typeof cData === 'string' ? cData : JSON.stringify(cData, null, 2));
-      }
-    });
-  }
-
-  goBack() {
-    const d = this.data();
-    if (d && d.section && d.section.children && d.section.children.length > 0) {
-      // Navigate to the first parent chapter
-      this.router.navigate(['/chapter', d.section.children[0]]);
-    } else {
-      // Fallback to simpler history back if no chapter context is found
-      this.location.back();
-    }
   }
 
   onPageChange(event: PageEvent) {
@@ -195,10 +152,6 @@ export class Course {
     if (nextItem) {
       this.router.navigate(['/course', nextItem.id || nextItem]);
     }
-  }
-
-  doReview() {
-    this.router.navigate([], { relativeTo: this.route, queryParams: { review: 'true' }, queryParamsHandling: 'merge' });
   }
 
   doRestart() {
@@ -221,7 +174,6 @@ export class Course {
         // Let user see success message for a brief moment before moving to next item
         setTimeout(() => {
           this.successMessage.set('');
-          this.goToNext();
         }, 1500);
       },
       error: () => {
@@ -231,63 +183,9 @@ export class Course {
     });
   }
 
-  toggleEditMode() {
-    const isEdit = !this.editMode();
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { edit: isEdit ? 'true' : null },
-      queryParamsHandling: 'merge'
-    });
-  }
-
-  saveContent() {
-    this.isSaving.set(true);
-    let finalContent: any = this.editedContent();
-    const d = this.data();
-    if (d?.item.type === 'QU') {
-      try {
-        finalContent = { content: JSON.parse(finalContent) };
-      } catch (e) {
-        this.error.set("Format JSON Invalide");
-        this.isSaving.set(false);
-        return;
-      }
-    } else {
-      finalContent = { content: finalContent };
-    }
-
-    // Pass the actual object payload. NodeService will just push it to the node.
-    this.NodeService.updateNodeContent(this.id(), finalContent).subscribe({
-      next: (res) => {
-        this.isSaving.set(false);
-        this.router.navigate([], { queryParams: { edit: null } }).then(() => {
-          window.location.reload();
-        });
-      },
-      error: () => {
-        this.isSaving.set(false);
-        this.error.set("Erreur lors de la sauvegarde.");
-      }
-    })
-  }
-
-  goToNext() {
-    const d = this.data();
-    if (!d || !d.section || !d.section.children) return;
-    const nextIndex = this.currentIndex() + 1;
-    if (nextIndex < d.section.children.length) {
-      const nextItem = d.section.children[nextIndex] as any;
-      if (nextItem) {
-        this.router.navigate(['/course', nextItem.id || nextItem]);
-      }
-    } else {
-      // Si fin de section, revenir au chapitre
-      this.goBack();
-    }
-  }
-
   hasChild = (_: number, node: TocNode) => !!node.children && node.children.length > 0;
 
+  //Permet de scroller automatiquement avec le sommaire
   scrollToHeader(name: string) {
     const elements = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'));
     const target = elements.find(el => el.textContent?.trim() === name.trim());

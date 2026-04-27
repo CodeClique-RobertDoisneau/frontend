@@ -42,25 +42,27 @@ export type QuizResult = [boolean[], string][];
 export class QuizComponent {
   quizId = input<string | number | undefined>(undefined);
   forceRestart = input<boolean>(false);
-  previewData = input<string | null>(null);
-  forceValidated = input<boolean>(false);
-  // Bascule: `true` pour utiliser le système actuel en attendant le backend, `false` pour la nouvelle API
-  useMockApi = false;
+  showCorrectionOnly = input<boolean>(false);
+  previewData = input<string | null>(null);//for edit mode
+
+
+  userAnswers = signal<boolean[][]>([]);
+  quizSubmitted = signal(false);
+  userDidSubmit = signal(false);
+
 
   quizResource = httpResource<any>(() => {
     if (this.previewData()) return undefined; // Pas besoin d'appeler l'API si previewData est là
     const id = this.quizId();
     if (!id) return undefined;
 
-    return { 
+    return {
       url: `/api/nodes/${id}/`,
       method: 'GET'
     } as HttpResourceRequest;
   });
 
-  userAnswers = signal<boolean[][]>([]);
-  quizSubmitted = signal(false);
-  userDidSubmit = signal(false);
+
   QuizCorrection = computed<QuizResult>(() => {
     if (!this.quizSubmitted()) return [];
     const data = this.parsedQuizData();
@@ -69,42 +71,42 @@ export class QuizComponent {
   });
 
   score = computed<number | null>(() => {
-     const resp = this.quizResource.value();
-     if (resp?.user_progress?.done && !this.forceRestart() && resp.user_progress.score !== undefined) {
-         return resp.user_progress.score;
-     }
+    const resp = this.quizResource.value();
+    if (resp?.user_progress?.done && !this.forceRestart() && resp.user_progress.score !== undefined) {
+      return resp.user_progress.score;
+    }
 
-     if (!this.quizSubmitted()) return null;
-     const correction = this.QuizCorrection();
-     if (!correction || correction.length === 0) return null;
-     
-     let currentScore = 0;
-     for (let i = 0; i < correction.length; i++) {
-        const userA = this.userAnswers()[i] || [];
-        const trueA = correction[i][0] || [];
-        for (let j = 0; j < trueA.length; j++) {
-            if (userA[j] === trueA[j]) currentScore++;
-        }
-     }
-     return currentScore;
+    if (!this.quizSubmitted()) return null;
+    const correction = this.QuizCorrection();
+    if (!correction || correction.length === 0) return null;
+
+    let currentScore = 0;
+    for (let i = 0; i < correction.length; i++) {
+      const userA = this.userAnswers()[i] || [];
+      const trueA = correction[i][0] || [];
+      for (let j = 0; j < trueA.length; j++) {
+        if (userA[j] === trueA[j]) currentScore++;
+      }
+    }
+    return currentScore;
   });
 
   maxScore = computed<number | null>(() => {
-     const resp = this.quizResource.value();
-     if (resp?.user_progress?.done && !this.forceRestart() && resp.user_progress.max_score !== undefined) {
-         return resp.user_progress.max_score;
-     }
+    const resp = this.quizResource.value();
+    if (resp?.user_progress?.done && !this.forceRestart() && resp.user_progress.max_score !== undefined) {
+      return resp.user_progress.max_score;
+    }
 
-     if (!this.quizSubmitted()) return null;
-     const correction = this.QuizCorrection();
-     if (!correction || correction.length === 0) return null;
-     
-     let currentMax = 0;
-     for (let i = 0; i < correction.length; i++) {
-        const trueA = correction[i][0] || [];
-        currentMax += trueA.length;
-     }
-     return currentMax;
+    if (!this.quizSubmitted()) return null;
+    const correction = this.QuizCorrection();
+    if (!correction || correction.length === 0) return null;
+
+    let currentMax = 0;
+    for (let i = 0; i < correction.length; i++) {
+      const trueA = correction[i][0] || [];
+      currentMax += trueA.length;
+    }
+    return currentMax;
   });
 
   // 1. On parse la donnée UNE SEULE FOIS de manière centralisée
@@ -138,7 +140,7 @@ export class QuizComponent {
         if (depth > 3) return null;
         if (Array.isArray(obj)) return obj;
         if (!obj || typeof obj !== 'object') return null;
-        
+
         // On check les propriétés classiques : .quiz, .content
         const keys = ['quiz', 'content'];
         for (const key of keys) {
@@ -151,7 +153,7 @@ export class QuizComponent {
               const parsed = JSON.parse(val);
               const found = extractItems(parsed, depth + 1);
               if (found) return found;
-            } catch (e) {}
+            } catch (e) { }
           } else if (typeof val === 'object') {
             const found = extractItems(val, depth + 1);
             if (found) return found;
@@ -183,7 +185,7 @@ export class QuizComponent {
       if (!data) return;
 
       const fRestart = this.forceRestart();
-      const fValidated = this.forceValidated();
+      const fValidated = this.showCorrectionOnly();
 
       untracked(() => {
         // Cas 0: Mode edit forcé — on pré-coche les bonnes réponses
@@ -243,10 +245,10 @@ export class QuizComponent {
   submitResource = httpResource<any>(() => {
     if (!this.userDidSubmit()) return undefined;
     if (this.previewData()) return undefined; // Pas de POST en mode éditeur
-    if (this.forceValidated()) return undefined; // Pas de POST en mode forcé
+    if (this.showCorrectionOnly()) return undefined; // Pas de POST en mode forcé
     const id = this.quizId();
     if (!id) return undefined;
-    
+
     const node = this.quizResource.value();
     const modified_at = node?.modified_at;
 

@@ -65,13 +65,7 @@ export interface MembershipInfo {
 export const SUBJECT_LABELS: Record<string, string> = {
   'MA': 'Maths',
   'PH': 'Physique',
-  'NS': 'NSI',
-  'CO': 'NSI',
-
-  //Temporaire TODO
-  'Maths': 'Maths',
-  'NSI': 'NSI',
-  'Physique': 'Physique',
+  'CO': 'NSI'
 };
 
 
@@ -80,6 +74,14 @@ export const GRADE_LABELS: Record<string, string> = {
   'PR': 'Première',
   'TE': 'Terminale',
 };
+
+export const TYPE_LABELS: Record<string, string> = {
+  'LE': 'Cours',
+  'QU': 'Quiz',
+  'EX': 'Exercice',
+};
+
+
 
 @Injectable({
   providedIn: 'root'
