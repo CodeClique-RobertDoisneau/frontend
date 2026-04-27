@@ -43,11 +43,11 @@
 
     <button mat-button [matMenuTriggerFor]="helpMenu">Aide</button>
     <mat-menu #helpMenu="matMenu">
-      <button mat-menu-item>
+      <button mat-menu-item (click)="openDocumentation()">
         <mat-icon>help_outline</mat-icon>
         <span>Documentation</span>
       </button>
-      <button mat-menu-item>
+      <button mat-menu-item (click)="openAbout()">
         <mat-icon>info_outline</mat-icon>
         <span>À propos</span>
       </button>
@@ -55,7 +55,7 @@
 
     <div class="spacer"></div>
     @if (!isConsoleVisible()) {
-      <button mat-icon-button (click)="toggleConsole()" matTooltip="Afficher la console">
+      <button mat-icon-button (click)="toggleConsole()" matTooltip="Afficher la console (Ctrl+B)">
         <mat-icon>terminal</mat-icon>
       </button>
     }
@@ -100,8 +100,8 @@
         <span>Console Python</span>
         <span class="spacer"></span>
 
-        @if (!activeTab()?.isRunning?.()) {
-          @if (!activeTab()?.pyodide?.isReady()) {
+        @if (activeTab() && !activeTab()!.isRunning()) {
+          @if (!activeTab()!.pyodide.isReady()) {
             <button mat-icon-button disabled matTooltip="Chargement de Python...">
               <mat-progress-spinner diameter="24" mode="indeterminate"></mat-progress-spinner>
             </button>
@@ -110,7 +110,7 @@
               <mat-icon>play_arrow</mat-icon>
             </button>
           }
-        } @else {
+        } @else if (activeTab()?.isRunning()) {
         <button mat-icon-button color="warn" (click)="stopExecution()" matTooltip="Arrêter">
           <mat-icon>stop</mat-icon>
         </button>
@@ -120,11 +120,11 @@
           <mat-icon>refresh</mat-icon>
         </button>
 
-        <button mat-icon-button (click)="clearConsole()" matTooltip="Effacer la console">
+        <button mat-icon-button (click)="clearConsole()" matTooltip="Effacer la console (Ctrl+L)">
           <mat-icon>block</mat-icon>
         </button>
 
-        <button mat-icon-button (click)="toggleConsole()" matTooltip="Masquer la console" class="toggle-btn">
+        <button mat-icon-button (click)="toggleConsole()" matTooltip="Masquer la console (Ctrl+B)" class="toggle-btn">
           <mat-icon>chevron_right</mat-icon>
         </button>
       </div>
@@ -166,8 +166,8 @@
           <span class="prompt">>>></span>
           <div class="inline-input">
             <input type="text" [ngModel]="replCommand()" (ngModelChange)="replCommand.set($event)" (keyup.enter)="executeRepl()" placeholder="Taper du code ici..."
-              [disabled]="!activeTab()?.pyodide?.isReady() || !!activeTab()?.waitingForInput()">
-            <button mat-icon-button (click)="executeRepl()" class="mini-send" matTooltip="Exécuter" [disabled]="!activeTab()?.pyodide?.isReady() || !!activeTab()?.waitingForInput()">
+              [disabled]="!activeTab()?.pyodide?.isReady() || activeTab()?.waitingForInput() === true">
+            <button mat-icon-button (click)="executeRepl()" class="mini-send" matTooltip="Exécuter" [disabled]="!activeTab()?.pyodide?.isReady() || activeTab()?.waitingForInput() === true">
               <mat-icon>send</mat-icon>
             </button>
           </div>

@@ -8,7 +8,9 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DragDropModule, CdkDragMove } from '@angular/cdk/drag-drop';
+import { HostListener } from '@angular/core';
 
 import { CodeEditor } from '@acrodata/code-editor';
 import { languages } from '@codemirror/language-data';
@@ -17,6 +19,8 @@ import { Pyodide } from '@shared/services/pyodide/pyodide';
 import { Theming } from '@shared/services/theming/theming';
 
 import { EXAMPLES, PythonExample } from './examples/python-examples';
+import { IdeDocumentationDialog } from './dialogs/ide-documentation-dialog/ide-documentation-dialog';
+import { IdeAboutDialog } from './dialogs/ide-about-dialog/ide-about-dialog';
 
 interface ReplLine {
   type: 'input' | 'output' | 'error';
@@ -50,6 +54,7 @@ interface IdeTab {
     MatDividerModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatDialogModule,
     DragDropModule,
     CodeEditor
   ],
@@ -59,6 +64,7 @@ interface IdeTab {
 export class FreePythonIde implements OnInit, OnDestroy {
   theming = inject(Theming);
   snackBar = inject(MatSnackBar);
+  dialog = inject(MatDialog);
 
   @ViewChild('replScrollContainer') private replScrollContainer!: ElementRef;
   @ViewChild('fileInput') private fileInput!: ElementRef<HTMLInputElement>;
@@ -68,7 +74,7 @@ export class FreePythonIde implements OnInit, OnDestroy {
   tabs = signal<IdeTab[]>([]);
   activeTabIndex = signal<number>(0);
 
-  activeTab = computed(() => this.tabs()[this.activeTabIndex()]);
+  activeTab = computed<IdeTab | undefined>(() => this.tabs()[this.activeTabIndex()]);
 
   @ViewChild('resizeHandle') resizeHandle!: ElementRef;
   @ViewChild('ideContainer') ideContainer!: ElementRef;
@@ -296,6 +302,52 @@ export class FreePythonIde implements OnInit, OnDestroy {
     if (this.replScrollContainer) {
       const el = this.replScrollContainer.nativeElement;
       el.scrollTop = el.scrollHeight;
+    }
+  }
+
+  openDocumentation() {
+    this.dialog.open(IdeDocumentationDialog, {
+      width: '800px',
+      maxWidth: '90vw'
+    });
+  }
+
+  openAbout() {
+    this.dialog.open(IdeAboutDialog, {
+      width: '500px'
+    });
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    // F5: Run
+    if (event.key === 'F5') {
+      event.preventDefault();
+      this.runCode();
+    }
+
+    // Ctrl + B: Toggle Console
+    if (event.ctrlKey && event.key.toLowerCase() === 'b') {
+      event.preventDefault();
+      this.toggleConsole();
+    }
+
+    // Ctrl + S: Export
+    if (event.ctrlKey && event.key.toLowerCase() === 's') {
+      event.preventDefault();
+      this.exportFile();
+    }
+
+    // Ctrl + L: Clear Console
+    if (event.ctrlKey && event.key.toLowerCase() === 'l') {
+      event.preventDefault();
+      this.clearConsole();
+    }
+
+    // Ctrl + Alt + N: New Tab
+    if (event.ctrlKey && event.altKey && event.key.toLowerCase() === 'n') {
+      event.preventDefault();
+      this.addNewTab();
     }
   }
 }
