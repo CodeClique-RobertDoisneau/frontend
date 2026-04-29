@@ -1,0 +1,19 @@
+<div class="desktop-wrapper">
+  <app-menu-bar></app-menu-bar>
+
+  <div class="ide-container" #ideContainer>
+    <div class="editor-section">
+      <app-tab-bar (toggleConsole)="toggleConsole()"></app-tab-bar>
+      <app-editor></app-editor>
+    </div>
+
+    <!-- Resize Handle -->
+    @if (isConsoleVisible()) {
+    <div class="resize-handle" (mousedown)="startResizing($event)"></div>
+    }
+
+    <div class="repl-panel" [style.width.px]="consoleWidth()" [class.hidden]="!isConsoleVisible()">
+      <app-repl></app-repl>
+    </div>
+  </div>
+</div>

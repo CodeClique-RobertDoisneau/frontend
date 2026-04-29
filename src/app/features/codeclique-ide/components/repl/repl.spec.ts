@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FreePythonIde } from './free-python-ide';
+import { Repl } from './repl';
 
-describe('FreePythonIde', () => {
-  let component: FreePythonIde;
-  let fixture: ComponentFixture<FreePythonIde>;
+describe('Repl', () => {
+  let component: Repl;
+  let fixture: ComponentFixture<Repl>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FreePythonIde]
+      imports: [Repl]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(FreePythonIde);
+    fixture = TestBed.createComponent(Repl);
     component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it('should create', () => {

@@ -12,7 +12,6 @@
   display: flex;
   top: 0;
   z-index: 10;
-  margin-bottom: 1em;
   border-bottom: 1px solid var(--mat-sys-outline-variant);
 }
 
@@ -35,10 +34,6 @@
 
 mat-sidenav-content {
   min-height: 100vh;
-}
-
-.main-container {
-  padding: 1em;
 }
 
 .sidenav-layout-wrapper {

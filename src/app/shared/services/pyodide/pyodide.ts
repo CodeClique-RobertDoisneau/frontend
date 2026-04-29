@@ -14,6 +14,9 @@ export class Pyodide implements OnDestroy {
   private isReadySignal = signal<boolean>(false);
   public readonly isReady = this.isReadySignal.asReadonly();
 
+  private isRunningSignal = signal<boolean>(false);
+  public readonly isRunning = this.isRunningSignal.asReadonly();
+
   public init(packages?: string[]) {
     if (this.webWorker) return;
     if (packages) this.initialPackages = packages;
@@ -30,7 +33,6 @@ export class Pyodide implements OnDestroy {
     this.webWorker = null;
     this.executionHandlers.forEach((handler) => {
       handler.onError?.('Python environment reset.');
-      handler.isRunning?.set(false);
     });
     this.executionHandlers.clear();
 
@@ -49,7 +51,7 @@ export class Pyodide implements OnDestroy {
     onError?: (text: string) => void,
     onPlot?: (base64: string) => void,
     onInput?: (text: string) => void
-  ): { executionId: string, isRunning: WritableSignal<boolean> } {
+  ): string {
     if (!this.serviceWorkerRegistered || !this.webWorker || !this.isReadySignal()) {
       throw new Error('Pyodide is not ready yet.');
     }
@@ -59,12 +61,11 @@ export class Pyodide implements OnDestroy {
     }
 
     const executionId: string = crypto.randomUUID();
-    const isRunning = signal<boolean>(true);
+    this.isRunningSignal.set(true);
 
     const handler: ExecutionHandler = {
       onOutput: onOutput,
       onError: onError,
-      isRunning: isRunning,
       onPlot: onPlot,
       onInput: onInput
     }
@@ -73,7 +74,7 @@ export class Pyodide implements OnDestroy {
     const msg: PyodideRequest = { type: 'RUN', id: executionId, code };
     this.webWorker.postMessage(msg);
 
-    return { executionId, isRunning };
+    return executionId;
   }
 
   public interruptExecution(executionId: string): void {
@@ -102,6 +103,11 @@ export class Pyodide implements OnDestroy {
     } else {
       console.error('Service Worker controller not available to send input.');
     }
+  }
+
+  public loadPackage(packages: string[]): void {
+    if (!this.webWorker) return;
+    this.webWorker.postMessage({ type: 'LOAD_PKG', packages });
   }
 
   private initWebWorker(packages: string[] = []) {
@@ -170,13 +176,13 @@ export class Pyodide implements OnDestroy {
         break;
 
       case 'RUN_SUCCESS':
-        this.executionHandlers.get(data.id)?.isRunning?.set(false);
+        this.isRunningSignal.set(false);
         this.executionHandlers.delete(data.id);
         break;
 
       case 'RUN_ERROR':
         this.executionHandlers.get(data.id)?.onError?.(data.error);
-        this.executionHandlers.get(data.id)?.isRunning?.set(false);
+        this.isRunningSignal.set(false);
         this.executionHandlers.delete(data.id);
         break;
 

@@ -1,7 +1,6 @@
 /// <reference lib="webworker" />
 import { PyodideAPI, loadPyodide as loadPyodideType } from 'pyodide';
 import { PyodideRequest, PyodideResponse } from './pyodide.types';
-import { bindCallback } from 'rxjs';
 
 const importLink = '/pyodide/pyodide.mjs';
 
@@ -108,7 +107,7 @@ async function handleRun(data: Extract<PyodideRequest, { type: 'RUN' }>) {
       }
 
       respond({ type: 'RUN_STDIN_REQUEST', id });
-      
+
       const xhr = new XMLHttpRequest();
       xhr.open('GET', `/__get_stdin__?id=${id}`, false);
       xhr.send();

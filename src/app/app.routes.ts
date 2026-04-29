@@ -13,9 +13,9 @@ export const routes: Routes = [
     loadComponent: () => import('@features/dashboard/dashboard').then(m => m.Dashboard)
   },
   {
-    title: 'IDE Libre Python',
-    path: 'free-python-ide',
-    loadComponent: () => import('@features/free-python-ide/free-python-ide').then(m => m.FreePythonIde)
+    title: 'CodeClique IDE',
+    path: 'codeclique-ide',
+    loadComponent: () => import('@features/codeclique-ide/codeclique-ide').then(m => m.CodeCliqueIde)
   },
   {
     title: 'Catalogue des cours',
@@ -57,7 +57,7 @@ export const routes: Routes = [
     path: 'error/:errorCode',
     loadComponent: () => import('@features/error/error').then(m => m.Error)
   },
-  { 
+  {
     title: 'Page non trouvée',
     path: '**',
     redirectTo: '/error/404'
