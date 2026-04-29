@@ -28,6 +28,10 @@ export class Pyodide {
     });
   }
 
+  public destroy(): void {
+    this.teardown();
+  }
+
   public init(packages?: string[]) {
     if (this.webWorker) return;
     if (packages) this.initialPackages = packages;

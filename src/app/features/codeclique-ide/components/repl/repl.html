@@ -1,5 +1,4 @@
 <div class="repl-container">
-  @if (activeTabHandler(); as tabHandler) {
   <div class="panel-header">
     <mat-icon>terminal</mat-icon>
     <span>Console Python</span>
@@ -9,7 +8,7 @@
     </button>
   </div>
   <div class="repl-output" #replScrollContainer>
-    @for (line of tabHandler.replHistory(); track $index) {
+    @for (line of tab().replHistory(); track $index) {
     <div class="repl-line" [ngClass]="line.type">
       @if (line.type === 'input') {
       <span class="prompt">>>></span>
@@ -18,11 +17,11 @@
     </div>
     }
 
-    @if (tabHandler.waitingForInput()) {
+    @if (tab().waitingForInput()) {
     <div class="repl-line input">
       <span class="prompt">?</span>
       <div class="inline-input">
-        <input #waitingInput type="text" [(ngModel)]="tabHandler.userInput" (keyup.enter)="submitInput()"
+        <input #waitingInput type="text" [(ngModel)]="tab().userInput" (keyup.enter)="submitInput()"
           placeholder="Entrée attendue...">
         <button mat-icon-button (click)="submitInput()" class="mini-send" matTooltip="Envoyer">
           <mat-icon>send</mat-icon>
@@ -31,9 +30,9 @@
     </div>
     }
 
-    @if (tabHandler.plot()) {
+    @if (tab().plot()) {
     <div class="plot-container">
-      <img [src]="'data:image/png;base64,' + tabHandler.plot()" alt="Matplotlib Plot">
+      <img [src]="'data:image/png;base64,' + tab().plot()" alt="Matplotlib Plot">
     </div>
     }
   </div>
@@ -42,14 +41,13 @@
     <div class="repl-input-area">
       <span class="prompt">>>></span>
       <div class="inline-input">
-        <input #replInput type="text" [(ngModel)]="tabHandler.replCommand" (keyup.enter)="handleExecute()" placeholder="Taper du code ici..."
-          [disabled]="!tabHandler.runtime.isReady() || tabHandler.waitingForInput()">
+        <input #replInput type="text" [(ngModel)]="tab().replCommand" (keyup.enter)="handleExecute()" placeholder="Taper du code ici..."
+          [disabled]="!tabView.pyodide.isReady() || tabView.isRunning()">
         <button mat-icon-button (click)="handleExecute()" class="mini-send" matTooltip="Exécuter"
-          [disabled]="!tabHandler.runtime.isReady() || tabHandler.waitingForInput()">
+          [disabled]="!tabView.pyodide.isReady() || tabView.isRunning()">
           <mat-icon>send</mat-icon>
         </button>
       </div>
     </div>
   </div>
-  }
 </div>

@@ -1,10 +1,12 @@
-import { Component, effect, ElementRef, viewChild, inject, afterNextRender } from '@angular/core';
+import { Component, effect, ElementRef, viewChild, inject, afterNextRender, input, forwardRef, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { WorkspaceService } from '../../services/workspace';
+import { TabHandler } from '../../services/tab-handler';
+import { IdeTabView } from '../ide-tab-view/ide-tab-view';
 
 @Component({
   selector: 'app-repl',
@@ -14,8 +16,10 @@ import { WorkspaceService } from '../../services/workspace';
   styleUrl: './repl.scss'
 })
 export class Repl {
+  tab = input.required<TabHandler>();
+  public tabView = inject(forwardRef(() => IdeTabView));
   workspace = inject(WorkspaceService);
-  activeTabHandler = this.workspace.activeTabHandler;
+  private injector = inject(Injector);
 
   private replScrollContainer = viewChild<ElementRef>('replScrollContainer');
   private waitingInput = viewChild<ElementRef<HTMLInputElement>>('waitingInput');
@@ -23,27 +27,21 @@ export class Repl {
 
   constructor() {
     effect(() => {
-      const tabHandler = this.activeTabHandler();
-      if (!tabHandler) return;
+      // Trigger effect on history or state changes
+      this.tab().replHistory();
+      this.tab().waitingForInput();
 
-      // Auto-scroll when history changes
-      tabHandler.replHistory();
-      
-      // Focus handling based on state
-      tabHandler.waitingForInput();
-
+      // Schedule DOM operations for after the next render cycle
+      // We pass the injector explicitly to satisfy the injection context requirement
       afterNextRender(() => {
         this.scrollToBottom();
         this.focus();
-      });
+      }, { injector: this.injector });
     });
   }
 
   focus() {
-    const tabHandler = this.activeTabHandler();
-    if (!tabHandler) return;
-
-    if (tabHandler.waitingForInput()) {
+    if (this.tab().waitingForInput()) {
       this.waitingInput()?.nativeElement.focus();
     } else {
       this.replInput()?.nativeElement.focus();
@@ -51,32 +49,27 @@ export class Repl {
   }
 
   handleExecute() {
-    const tabHandler = this.activeTabHandler();
-    if (!tabHandler) return;
-    
-    const cmd = tabHandler.replCommand().trim();
+    const cmd = this.tab().replCommand().trim();
     if (cmd) {
-      this.workspace.addToRepl(tabHandler, 'input', cmd);
-      tabHandler.run((type, content) => this.workspace.addToRepl(tabHandler, type, content), cmd);
-      tabHandler.replCommand.set('');
-      // Refocus after execution
+      this.workspace.addToRepl(this.tab(), 'input', cmd);
+      this.tabView.run(cmd);
+      this.tab().replCommand.set('');
       this.focus();
     }
   }
 
   submitInput() {
-    const tabHandler = this.activeTabHandler();
-    if (tabHandler && tabHandler.waitingForInput()) {
-      const input = tabHandler.userInput();
-      this.workspace.addToRepl(tabHandler, 'output', input + '\n');
-      tabHandler.runtime.sendInput(input);
-      tabHandler.waitingForInput.set(false);
-      tabHandler.userInput.set('');
+    if (this.tab().waitingForInput()) {
+      const input = this.tab().userInput();
+      this.workspace.addToRepl(this.tab(), 'output', input + '\n');
+      this.tabView.sendInput(input);
+      this.tab().waitingForInput.set(false);
+      this.tab().userInput.set('');
     }
   }
 
   clearConsole() {
-    this.activeTabHandler()?.replHistory.set([]);
+    this.tab().replHistory.set([]);
   }
 
   private scrollToBottom() {

@@ -13,6 +13,20 @@ function respond(msg: PyodideResponse) {
   postMessage(msg);
 }
 
+const PYTHON_RUNNER_SCRIPT = `
+import traceback
+import sys
+import __main__
+
+def _run_user_code(code):
+    try:
+        exec(code, __main__.__dict__)
+        return None
+    except Exception:
+        etype, evalue, etb = sys.exc_info()
+        return "".join(traceback.format_exception(etype, evalue, etb.tb_next))
+`;
+
 const PLOT_HELPER_SCRIPT = `
 import io, base64
 import matplotlib.pyplot as plt
@@ -73,6 +87,7 @@ async function handleInit(data: Extract<PyodideRequest, { type: 'INIT' }>) {
   });
   await pyodide.runPythonAsync(`exit = lambda: None`);
   await pyodide.runPythonAsync(INTERRUPT_HELPER_SCRIPT);
+  await pyodide.runPythonAsync(PYTHON_RUNNER_SCRIPT);
 
   if (data.interruptBuffer) {
     interruptBuffer = new Uint8Array(data.interruptBuffer);
@@ -266,19 +281,23 @@ async function handleRun(data: Extract<PyodideRequest, { type: 'RUN' }>) {
   });
 
   try {
-    await pyodide.runPythonAsync(code);
+    const runUserCode = pyodide.globals['get']('_run_user_code');
+    const pythonError = await runUserCode(code);
 
-    if (isMatplotlibLoaded) {
-      const plotFetcher = pyodide?.globals['get']('_fetch_last_plot');
-      if (plotFetcher) {
-        const base64Str = plotFetcher();
-        if (base64Str) {
-          respond({ type: 'RUN_PLOT_OUTPUT', id, base64: base64Str });
+    if (pythonError) {
+      respond({ type: 'RUN_ERROR', id, error: pythonError });
+    } else {
+      if (isMatplotlibLoaded) {
+        const plotFetcher = pyodide?.globals['get']('_fetch_last_plot');
+        if (plotFetcher) {
+          const base64Str = plotFetcher();
+          if (base64Str) {
+            respond({ type: 'RUN_PLOT_OUTPUT', id, base64: base64Str });
+          }
         }
       }
+      respond({ type: 'RUN_SUCCESS', id });
     }
-
-    respond({ type: 'RUN_SUCCESS', id });
   } catch (err) {
     const errorMsg = err instanceof Error ? err.stack || err.message : String(err);
     respond({ type: 'RUN_ERROR', id, error: errorMsg });

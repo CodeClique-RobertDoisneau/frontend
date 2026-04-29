@@ -1,0 +1,14 @@
+<div class="ide-container">
+  <div class="editor-section">
+    <app-tab-bar (toggleConsole)="onToggleConsole()"></app-tab-bar>
+    <app-editor [tab]="tab()"></app-editor>
+  </div>
+
+  @if (isConsoleVisible()) {
+    <div class="resize-handle" (mousedown)="onResize($event)"></div>
+  }
+
+  <div class="repl-panel" [style.width.px]="consoleWidth()" [class.hidden]="!isConsoleVisible()">
+    <app-repl [tab]="tab()"></app-repl>
+  </div>
+</div>

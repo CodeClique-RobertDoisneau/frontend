@@ -1,10 +1,8 @@
 <div class="editor-wrapper">
-  @if (workspace.activeTabHandler(); as tabHandler) {
   <code-editor 
-    [(ngModel)]="tabHandler.code" 
+    [(ngModel)]="tab().code" 
     language="python"
     [languages]="languages"
     [theme]="theming.resolvedTheme()"
   ></code-editor>
-  }
 </div>

@@ -1,10 +1,11 @@
-import { Signal } from '@angular/core';
+import { Signal, computed, signal } from '@angular/core';
 import { Pyodide } from '@shared/services/pyodide/pyodide';
+import { ExecutionContext } from '@shared/services/pyodide/pyodide.types';
 import { IdeRuntime } from '../codeclique-ide.types';
 
 export class PythonRuntime implements IdeRuntime {
   private pyodide: Pyodide;
-  private executionId: string | null = null;
+  private currentContext = signal<ExecutionContext | null>(null);
   
   readonly isReady: Signal<boolean>;
   readonly isRunning: Signal<boolean>;
@@ -12,7 +13,7 @@ export class PythonRuntime implements IdeRuntime {
   constructor() {
     this.pyodide = new Pyodide();
     this.isReady = this.pyodide.isReady;
-    this.isRunning = this.pyodide.isRunning;
+    this.isRunning = computed(() => this.currentContext()?.isRunning() ?? false);
   }
 
   init(dependencies: string[] = []): void {
@@ -26,41 +27,39 @@ export class PythonRuntime implements IdeRuntime {
     onPlot?: (base64: string) => void,
     onInputRequest?: () => void
   ): void {
-    if (this.executionId) {
+    if (this.isRunning()) {
       this.stop();
     }
-    const executionId = this.pyodide.run(
-      code,
-      onOutput,
-      onError,
-      onPlot || (() => {}),
-      onInputRequest || (() => {})
-    );
-    this.executionId = executionId;
+    
+    const context = this.pyodide.run(code);
+    this.currentContext.set(context);
+
+    context
+      .onOutput(onOutput)
+      .onError(onError);
+
+    if (onPlot) context.onPlot(onPlot);
+    if (onInputRequest) context.onStdinRequest(onInputRequest);
   }
 
   stop(): void {
-    if (this.executionId) {
-      this.pyodide.interruptExecution(this.executionId);
-    }
+    this.currentContext()?.interrupt();
   }
 
   sendInput(text: string): void {
-    if (this.executionId) {
-      this.pyodide.sendInput(this.executionId, text);
-    }
+    this.currentContext()?.provideInput(text);
   }
 
   reset(): void {
     this.pyodide.reset();
-    this.executionId = null;
+    this.currentContext.set(null);
   }
 
   loadPackage(packages: string[]): void {
-    this.pyodide.loadPackage(packages);
+    this.pyodide.loadPackages(packages);
   }
 
   destroy(): void {
-    this.pyodide.ngOnDestroy();
+    this.pyodide.destroy();
   }
 }

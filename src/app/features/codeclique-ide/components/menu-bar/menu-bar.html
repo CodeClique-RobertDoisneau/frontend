@@ -61,22 +61,20 @@
   <div class="spacer"></div>
 
   <div class="execution-controls">
-    @if (workspace.activeTabHandler(); as tabHandler) {
-      @if (!tabHandler.runtime.isRunning()) {
-        @if (!tabHandler.runtime.isReady()) {
-          <button mat-icon-button disabled matTooltip="Chargement de Python...">
-            <mat-progress-spinner diameter="24" mode="indeterminate"></mat-progress-spinner>
-          </button>
-        } @else {
-          <button mat-icon-button color="primary" (click)="runCode()" matTooltip="Exécuter (F5)" aria-label="Exécuter le code">
-            <mat-icon>play_arrow</mat-icon>
-          </button>
-        }
+    @if (!isRunning()) {
+      @if (!isReady()) {
+        <button mat-icon-button disabled matTooltip="Chargement de Python...">
+          <mat-progress-spinner diameter="24" mode="indeterminate"></mat-progress-spinner>
+        </button>
       } @else {
-        <button mat-icon-button color="warn" (click)="stopExecution()" matTooltip="Arrêter" aria-label="Arrêter l'exécution">
-          <mat-icon>stop</mat-icon>
+        <button mat-icon-button color="primary" (click)="runCode()" matTooltip="Exécuter (F5)" aria-label="Exécuter le code">
+          <mat-icon>play_arrow</mat-icon>
         </button>
       }
+    } @else {
+      <button mat-icon-button color="warn" (click)="stopExecution()" matTooltip="Arrêter" aria-label="Arrêter l'exécution">
+        <mat-icon>stop</mat-icon>
+      </button>
     }
 
     <button mat-icon-button (click)="resetEnvironment()" matTooltip="Réinitialiser l'environnement" aria-label="Réinitialiser l'environnement Python">
