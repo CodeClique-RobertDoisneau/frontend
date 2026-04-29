@@ -17,7 +17,7 @@ export class WorkspaceService implements OnDestroy {
   editingTabIndex = signal<number | null>(null);
   editingName = signal<string>('');
 
-  maxTabs = navigator.hardwareConcurrency || 4;
+  maxTabs = 20;
   availablePackageList = [
     'numpy', 'matplotlib', 'pandas', 'scipy', 'scikit-learn', 'networkx',
     'beautifulsoup4', 'pillow', 'requests', 'sympy', 'scikit-image',

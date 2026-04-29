@@ -42,7 +42,7 @@
     <div class="repl-input-area">
       <span class="prompt">>>></span>
       <div class="inline-input">
-        <input #replInput type="text" [ngModel]="tabHandler.replCommand()" (ngModelChange)="tabHandler.replCommand.set($event)" (keyup.enter)="handleExecute()" placeholder="Taper du code ici..."
+        <input #replInput type="text" [(ngModel)]="tabHandler.replCommand" (keyup.enter)="handleExecute()" placeholder="Taper du code ici..."
           [disabled]="!tabHandler.runtime.isReady() || tabHandler.waitingForInput()">
         <button mat-icon-button (click)="handleExecute()" class="mini-send" matTooltip="Exécuter"
           [disabled]="!tabHandler.runtime.isReady() || tabHandler.waitingForInput()">

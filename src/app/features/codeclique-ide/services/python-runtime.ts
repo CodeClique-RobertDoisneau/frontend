@@ -1,4 +1,4 @@
-import { signal, WritableSignal, Signal } from '@angular/core';
+import { Signal } from '@angular/core';
 import { Pyodide } from '@shared/services/pyodide/pyodide';
 import { IdeRuntime } from '../codeclique-ide.types';
 
@@ -7,12 +7,12 @@ export class PythonRuntime implements IdeRuntime {
   private executionId: string | null = null;
   
   readonly isReady: Signal<boolean>;
-  readonly isRunning: WritableSignal<boolean>;
+  readonly isRunning: Signal<boolean>;
 
   constructor() {
     this.pyodide = new Pyodide();
     this.isReady = this.pyodide.isReady;
-    this.isRunning = signal(false);
+    this.isRunning = this.pyodide.isRunning;
   }
 
   init(dependencies: string[] = []): void {
@@ -24,20 +24,17 @@ export class PythonRuntime implements IdeRuntime {
     onOutput: (text: string) => void,
     onError: (text: string) => void,
     onPlot?: (base64: string) => void,
-    onInputRequest?: () => void,
-    isRunningSignal?: WritableSignal<boolean>
+    onInputRequest?: () => void
   ): void {
     if (this.executionId) {
       this.stop();
     }
-    const targetRunningSignal = isRunningSignal || this.isRunning;
-    const { executionId } = this.pyodide.run(
+    const executionId = this.pyodide.run(
       code,
       onOutput,
       onError,
       onPlot || (() => {}),
-      onInputRequest || (() => {}),
-      targetRunningSignal
+      onInputRequest || (() => {})
     );
     this.executionId = executionId;
   }

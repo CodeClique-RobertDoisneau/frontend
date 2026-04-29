@@ -1,5 +1,7 @@
-import { Component, inject, signal, OnInit, ElementRef, ViewChild, OnDestroy, HostListener } from '@angular/core';
+import { Component, inject, signal, OnInit, ElementRef, viewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { fromEvent } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { WorkspaceService } from './services/workspace';
 import { ShortcutService } from '@shared/services/shortcut/shortcut';
 import { MenuBar } from './components/menu-bar/menu-bar';
@@ -26,12 +28,11 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
 
   private shortcutUnregister: (() => void)[] = [];
 
-  @ViewChild('ideContainer') ideContainer!: ElementRef;
-  @ViewChild(Repl) private replComponent?: Repl;
+  private ideContainer = viewChild.required<ElementRef>('ideContainer');
+  private replComponent = viewChild(Repl);
 
   consoleWidth = signal<number>(450);
   isConsoleVisible = signal<boolean>(true);
-  private isResizing = false;
 
   constructor() { }
 
@@ -85,38 +86,28 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
   toggleConsole() {
     this.isConsoleVisible.update(v => !v);
     if (this.isConsoleVisible()) {
-      this.replComponent?.focus();
+      this.replComponent()?.focus();
     }
   }
 
   startResizing(event: MouseEvent) {
-    this.isResizing = true;
     event.preventDefault();
-  }
 
-  @HostListener('window:mousemove', ['$event'])
-  onMouseMove(event: MouseEvent) {
-    // Only resize if the flag is set and we have the container reference
-    if (!this.isResizing || !this.ideContainer) return;
+    const mouseMove$ = fromEvent<MouseEvent>(window, 'mousemove');
+    const mouseUp$ = fromEvent<MouseEvent>(window, 'mouseup');
 
-    const container = this.ideContainer.nativeElement as HTMLElement;
-    const rect = container.getBoundingClientRect();
-    
-    // Calculate new width: since the panel is on the right, 
-    // the width is the distance from the mouse to the right edge of the container
-    const newWidth = rect.right - event.clientX;
+    mouseMove$.pipe(takeUntil(mouseUp$)).subscribe((moveEvent: MouseEvent) => {
+      const container = this.ideContainer().nativeElement as HTMLElement;
+      if (!container) return;
 
-    // Define constraints (20% to 80% of container width)
-    const min = rect.width * 0.2;
-    const max = rect.width * 0.8;
+      const rect = container.getBoundingClientRect();
+      const newWidth = rect.right - moveEvent.clientX;
+      const min = rect.width * 0.2;
+      const max = rect.width * 0.8;
 
-    if (newWidth >= min && newWidth <= max) {
-      this.consoleWidth.set(newWidth);
-    }
-  }
-
-  @HostListener('window:mouseup')
-  onMouseUp() {
-    this.isResizing = false;
+      if (newWidth >= min && newWidth <= max) {
+        this.consoleWidth.set(newWidth);
+      }
+    });
   }
 }

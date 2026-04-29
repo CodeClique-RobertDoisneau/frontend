@@ -1,4 +1,4 @@
-import { Component, signal, effect, ElementRef, ViewChild, inject, computed } from '@angular/core';
+import { Component, effect, ElementRef, viewChild, inject, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,10 +17,9 @@ export class Repl {
   workspace = inject(WorkspaceService);
   activeTabHandler = this.workspace.activeTabHandler;
 
-
-  @ViewChild('replScrollContainer') private replScrollContainer!: ElementRef;
-  @ViewChild('waitingInput') private waitingInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('replInput') private replInput!: ElementRef<HTMLInputElement>;
+  private replScrollContainer = viewChild<ElementRef>('replScrollContainer');
+  private waitingInput = viewChild<ElementRef<HTMLInputElement>>('waitingInput');
+  private replInput = viewChild<ElementRef<HTMLInputElement>>('replInput');
 
   constructor() {
     effect(() => {
@@ -28,27 +27,27 @@ export class Repl {
       if (!tabHandler) return;
 
       // Auto-scroll when history changes
-      const history = tabHandler.replHistory();
-      if (history) {
-        setTimeout(() => this.scrollToBottom(), 50);
-      }
-
+      tabHandler.replHistory();
+      
       // Focus handling based on state
-      this.focus();
+      tabHandler.waitingForInput();
+
+      afterNextRender(() => {
+        this.scrollToBottom();
+        this.focus();
+      });
     });
   }
 
   focus() {
-    setTimeout(() => {
-      const tabHandler = this.activeTabHandler();
-      if (!tabHandler) return;
+    const tabHandler = this.activeTabHandler();
+    if (!tabHandler) return;
 
-      if (tabHandler.waitingForInput()) {
-        this.waitingInput?.nativeElement.focus();
-      } else {
-        this.replInput?.nativeElement.focus();
-      }
-    }, 50);
+    if (tabHandler.waitingForInput()) {
+      this.waitingInput()?.nativeElement.focus();
+    } else {
+      this.replInput()?.nativeElement.focus();
+    }
   }
 
   handleExecute() {
@@ -81,8 +80,9 @@ export class Repl {
   }
 
   private scrollToBottom() {
-    if (this.replScrollContainer) {
-      const el = this.replScrollContainer.nativeElement;
+    const container = this.replScrollContainer();
+    if (container) {
+      const el = container.nativeElement;
       el.scrollTop = el.scrollHeight;
     }
   }

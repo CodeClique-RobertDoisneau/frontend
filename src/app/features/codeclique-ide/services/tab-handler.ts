@@ -45,8 +45,7 @@ export class TabHandler {
       (out) => addToRepl('output', out),
       (err) => addToRepl('error', err),
       (base64) => this.plot.set(base64),
-      () => this.waitingForInput.set(true),
-      this.runtime.isRunning
+      () => this.waitingForInput.set(true)
     );
   }
 

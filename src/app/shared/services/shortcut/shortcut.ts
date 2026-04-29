@@ -1,5 +1,6 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { Subject, fromEvent, takeUntil } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { fromEvent } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface ShortcutConfig {
   key: string;
@@ -12,13 +13,12 @@ export interface ShortcutConfig {
 @Injectable({
   providedIn: 'root'
 })
-export class ShortcutService implements OnDestroy {
-  private destroy$ = new Subject<void>();
+export class ShortcutService {
   private shortcuts: ShortcutConfig[] = [];
 
   constructor() {
     fromEvent<KeyboardEvent>(window, 'keydown')
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed())
       .subscribe(event => this.handleKeydown(event));
   }
 
@@ -42,10 +42,5 @@ export class ShortcutService implements OnDestroy {
       event.preventDefault();
       shortcut.action();
     }
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

@@ -1,4 +1,4 @@
-import { Component, inject, ElementRef, ViewChild } from '@angular/core';
+import { Component, inject, ElementRef, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -34,7 +34,7 @@ export class MenuBar {
   workspace = inject(WorkspaceService);
   dialog = inject(MatDialog);
 
-  @ViewChild('fileInput') private fileInput!: ElementRef<HTMLInputElement>;
+  private fileInput = viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
 
   examples = EXAMPLES;
 
@@ -66,7 +66,7 @@ export class MenuBar {
   }
 
   importFile() {
-    this.fileInput.nativeElement.click();
+    this.fileInput().nativeElement.click();
   }
 
   onFileSelected(event: Event) {

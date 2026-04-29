@@ -14,7 +14,7 @@ export interface ReplLine {
 
 export interface IdeRuntime {
   readonly isReady: Signal<boolean>;
-  readonly isRunning: WritableSignal<boolean>;
+  readonly isRunning: Signal<boolean>;
   
   init(dependencies?: string[]): void;
   run(
@@ -22,8 +22,7 @@ export interface IdeRuntime {
     onOutput: (text: string) => void,
     onError: (text: string) => void,
     onPlot?: (base64: string) => void,
-    onInputRequest?: () => void,
-    isRunningSignal?: WritableSignal<boolean>
+    onInputRequest?: () => void
   ): void;
   stop(): void;
   sendInput(text: string): void;

@@ -21,5 +21,4 @@ export interface ExecutionHandler {
   onOutput?: (text: string) => void;
   onError?: (text: string) => void;
   onPlot?: (base64: string) => void;
-  isRunning?: WritableSignal<boolean>;
 }
