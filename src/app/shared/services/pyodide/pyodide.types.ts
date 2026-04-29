@@ -64,7 +64,8 @@ export class ExecutionContext {
   }
 
   public provideInput(text: string): void {
-    this.pyodideServiceMethods.sendInput(this.executionId, text);
+    const normalised = text.endsWith('\n') ? text : text + '\n';
+    this.pyodideServiceMethods.sendInput(this.executionId, normalised);
   }
 
   public interrupt(): void {

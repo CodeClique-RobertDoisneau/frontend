@@ -191,11 +191,11 @@ async function handleRun(data: Extract<PyodideRequest, { type: 'RUN' }>) {
   pyodide.setStdin({
     stdin: () => {
       if (stdoutBuffer) {
-        respond({ type: 'RUN_STDOUT', id, text: stdoutBuffer + '\n' });
+        respond({ type: 'RUN_STDOUT', id, text: stdoutBuffer });
         stdoutBuffer = '';
       }
       if (stderrBuffer) {
-        respond({ type: 'RUN_STDERR', id, text: stderrBuffer + '\n' });
+        respond({ type: 'RUN_STDERR', id, text: stderrBuffer });
         stderrBuffer = '';
       }
 

@@ -1,4 +1,4 @@
-import { Injectable, DestroyRef, inject, signal, WritableSignal } from '@angular/core';
+import { Injectable, DestroyRef, inject, signal } from '@angular/core';
 import { ExecutionContext, PyodideRequest, PyodideResponse } from './pyodide.types';
 
 @Injectable()
@@ -7,20 +7,24 @@ export class Pyodide {
   private serviceWorkerRegistered = false;
   private initialPackages: string[] = [];
   private executionHandlers = new Map<string, ExecutionContext>();
-
   private interruptBuffer: Uint8Array | null = null;
   private stdinBuffer: Int32Array | null = null;
+
   private interruptRequests = new Set<string>();
   private pendingFileOperations = new Map<string, (reason?: any) => void>();
+  private interruptTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
   private isReadySignal = signal<boolean>(false);
   public readonly isReady = this.isReadySignal.asReadonly();
+
+  private errorSignal = signal<string | null>(null);
+  public readonly error = this.errorSignal.asReadonly();
 
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     this.destroyRef.onDestroy(() => {
-      this.webWorker?.terminate();
+      this.teardown();
     });
   }
 
@@ -33,11 +37,21 @@ export class Pyodide {
   }
 
   public reset(): void {
-    if (!this.webWorker) return;
+    this.teardown();
 
-    // Terminate existing worker and clear state
-    this.webWorker.terminate();
+    // Notify Service Worker to clear pending inputs
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: 'CANCEL_STDIN', id: '*' });
+    }
+
+    // Initialise workers again
+    this.init(this.initialPackages);
+  }
+
+  private teardown(): void {
+    this.webWorker?.terminate();
     this.webWorker = null;
+
     this.executionHandlers.forEach((context) => {
       context._handleError('Python environment reset.\n');
       context._setRunning(false);
@@ -48,19 +62,29 @@ export class Pyodide {
     this.pendingFileOperations.forEach((reject) => reject('Python environment reset.\n'));
     this.pendingFileOperations.clear();
 
+    // Clear any pending interrupt timeouts
+    this.interruptTimeouts.forEach((handle) => clearTimeout(handle));
+    this.interruptTimeouts.clear();
+
     this.interruptBuffer = null;
     this.stdinBuffer = null;
     this.interruptRequests.clear();
 
     this.isReadySignal.set(false);
-
-    // Initialise workers again
-    this.init(this.initialPackages);
   }
 
   public run(code: string): ExecutionContext {
-    if (!this.serviceWorkerRegistered || !this.webWorker || !this.isReadySignal()) {
+    if (!this.webWorker || !this.isReadySignal()) {
       throw new Error('Pyodide is not ready yet.');
+    }
+
+    if (this.executionHandlers.size > 0) {
+      throw new Error('A script is already running. Call interrupt() first.');
+    }
+
+    // Warn if neither stdin strategy is available
+    if (!this.stdinBuffer && !this.serviceWorkerRegistered) {
+      console.warn('No stdin strategy available. input() calls will hang.');
     }
 
     if (this.interruptBuffer) {
@@ -81,7 +105,7 @@ export class Pyodide {
     return context;
   }
 
-  public interruptExecution(executionId: string): void {
+  private interruptExecution(executionId: string): void {
     if (this.interruptRequests.has(executionId)) return;
     this.interruptRequests.add(executionId);
 
@@ -98,20 +122,37 @@ export class Pyodide {
       this.interruptBuffer[0] = 2;
     }
 
+    // Clear any existing timeout for this execution just in case
+    const existingHandle = this.interruptTimeouts.get(executionId);
+    if (existingHandle) clearTimeout(existingHandle);
+
     // 1-second timeout fallback for stuck threads
-    setTimeout(() => {
+    const handle = setTimeout(() => {
       const handler = this.executionHandlers.get(executionId);
       if (!handler) return;
       handler._handleError('Interrupt signal ignored. Restarting kernel...\n');
+      this.interruptTimeouts.delete(executionId);
       this.reset();
     }, 1000);
+    this.interruptTimeouts.set(executionId, handle);
   }
 
-  public sendInput(executionId: string, value: string): void {
-    if (this.stdinBuffer && Atomics.load(this.stdinBuffer, 0) === 1) {
+  public loadPackages(packages: string[]): void {
+    if (!this.webWorker) return;
+    this.webWorker.postMessage({ type: 'LOAD_PKG', packages } as PyodideRequest);
+  }
+
+  private sendInput(executionId: string, value: string): void {
+    if (this.stdinBuffer && (Atomics.load(this.stdinBuffer as Int32Array, 0) as number) === 1) {
       // Worker is waiting via Atomics
       const encoder = new TextEncoder();
-      const encoded = encoder.encode(value + '\n');
+      const encoded = encoder.encode(value);
+
+      const MAX_STDIN_BYTES = this.stdinBuffer.buffer.byteLength - 4 - 1; // -1 for null terminator
+      if (encoded.length > MAX_STDIN_BYTES) {
+        console.error(`Input too long: ${encoded.length} bytes (max ${MAX_STDIN_BYTES})`);
+        return;
+      }
 
       const dataView = new Uint8Array(this.stdinBuffer.buffer, 4);
       dataView.set(encoded);
@@ -124,15 +165,24 @@ export class Pyodide {
 
     // If the string contains \x03, it's a simulated Ctrl-C for input.
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.ready.then((registration) => {
-        if (registration.active) {
-          registration.active.postMessage({
-            type: 'INPUT_RESPONSE',
-            id: executionId,
-            value: value + '\n'
-          });
-        }
-      }).catch(err => console.error('Service Worker error:', err));
+      const controller = navigator.serviceWorker.controller;
+      if (controller) {
+        controller.postMessage({
+          type: 'INPUT_RESPONSE',
+          id: executionId,
+          value: value
+        });
+      } else {
+        // Controller not yet active — wait for it
+        navigator.serviceWorker.ready.then(registration => {
+          (registration.active ?? registration.installing ?? registration.waiting)
+            ?.postMessage({
+              type: 'INPUT_RESPONSE',
+              id: executionId,
+              value: value
+            });
+        }).catch(err => console.error('Service Worker ready error:', err));
+      }
     } else {
       console.error('Service Worker not available to send input.');
     }
@@ -242,11 +292,12 @@ export class Pyodide {
     if (this.serviceWorkerRegistered || !('serviceWorker' in navigator)) return;
 
     try {
-      this.serviceWorkerRegistered = true;
       navigator.serviceWorker.register(
         new URL('./pyodide.sw.js', import.meta.url),
         { type: 'module', scope: '/' }
-      ).catch((error) => {
+      ).then(() => {
+        this.serviceWorkerRegistered = true;
+      }).catch((error) => {
         console.error('Pyodide Service Worker registration failed:', error);
       });
     } catch (error) {
@@ -255,7 +306,11 @@ export class Pyodide {
   }
 
   private handleWorkerMessage({ data }: { data: PyodideResponse }) {
-    if (data.type === 'FILE_READ' || data.type === 'FILE_ERROR') return; // Handled by inline listeners
+    if (
+      data.type === 'FILE_READ' ||
+      data.type === 'FILE_ERROR' ||
+      data.type === 'DIR_LISTED'
+    ) return; // Handled by inline listeners
 
     switch (data.type) {
       case 'LOADING':
@@ -282,20 +337,34 @@ export class Pyodide {
         this.executionHandlers.get(data.id)?._handlePlot(data.base64);
         break;
 
-      case 'RUN_SUCCESS':
+      case 'RUN_SUCCESS': {
+        const handle = this.interruptTimeouts.get(data.id);
+        if (handle) {
+          clearTimeout(handle);
+          this.interruptTimeouts.delete(data.id);
+        }
         this.executionHandlers.get(data.id)?._setRunning(false);
         this.executionHandlers.delete(data.id);
         this.interruptRequests.delete(data.id);
         break;
+      }
 
-      case 'RUN_ERROR':
-        this.executionHandlers.get(data.id)?._handleError(data.error);
-        this.executionHandlers.get(data.id)?._setRunning(false);
+      case 'RUN_ERROR': {
+        const handle = this.interruptTimeouts.get(data.id);
+        if (handle) {
+          clearTimeout(handle);
+          this.interruptTimeouts.delete(data.id);
+        }
+        const ctx = this.executionHandlers.get(data.id);
+        ctx?._handleError(data.error);
+        ctx?._setRunning(false);
         this.executionHandlers.delete(data.id);
         this.interruptRequests.delete(data.id);
         break;
+      }
 
       case 'ERROR':
+        this.errorSignal.set(data.error);
         console.error(data.error);
         break;
     }

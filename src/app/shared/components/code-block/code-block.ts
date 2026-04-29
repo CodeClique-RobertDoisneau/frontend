@@ -29,8 +29,8 @@ export class CodeBlock implements OnInit {
   error = signal<string>('');
   plot = signal<string>('');
 
-  executionId: string | null = null;
-  isRunning = signal<boolean>(false).asReadonly();
+  executionContext: any | null = null;
+  isRunning = signal<boolean>(false);
 
   waitingForInput = signal<boolean>(false);
   userInput = signal<string>('');
@@ -47,7 +47,7 @@ export class CodeBlock implements OnInit {
     this.error.set('');
     this.plot.set('');
 
-    const executionContext = engine.run(this.code())
+    this.executionContext = engine.run(this.code())
       .onOutput((outText: string) => {
         if (!outText) return;
         this.output.update(current => current + outText);
@@ -64,23 +64,20 @@ export class CodeBlock implements OnInit {
         this.waitingForInput.set(true);
       });
 
-    this.executionId = executionContext.executionId;
-    this.isRunning = executionContext.isRunning;
+    this.isRunning = this.executionContext.isRunning;
   }
 
   submitInput(): void {
-    const engine = this.pyodide();
-    if (!engine || !this.executionId) return;
+    if (!this.executionContext) return;
 
-    engine.sendInput(this.executionId, this.userInput());
+    this.executionContext.provideInput(this.userInput());
     this.waitingForInput.set(false);
     this.userInput.set('');
   }
 
   stop(): void {
-    const engine = this.pyodide();
-    if (!engine || !this.executionId) return;
-    engine.interruptExecution(this.executionId);
+    if (!this.executionContext) return;
+    this.executionContext.interrupt();
     this.waitingForInput.set(false);
   }
 

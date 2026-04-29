@@ -49,5 +49,11 @@ self.addEventListener('message', (event) => {
       resolve(response);
       inputResolvers.delete(data.id);
     }
+  } else if (data?.type === 'CANCEL_STDIN') {
+    if (data.id === '*') {
+      inputResolvers.clear();
+    } else {
+      inputResolvers.delete(data.id);
+    }
   }
 });
