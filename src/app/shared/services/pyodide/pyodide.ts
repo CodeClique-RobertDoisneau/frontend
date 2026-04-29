@@ -39,13 +39,13 @@ export class Pyodide {
     this.webWorker.terminate();
     this.webWorker = null;
     this.executionHandlers.forEach((context) => {
-      context._handleError('Python environment reset.');
+      context._handleError('Python environment reset.\n');
       context._setRunning(false);
     });
     this.executionHandlers.clear();
 
     // Reject all pending file operations to prevent memory leaks
-    this.pendingFileOperations.forEach((reject) => reject('Python environment reset.'));
+    this.pendingFileOperations.forEach((reject) => reject('Python environment reset.\n'));
     this.pendingFileOperations.clear();
 
     this.interruptBuffer = null;
@@ -102,7 +102,7 @@ export class Pyodide {
     setTimeout(() => {
       const handler = this.executionHandlers.get(executionId);
       if (!handler) return;
-      handler._handleError('Interrupt signal ignored. Restarting kernel...');
+      handler._handleError('Interrupt signal ignored. Restarting kernel...\n');
       this.reset();
     }, 1000);
   }
@@ -161,8 +161,8 @@ export class Pyodide {
           reject(data.error);
         }
       };
-      this.webWorker.addEventListener('message', listener);
-      this.webWorker.postMessage({ type: 'READ_FILE', path, id } as PyodideRequest);
+      this.webWorker?.addEventListener('message', listener);
+      this.webWorker?.postMessage({ type: 'READ_FILE', path, id } as PyodideRequest);
     });
   }
 
@@ -199,8 +199,8 @@ export class Pyodide {
           reject(data.error);
         }
       };
-      this.webWorker.addEventListener('message', listener);
-      this.webWorker.postMessage({ type: 'LIST_DIR', path, id } as PyodideRequest);
+      this.webWorker?.addEventListener('message', listener);
+      this.webWorker?.postMessage({ type: 'LIST_DIR', path, id } as PyodideRequest);
     });
   }
 

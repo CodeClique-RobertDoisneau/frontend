@@ -20,18 +20,18 @@ export class CodeBlock implements OnInit {
   theming = inject<Theming>(Theming);
   pyodide = input<Pyodide>();
   languages = languages;
-  
+
   initialCode = input<string>('');
   language = input<string>('');
-  
+
   code = signal<string>('');
   output = signal<string>('');
   error = signal<string>('');
   plot = signal<string>('');
-  
+
   executionId: string | null = null;
-  isRunning = signal<boolean>(false);
-  
+  isRunning = signal<boolean>(false).asReadonly();
+
   waitingForInput = signal<boolean>(false);
   userInput = signal<string>('');
 
@@ -47,27 +47,25 @@ export class CodeBlock implements OnInit {
     this.error.set('');
     this.plot.set('');
 
-    const { executionId, isRunning } = engine.run(
-      this.code(),
-      (outText) => {
+    const executionContext = engine.run(this.code())
+      .onOutput((outText: string) => {
         if (!outText) return;
         this.output.update(current => current + outText);
-      },
-      (errText) => {
+      })
+      .onError((errText: string) => {
         if (!errText) return;
         this.error.update(current => current + errText);
-      },
-      (base64) => {
+      })
+      .onPlot((base64: string) => {
         if (!base64) return;
         this.plot.set(base64);
-      },
-      () => {
+      })
+      .onStdinRequest(() => {
         this.waitingForInput.set(true);
-      }
-    );
+      });
 
-    this.executionId = executionId;
-    this.isRunning = isRunning;
+    this.executionId = executionContext.executionId;
+    this.isRunning = executionContext.isRunning;
   }
 
   submitInput(): void {

@@ -93,7 +93,7 @@ async function handleInit(data: Extract<PyodideRequest, { type: 'INIT' }>) {
 
 function handleInterrupt() {
   if (!pyodide) return;
-  const raiseInterrupt = pyodide.globals.get('_raise_interrupt');
+  const raiseInterrupt = pyodide?.globals['get']('_raise_interrupt');
   if (raiseInterrupt) {
     try {
       raiseInterrupt();
@@ -216,7 +216,7 @@ async function handleRun(data: Extract<PyodideRequest, { type: 'RUN' }>) {
           Atomics.store(stdinBuffer, 0, 0);
 
           if (text.includes('\x03')) {
-            const raiseInterrupt = pyodide.globals.get('_raise_interrupt');
+            const raiseInterrupt = pyodide?.globals['get']('_raise_interrupt');
             if (raiseInterrupt) {
               raiseInterrupt();
             }
@@ -232,7 +232,7 @@ async function handleRun(data: Extract<PyodideRequest, { type: 'RUN' }>) {
       text = xhr.responseText;
 
       if (text.includes('\x03')) {
-        const raiseInterrupt = pyodide.globals.get('_raise_interrupt');
+        const raiseInterrupt = pyodide?.globals['get']('_raise_interrupt');
         if (raiseInterrupt) {
           raiseInterrupt();
         }
@@ -269,7 +269,7 @@ async function handleRun(data: Extract<PyodideRequest, { type: 'RUN' }>) {
     await pyodide.runPythonAsync(code);
 
     if (isMatplotlibLoaded) {
-      const plotFetcher = pyodide.globals.get('_fetch_last_plot');
+      const plotFetcher = pyodide?.globals['get']('_fetch_last_plot');
       if (plotFetcher) {
         const base64Str = plotFetcher();
         if (base64Str) {
