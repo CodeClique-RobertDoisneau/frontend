@@ -1,8 +1,7 @@
 import { Injectable, signal, computed, inject, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TabHandler } from './tab-handler';
-import { PythonRuntime } from './python-runtime';
-import { IdeRuntime } from '../codeclique-ide.types';
+import { ReplLine } from '../codeclique-ide.types';
 
 @Injectable({
   providedIn: 'root'
@@ -24,43 +23,29 @@ export class WorkspaceService implements OnDestroy {
     'statsmodels', 'tqdm', 'sqlalchemy', 'biopython', 'astropy', 'opencv-python'
   ];
 
-  /**
-   * Factory method to create a runtime for a specific language.
-   * Currently only supports 'python'.
-   */
-  private createRuntime(language: string = 'python'): IdeRuntime {
-    if (language === 'python') {
-      return new PythonRuntime();
-    }
-    throw new Error(`Unsupported language: ${language}`);
-  }
-
   addNewTab(name?: string, code?: string, dependencies: string[] = []) {
     if (this.tabHandlers().length >= this.maxTabs) {
       this.snackBar.open(`Limite de ${this.maxTabs} onglets atteinte`, 'OK', { duration: 3000 });
       return;
     }
 
-    const runtime = this.createRuntime('python');
-    const newContext = new TabHandler(
-      runtime,
+    const newTab = new TabHandler(
       name,
       code,
       dependencies,
       this.availablePackageList
     );
 
-    this.tabHandlers.update(prev => [...prev, newContext]);
+    this.tabHandlers.update(prev => [...prev, newTab]);
     this.activeTabHandlerIndex.set(this.tabHandlers().length - 1);
   }
 
   closeTab(index: number, event?: Event) {
     if (event) event.stopPropagation();
 
-    const contextToRemove = this.tabHandlers()[index];
-    if (!contextToRemove) return;
+    const tabToRemove = this.tabHandlers()[index];
+    if (!tabToRemove) return;
 
-    contextToRemove.destroy();
     this.tabHandlers.update(prev => prev.filter((_, i) => i !== index));
 
     if (this.activeTabHandlerIndex() >= this.tabHandlers().length) {
@@ -72,17 +57,17 @@ export class WorkspaceService implements OnDestroy {
     }
   }
 
-  addToRepl(tabHandler: TabHandler, type: 'input' | 'output' | 'error', content: string) {
+  addToRepl(tab: TabHandler, type: 'input' | 'output' | 'error', content: string) {
     if (!content) return;
-    tabHandler.replHistory.update(prev => [...prev, { type, content }]);
+    tab.replHistory.update(prev => [...prev, { type, content }]);
   }
 
-  exportFile(tabHandler: TabHandler) {
-    const blob = new Blob([tabHandler.code()], { type: 'text/plain' });
+  exportFile(tab: TabHandler) {
+    const blob = new Blob([tab.code()], { type: 'text/plain' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = tabHandler.name();
+    a.download = tab.name();
     a.click();
     window.URL.revokeObjectURL(url);
   }
@@ -93,8 +78,8 @@ export class WorkspaceService implements OnDestroy {
   }
 
   saveName(index: number) {
-    const tabHandlers = this.tabHandlers();
-    if (tabHandlers[index]) {
+    const handlers = this.tabHandlers();
+    if (handlers[index]) {
       let newName = this.editingName().trim().replace(/[^a-zA-Z0-9._-]/g, '_');
       
       if (!newName || newName === '.py') {
@@ -103,7 +88,7 @@ export class WorkspaceService implements OnDestroy {
         newName += '.py';
       }
       
-      tabHandlers[index].name.set(newName);
+      handlers[index].name.set(newName);
     }
     this.editingTabIndex.set(null);
   }
@@ -113,6 +98,6 @@ export class WorkspaceService implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.tabHandlers().forEach(tab => tab.destroy());
+    // Component lifecycle will handle tab destruction now
   }
 }

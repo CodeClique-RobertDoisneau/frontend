@@ -1,10 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CodeEditor } from '@acrodata/code-editor';
 import { languages } from '@codemirror/language-data';
 import { Theming } from '@shared/services/theming/theming';
-import { WorkspaceService } from '../../services/workspace';
+import { TabHandler } from '../../services/tab-handler';
 
 @Component({
   selector: 'app-editor',
@@ -18,7 +18,7 @@ import { WorkspaceService } from '../../services/workspace';
   styleUrl: './editor.scss'
 })
 export class Editor {
-  workspace = inject(WorkspaceService);
+  tab = input.required<TabHandler>();
   theming = inject(Theming);
   languages = languages;
 }

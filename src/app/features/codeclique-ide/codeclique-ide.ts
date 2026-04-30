@@ -1,13 +1,11 @@
-import { Component, inject, signal, OnInit, ElementRef, viewChild, OnDestroy } from '@angular/core';
+import { Component, inject, signal, OnInit, ElementRef, viewChild, OnDestroy, viewChildren, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { fromEvent } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { WorkspaceService } from './services/workspace';
 import { ShortcutService } from '@shared/services/shortcut/shortcut';
 import { MenuBar } from './components/menu-bar/menu-bar';
-import { TabBar } from './components/tab-bar/tab-bar';
-import { Editor } from './components/editor/editor';
-import { Repl } from './components/repl/repl';
+import { IdeTabView } from './components/ide-tab-view/ide-tab-view';
 
 @Component({
   selector: 'app-codeclique-ide',
@@ -15,9 +13,7 @@ import { Repl } from './components/repl/repl';
   imports: [
     CommonModule,
     MenuBar,
-    TabBar,
-    Editor,
-    Repl
+    IdeTabView
   ],
   templateUrl: './codeclique-ide.html',
   styleUrl: './codeclique-ide.scss'
@@ -29,10 +25,20 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
   private shortcutUnregister: (() => void)[] = [];
 
   private ideContainer = viewChild.required<ElementRef>('ideContainer');
-  private replComponent = viewChild(Repl);
+  private tabViews = viewChildren(IdeTabView);
 
   consoleWidth = signal<number>(450);
   isConsoleVisible = signal<boolean>(true);
+
+  activeIsReady = computed(() => {
+    const activeTab = this.workspace.activeTabHandler();
+    return this.tabViews().find(v => v.tab() === activeTab)?.pyodide.isReady() ?? false;
+  });
+
+  activeIsRunning = computed(() => {
+    const activeTab = this.workspace.activeTabHandler();
+    return this.tabViews().find(v => v.tab() === activeTab)?.isRunning() ?? false;
+  });
 
   constructor() { }
 
@@ -47,23 +53,36 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
     this.shortcutUnregister.forEach(unreg => unreg());
   }
 
-  private runActiveContext() {
-    const tabHandler = this.workspace.activeTabHandler();
-    if (tabHandler) {
-      tabHandler.run((type, content) => this.workspace.addToRepl(tabHandler, type, content));
-    }
+  runActive() {
+    const activeTab = this.workspace.activeTabHandler();
+    this.tabViews().find(v => v.tab() === activeTab)?.run();
+  }
+
+  stopActive() {
+    const activeTab = this.workspace.activeTabHandler();
+    this.tabViews().find(v => v.tab() === activeTab)?.stop();
+  }
+
+  resetActive() {
+    const activeTab = this.workspace.activeTabHandler();
+    this.tabViews().find(v => v.tab() === activeTab)?.reset();
+  }
+
+  loadPackageActive(pkgName: string) {
+    const activeTab = this.workspace.activeTabHandler();
+    this.tabViews().find(v => v.tab() === activeTab)?.loadPackage(pkgName);
   }
 
   private registerShortcuts() {
     this.shortcutUnregister.push(
       this.shortcutService.register({ 
         key: 'F5', 
-        action: () => this.runActiveContext()
+        action: () => this.runActive()
       }),
       this.shortcutService.register({ 
         key: 'Enter', 
         ctrl: true, 
-        action: () => this.runActiveContext()
+        action: () => this.runActive()
       }),
       this.shortcutService.register({ key: 'b', ctrl: true, action: () => this.toggleConsole() }),
       this.shortcutService.register({
@@ -85,9 +104,6 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
 
   toggleConsole() {
     this.isConsoleVisible.update(v => !v);
-    if (this.isConsoleVisible()) {
-      this.replComponent()?.focus();
-    }
   }
 
   startResizing(event: MouseEvent) {

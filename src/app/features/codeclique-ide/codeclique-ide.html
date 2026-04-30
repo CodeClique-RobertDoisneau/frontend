@@ -1,19 +1,25 @@
 <div class="desktop-wrapper">
-  <app-menu-bar></app-menu-bar>
+  <app-menu-bar 
+    [isReady]="activeIsReady()" 
+    [isRunning]="activeIsRunning()"
+    (run)="runActive()"
+    (stop)="stopActive()"
+    (reset)="resetActive()"
+    (loadPackageEvent)="loadPackageActive($event)"
+  ></app-menu-bar>
 
-  <div class="ide-container" #ideContainer>
-    <div class="editor-section">
-      <app-tab-bar (toggleConsole)="toggleConsole()"></app-tab-bar>
-      <app-editor></app-editor>
-    </div>
-
-    <!-- Resize Handle -->
-    @if (isConsoleVisible()) {
-    <div class="resize-handle" (mousedown)="startResizing($event)"></div>
-    }
-
-    <div class="repl-panel" [style.width.px]="consoleWidth()" [class.hidden]="!isConsoleVisible()">
-      <app-repl></app-repl>
+  <div class="ide-shell" #ideContainer>
+    <div class="tabs-container">
+      @for (tab of workspace.tabHandlers(); track tab.id) {
+        <app-ide-tab-view 
+          [tab]="tab" 
+          [class.hidden]="tab !== workspace.activeTabHandler()"
+          [consoleWidth]="consoleWidth()"
+          [isConsoleVisible]="isConsoleVisible()"
+          (startResizing)="startResizing($event)"
+          (toggleConsole)="toggleConsole()"
+        ></app-ide-tab-view>
+      }
     </div>
   </div>
 </div>

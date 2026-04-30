@@ -1,4 +1,4 @@
-import { Component, inject, ElementRef, viewChild } from '@angular/core';
+import { Component, inject, ElementRef, viewChild, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -34,6 +34,14 @@ export class MenuBar {
   workspace = inject(WorkspaceService);
   dialog = inject(MatDialog);
 
+  isReady = input<boolean>(false);
+  isRunning = input<boolean>(false);
+
+  run = output<void>();
+  stop = output<void>();
+  reset = output<void>();
+  loadPackageEvent = output<string>();
+
   private fileInput = viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
 
   examples = EXAMPLES;
@@ -43,18 +51,15 @@ export class MenuBar {
   }
 
   runCode() {
-    const tabHandler = this.workspace.activeTabHandler();
-    if (tabHandler) {
-      tabHandler.run((type, content) => this.workspace.addToRepl(tabHandler, type, content));
-    }
+    this.run.emit();
   }
 
   stopExecution() {
-    this.workspace.activeTabHandler()?.stop();
+    this.stop.emit();
   }
 
   resetEnvironment() {
-    this.workspace.activeTabHandler()?.reset();
+    this.reset.emit();
   }
 
   loadExample(example: PythonExample) {
@@ -62,7 +67,7 @@ export class MenuBar {
   }
 
   loadPackage(pkgName: string) {
-    this.workspace.activeTabHandler()?.loadPackage(pkgName);
+    this.loadPackageEvent.emit(pkgName);
   }
 
   importFile() {

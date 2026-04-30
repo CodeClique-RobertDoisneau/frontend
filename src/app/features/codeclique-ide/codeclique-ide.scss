@@ -11,48 +11,27 @@
   overflow: hidden;
 }
 
-.ide-container {
+.ide-shell {
   flex: 1;
   display: flex;
+  flex-direction: column;
   overflow: hidden;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-  }
 }
 
-.editor-section {
+.tabs-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0;
+  overflow: hidden;
 }
 
-.resize-handle {
-  width: 4px;
-  background: var(--mat-sys-outline-variant);
-  cursor: col-resize;
-  transition: background 0.2s;
-
-  &:hover {
-    background: var(--mat-sys-primary);
-  }
-}
-
-.repl-panel {
+app-ide-tab-view {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--mat-sys-surface-container-lowest);
+  height: 100%;
 
   &.hidden {
     display: none;
-  }
-
-  @media (max-width: 768px) {
-    width: 100% !important;
-    max-width: 100%;
-    height: 350px;
-    border-left: none;
-    border-top: none;
   }
 }

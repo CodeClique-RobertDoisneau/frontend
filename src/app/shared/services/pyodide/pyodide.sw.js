@@ -17,10 +17,10 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-  
+
   if (url.pathname === '/__get_stdin__') {
     const id = url.searchParams.get('id');
-    
+
     if (!id) {
       event.respondWith(new Response('Missing execution ID', { status: 400 }));
       return;
@@ -45,8 +45,14 @@ self.addEventListener('message', (event) => {
         status: 200,
         headers: { 'Content-Type': 'text/plain' },
       });
-      
+
       resolve(response);
+      inputResolvers.delete(data.id);
+    }
+  } else if (data?.type === 'CANCEL_STDIN') {
+    if (data.id === '*') {
+      inputResolvers.clear();
+    } else {
       inputResolvers.delete(data.id);
     }
   }
