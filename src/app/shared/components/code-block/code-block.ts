@@ -20,17 +20,20 @@ export class CodeBlock implements OnInit {
   theming = inject<Theming>(Theming);
   pyodide = input<Pyodide>();
   languages = languages;
-  
+
   initialCode = input<string>('');
   language = input<string>('');
-  
+
   code = signal<string>('');
   output = signal<string>('');
   error = signal<string>('');
   plot = signal<string>('');
-  
-  executionId: string | null = null;
+
+  executionContext: any | null = null;
   isRunning = signal<boolean>(false);
+
+  waitingForInput = signal<boolean>(false);
+  userInput = signal<string>('');
 
   constructor() {
     effect(() => {
@@ -50,28 +53,38 @@ export class CodeBlock implements OnInit {
     this.error.set('');
     this.plot.set('');
 
-    this.executionId = engine.run(
-      this.code(),
-      (outText) => {
+    this.executionContext = engine.run(this.code())
+      .onOutput((outText: string) => {
         if (!outText) return;
-        this.output.update(current => current + outText + '\n');
-      },
-      (errText) => {
+        this.output.update(current => current + outText);
+      })
+      .onError((errText: string) => {
         if (!errText) return;
-        this.error.set(errText);
-      },
-      this.isRunning,
-      (base64) => {
+        this.error.update(current => current + errText);
+      })
+      .onPlot((base64: string) => {
         if (!base64) return;
         this.plot.set(base64);
-      }
-    );
+      })
+      .onStdinRequest(() => {
+        this.waitingForInput.set(true);
+      });
+
+    this.isRunning = this.executionContext.isRunning;
+  }
+
+  submitInput(): void {
+    if (!this.executionContext) return;
+
+    this.executionContext.provideInput(this.userInput());
+    this.waitingForInput.set(false);
+    this.userInput.set('');
   }
 
   stop(): void {
-    const engine = this.pyodide();
-    if (!engine || !this.executionId) return;
-    engine.interruptExecution(this.executionId);
+    if (!this.executionContext) return;
+    this.executionContext.interrupt();
+    this.waitingForInput.set(false);
   }
 
   reset(): void {
@@ -79,6 +92,7 @@ export class CodeBlock implements OnInit {
     this.output.set('');
     this.error.set('');
     this.plot.set('');
+    this.userInput.set('');
     this.code.set(this.initialCode());
   }
 

@@ -1,0 +1,53 @@
+<div class="repl-container">
+  <div class="panel-header">
+    <mat-icon>terminal</mat-icon>
+    <span>Console Python</span>
+    <div class="spacer"></div>
+    <button mat-icon-button (click)="clearConsole()" matTooltip="Effacer la console (Ctrl+L)" aria-label="Effacer le contenu de la console">
+      <mat-icon>delete_sweep</mat-icon>
+    </button>
+  </div>
+  <div class="repl-output" #replScrollContainer>
+    @for (line of tab().replHistory(); track $index) {
+    <div class="repl-line" [ngClass]="line.type">
+      @if (line.type === 'input') {
+      <span class="prompt">>>></span>
+      }
+      <pre>{{ line.content }}</pre>
+    </div>
+    }
+
+    @if (tab().waitingForInput()) {
+    <div class="repl-line input">
+      <span class="prompt">?</span>
+      <div class="inline-input">
+        <input #waitingInput type="text" [(ngModel)]="tab().userInput" (keyup.enter)="submitInput()"
+          placeholder="Entrée attendue...">
+        <button mat-icon-button (click)="submitInput()" class="mini-send" matTooltip="Envoyer">
+          <mat-icon>send</mat-icon>
+        </button>
+      </div>
+    </div>
+    }
+
+    @if (tab().plot()) {
+    <div class="plot-container">
+      <img [src]="'data:image/png;base64,' + tab().plot()" alt="Matplotlib Plot">
+    </div>
+    }
+  </div>
+
+  <div class="repl-footer">
+    <div class="repl-input-area">
+      <span class="prompt">>>></span>
+      <div class="inline-input">
+        <input #replInput type="text" [(ngModel)]="tab().replCommand" (keyup.enter)="handleExecute()" placeholder="Taper du code ici..."
+          [disabled]="!tabView.pyodide.isReady() || tabView.isRunning()">
+        <button mat-icon-button (click)="handleExecute()" class="mini-send" matTooltip="Exécuter"
+          [disabled]="!tabView.pyodide.isReady() || tabView.isRunning()">
+          <mat-icon>send</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

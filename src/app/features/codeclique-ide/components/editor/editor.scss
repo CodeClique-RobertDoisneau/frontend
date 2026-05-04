@@ -1,0 +1,17 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.editor-wrapper {
+  background: var(--mat-sys-surface-container-lowest);
+  height: 100%;
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+
+  code-editor {
+    flex: 1;
+    min-width: 0;
+  }
+}

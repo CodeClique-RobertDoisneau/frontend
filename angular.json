@@ -39,6 +39,10 @@
                   "**/*.d.ts",
                   "**/*.whl"
                 ]
+              },
+              {
+                "glob": "pyodide.sw.js",
+                "input": "src/app/shared/services/pyodide/"
               }
             ],
             "styles": [
@@ -92,10 +96,7 @@
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:unit-test",
-          "options": {
-            "webWorkerTsConfig": "tsconfig.worker.json"
-          }
+          "builder": "@angular/build:unit-test"
         }
       }
     }

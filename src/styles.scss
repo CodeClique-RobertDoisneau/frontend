@@ -66,14 +66,18 @@
 }
 
 html {
-  @include mat.theme((color: (primary: codeclique-palette.$primary-palette,
-        tertiary: codeclique-palette.$tertiary-palette,
-      ),
-      typography: (plain-family: Roboto,
-        brand-family: Rubik,
-      ),
-      density: 0,
-    ));
+  @include mat.theme((
+    color: (
+      primary: codeclique-palette.$primary-palette,
+      tertiary: codeclique-palette.$tertiary-palette,
+    ),
+    typography: (
+      plain-family: Roboto,
+      brand-family: Rubik,
+    ),
+    density: 0,
+  ));
+  @include mat.system-classes();
 }
 
 body {
@@ -96,8 +100,7 @@ body {
 
 /* You can add global styles to this file, and also import other style files */
 
-html,
-body {
+html, body, main {
   height: 100%;
   scrollbar-color: var(--mat-sys-primary) var(--mat-sys-surface);
 }

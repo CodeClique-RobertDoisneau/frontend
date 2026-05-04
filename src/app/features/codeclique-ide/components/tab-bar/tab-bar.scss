@@ -1,0 +1,95 @@
+.tab-bar {
+  display: flex;
+  align-items: stretch;
+  height: 48px;
+  background: var(--mat-sys-surface-container-lowest);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--mat-sys-outline-variant);
+  }
+
+
+  .tab {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    min-width: 140px;
+    max-width: 220px;
+    cursor: pointer;
+    user-select: none;
+    opacity: 0.6;
+    background: var(--mat-sys-surface-container-low);
+    border-bottom: 2px solid transparent;
+
+    .file-icon {
+      margin-right: 8px;
+      color: var(--mat-sys-primary);
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .tab-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .tab-name {
+      font-size: 0.85rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .rename-input {
+      background: var(--mat-sys-surface-container-highest);
+      border: 1px solid var(--mat-sys-primary);
+      color: var(--mat-sys-on-surface);
+      font-size: 0.85rem;
+      padding: 2px 4px;
+      border-radius: 4px;
+      width: 100%;
+      outline: none;
+    }
+
+    .close-btn {
+      margin-left: 8px;
+    }
+
+    &.active {
+      background: var(--mat-sys-surface-container-lowest);
+      opacity: 1;
+      border-bottom-color: var(--mat-sys-primary);
+    }
+
+    &:hover:not(.active) {
+      background: var(--mat-sys-surface-container-highest);
+      opacity: 0.95;
+    }
+  }
+
+  .add-tab-btn {
+    align-self: center;
+    margin: 0 8px;
+    flex-shrink: 0;
+  }
+
+  .spacer {
+    flex: 1;
+  }
+
+  .toggle-console-btn {
+    align-self: center;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+}

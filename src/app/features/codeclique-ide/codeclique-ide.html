@@ -1,0 +1,25 @@
+<div class="desktop-wrapper">
+  <app-menu-bar 
+    [isReady]="activeIsReady()" 
+    [isRunning]="activeIsRunning()"
+    (run)="runActive()"
+    (stop)="stopActive()"
+    (reset)="resetActive()"
+    (loadPackageEvent)="loadPackageActive($event)"
+  ></app-menu-bar>
+
+  <div class="ide-shell" #ideContainer>
+    <div class="tabs-container">
+      @for (tab of workspace.tabHandlers(); track tab.id) {
+        <app-ide-tab-view 
+          [tab]="tab" 
+          [class.hidden]="tab !== workspace.activeTabHandler()"
+          [consoleWidth]="consoleWidth()"
+          [isConsoleVisible]="isConsoleVisible()"
+          (startResizing)="startResizing($event)"
+          (toggleConsole)="toggleConsole()"
+        ></app-ide-tab-view>
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,87 @@
+<div class="menu-bar">
+  <button mat-button [matMenuTriggerFor]="fileMenu">Fichier</button>
+  <mat-menu #fileMenu="matMenu">
+    <button mat-menu-item (click)="addNewTab()">
+      <mat-icon>add</mat-icon>
+      <span>Nouveau fichier</span>
+    </button>
+    <button mat-menu-item (click)="renameActiveFile()">
+      <mat-icon>edit</mat-icon>
+      <span>Renommer</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item [matMenuTriggerFor]="exampleMenu">
+      <mat-icon>description</mat-icon>
+      <span>Exemples</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="importFile()">
+      <mat-icon>file_upload</mat-icon>
+      <span>Importer</span>
+    </button>
+    <button mat-menu-item (click)="exportFile()">
+      <mat-icon>file_download</mat-icon>
+      <span>Enregistrer</span>
+    </button>
+  </mat-menu>
+
+  <button mat-button [matMenuTriggerFor]="libMenu">Bibliothèques</button>
+
+  <mat-menu #libMenu="matMenu">
+    @if (workspace.activeTabHandler(); as tabHandler) {
+      @for (pkg of tabHandler.packages; track pkg.name) {
+      <button mat-menu-item (click)="loadPackage(pkg.name)" [disabled]="pkg.loaded">
+        <mat-icon>{{ pkg.loaded ? 'check_circle' : 'add_circle_outline' }}</mat-icon>
+        <span>{{ pkg.name }}</span>
+      </button>
+      }
+    }
+  </mat-menu>
+
+  <mat-menu #exampleMenu="matMenu">
+    @for (ex of examples; track ex.name) {
+    <button mat-menu-item (click)="loadExample(ex)">
+      <span>{{ ex.name }}</span>
+    </button>
+    }
+  </mat-menu>
+
+  <button mat-button [matMenuTriggerFor]="helpMenu">Aide</button>
+  <mat-menu #helpMenu="matMenu">
+    <button mat-menu-item (click)="openDocumentation()">
+      <mat-icon>help_outline</mat-icon>
+      <span>Documentation</span>
+    </button>
+    <button mat-menu-item (click)="openAbout()">
+      <mat-icon>info_outline</mat-icon>
+      <span>À propos</span>
+    </button>
+  </mat-menu>
+
+  <div class="spacer"></div>
+
+  <div class="execution-controls">
+    @if (!isRunning()) {
+      @if (!isReady()) {
+        <button mat-icon-button disabled matTooltip="Chargement de Python...">
+          <mat-progress-spinner diameter="24" mode="indeterminate"></mat-progress-spinner>
+        </button>
+      } @else {
+        <button mat-icon-button color="primary" (click)="runCode()" matTooltip="Exécuter (F5)" aria-label="Exécuter le code">
+          <mat-icon>play_arrow</mat-icon>
+        </button>
+      }
+    } @else {
+      <button mat-icon-button color="warn" (click)="stopExecution()" matTooltip="Arrêter" aria-label="Arrêter l'exécution">
+        <mat-icon>stop</mat-icon>
+      </button>
+    }
+
+    <button mat-icon-button (click)="resetEnvironment()" matTooltip="Réinitialiser l'environnement" aria-label="Réinitialiser l'environnement Python">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+</div>
+
+<!-- Hidden file input for importing -->
+<input type="file" #fileInput style="display: none" (change)="onFileSelected($event)" accept=".py,.txt">

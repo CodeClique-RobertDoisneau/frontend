@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FreePythonIde } from './free-python-ide';
+import { IdeTabView } from './ide-tab-view';
 
-describe('FreePythonIde', () => {
-  let component: FreePythonIde;
-  let fixture: ComponentFixture<FreePythonIde>;
+describe('IdeTabView', () => {
+  let component: IdeTabView;
+  let fixture: ComponentFixture<IdeTabView>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FreePythonIde]
+      imports: [IdeTabView]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(FreePythonIde);
+    fixture = TestBed.createComponent(IdeTabView);
     component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it('should create', () => {

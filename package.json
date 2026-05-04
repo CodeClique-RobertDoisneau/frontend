@@ -36,6 +36,7 @@
     "@codemirror/language-data": "^6.5.2",
     "chart.js": "^4.5.1",
     "katex": "^0.16.25",
+    "mermaid": "^11.12.3",
     "ng2-charts": "^8.0.0",
     "ngx-remark": "^0.2.1",
     "pyodide": "^0.29.0",
@@ -43,6 +44,7 @@
     "remark-directive": "^4.0.0",
     "remark-gfm": "^4.0.1",
     "remark-math": "^6.0.0",
+    "remark-stringify": "^11.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
