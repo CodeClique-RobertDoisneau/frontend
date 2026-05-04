@@ -4,22 +4,26 @@
     <p>Chargement...</p>
 </div>
 } @else if (sectionInfo.value(); as node) {
-<mat-expansion-panel>
-    <mat-expansion-panel-header>
-        <mat-panel-title> {{node.title}} </mat-panel-title>
-        <mat-panel-description>
-            {{node.description}}
-        </mat-panel-description>
-    </mat-expansion-panel-header>
+  @if (node.type === 'QU') {
+  <app-item-card [id]="node.id.toString()"></app-item-card>
+  } @else {
+  <mat-expansion-panel>
+      <mat-expansion-panel-header>
+          <mat-panel-title> {{node.title}} </mat-panel-title>
+          <mat-panel-description>
+              {{node.description}}
+          </mat-panel-description>
+      </mat-expansion-panel-header>
 
-    <div class="section-items-container">
-        @for (itemId of itemIds(); track itemId) {
-        <app-item-card [id]="itemId"></app-item-card>
-        } @empty {
-        <div class="empty-message">Aucun élément dans cette section.</div>
-        }
-    </div>
-</mat-expansion-panel>
+      <div class="section-items-container">
+          @for (itemId of itemIds(); track itemId) {
+          <app-item-card [id]="itemId"></app-item-card>
+          } @empty {
+          <div class="empty-message">Aucun élément dans cette section.</div>
+          }
+      </div>
+  </mat-expansion-panel>
+  }
 } @else if (sectionInfo.error()) {
 <div>Erreur de chargement</div>
 }

@@ -5,7 +5,6 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, ActivatedRoute } from '@angular/router';
-import { MatPaginatorModule, PageEvent, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatTreeModule, MatTreeNestedDataSource } from '@angular/material/tree';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Location } from '@angular/common';
@@ -19,7 +18,6 @@ import { of } from 'rxjs';
 import { QuizComponent } from '@shared/components/quiz/quiz';
 import { NodeService, NodeInfo } from '@shared/services/node.service';
 import { MarkdownViewer } from '@shared/components/markdown-viewer/markdown-viewer';
-import { CustomPaginatorIntl } from '@shared/providers/custom-paginator-intl';
 import { Pyodide } from '@shared/services/pyodide/pyodide';
 import { BreadcrumbService, BreadcrumbItem } from '@shared/services/breadcrumb.service';
 import { AuthService } from '@shared/services/auth.service';
@@ -36,7 +34,6 @@ interface TocNode {
     MatProgressSpinnerModule,
     MatButtonModule,
     MatIconModule,
-    MatPaginatorModule,
     MatTreeModule,
     MatSidenavModule,
     FormsModule,
@@ -46,7 +43,7 @@ interface TocNode {
   templateUrl: './course.html',
   styleUrl: './course.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [Pyodide, { provide: MatPaginatorIntl, useClass: CustomPaginatorIntl }]
+  providers: [Pyodide]
 })
 export class Course {
   readonly id = input.required<string>(); // Item ID from route
@@ -78,7 +75,7 @@ export class Course {
       switchMap((item: NodeInfo) => {
         // If item has no children (sections), return just item with undefined section
         if (!item.children || item.children.length === 0) {
-          return [{ item, section: undefined }];
+          return of({ item, section: undefined });
         }
         // Extract section ID (could be number or NodeInfo object)
         const firstSection = item.children[0];
@@ -140,17 +137,6 @@ export class Course {
       this.restartMode.set(params['restart'] === 'true');
     });
 
-  }
-
-  onPageChange(event: PageEvent) {
-    const d = this.data();
-    if (!d || !d.section || !d.section.children) return;
-
-    // MatPaginator index is 0-based, matches array index
-    const nextItem = d.section.children[event.pageIndex] as any;
-    if (nextItem) {
-      this.router.navigate(['/course', nextItem.id || nextItem]);
-    }
   }
 
   doRestart() {

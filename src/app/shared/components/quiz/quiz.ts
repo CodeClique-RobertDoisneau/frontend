@@ -5,6 +5,8 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatIconModule } from '@angular/material/icon';
 import { HttpResourceRequest } from '@angular/common/http';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatButtonModule } from '@angular/material/button';
+import { ɵEmptyOutletComponent } from "@angular/router";
 
 
 export interface QuizItem {
@@ -27,7 +29,7 @@ export type QuizResult = [boolean[], string][];
 
 @Component({
   selector: 'app-quiz',
-  imports: [MatCheckboxModule, MatRadioModule, MatIconModule, MatProgressBarModule],
+  imports: [MatCheckboxModule, MatRadioModule, MatIconModule, MatProgressBarModule, MatButtonModule, ɵEmptyOutletComponent],
   templateUrl: './quiz.html',
   styleUrl: './quiz.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,6 +49,7 @@ export class QuizComponent {
 
   userAnswers = signal<boolean[][]>([]);
   quizSubmitted = signal(false);
+  submissionTrigger = signal(0);
 
 
   quizResource = httpResource<any>(() => {
@@ -204,6 +207,7 @@ export class QuizComponent {
 
   // Elle s'active UNIQUEMENT quand l'utilisateur clique sur "Vérifier mes réponses"
   submitResource = httpResource<any>(() => {
+    if (this.submissionTrigger() === 0) return undefined;
     if (this.previewData()) return undefined; // Pas de POST en mode éditeur
     if (this.showCorrectionOnly()) return undefined; // Pas de POST en mode forcé
     const id = this.quizId();
@@ -218,6 +222,11 @@ export class QuizComponent {
       body: { answer: this.userAnswers(), modified_at }
     } as HttpResourceRequest;
   });
+
+  submit() {
+    this.quizSubmitted.set(true);
+    this.submissionTrigger.update(v => v + 1);
+  }
 
 
   // 5. Logique de mise à jour (Action utilisateur)

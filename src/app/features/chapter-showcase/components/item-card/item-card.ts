@@ -14,7 +14,7 @@ import { NodeInfo, TYPE_LABELS } from '@shared/services/node.service';
 
 @Component({
   selector: 'app-item-card',
-  imports: [MatIconModule, MatChipsModule, MatDividerModule, RouterLink, MatButtonModule, MatProgressSpinnerModule, MatTooltipModule],
+  imports: [MatIconModule, MatChipsModule, MatDividerModule, MatButtonModule, MatProgressSpinnerModule, MatTooltipModule],
   templateUrl: './item-card.html',
   styleUrl: './item-card.scss',
 })

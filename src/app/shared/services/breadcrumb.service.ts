@@ -1,4 +1,6 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 export interface BreadcrumbItem {
   label: string;
@@ -9,6 +11,20 @@ export interface BreadcrumbItem {
   providedIn: 'root',
 })
 export class BreadcrumbService {
+  private router = inject(Router);
+
+  constructor() {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      const isCoursePage = event.urlAfterRedirects.match(/^\/(courses|course|chapter)/);
+      if (!isCoursePage) {
+        this.breadcrumbs.set([]);
+        this.lastChapter.set(null);
+      }
+    });
+  }
+
   /**
    * Current breadcrumb items to display.
    */

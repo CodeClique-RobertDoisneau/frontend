@@ -24,7 +24,6 @@ import { CodeBlock } from '@shared/components/code-block/code-block';
 import { MermaidBlock } from '@shared/components/mermaid-block/mermaid-block';
 import { Outline } from '@shared/components/outline/outline';
 import { VideoBlock } from "../video-block/video-block";
-import { Pyodide } from '@shared/services/pyodide/pyodide';
 import { QuizComponent } from '@shared/components/quiz/quiz';
 
 @Component({

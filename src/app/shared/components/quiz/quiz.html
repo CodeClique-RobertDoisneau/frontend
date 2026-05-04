@@ -50,6 +50,14 @@
     </div>
     }
 
+    @if (questions.length > 0 && !quizSubmitted() && !showCorrectionOnly()) {
+    <footer class="quiz-footer">
+        <button mat-fab extended (click)="submit()" [disabled]="submitResource.isLoading()">
+            <mat-icon>{{ submitResource.isLoading() ? 'hourglass_empty' : 'check_circle' }}</mat-icon>
+            {{ submitResource.isLoading() ? 'Vérification...' : 'Vérifier mes réponses' }}
+        </button>
+    </footer>
+    }
     }
 
     @else if (quizResource.error()) {
