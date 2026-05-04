@@ -1,4 +1,21 @@
 <main class="quiz-container">
+    @if (isAlreadyFinished()) {
+    <div class="success-banner quiz-success-banner" style="margin-bottom: 2rem;">
+        <mat-icon class="quiz-success-icon">stars</mat-icon>
+        <h2>Quiz Terminé !</h2>
+        <p>
+            @if (score() != null) {
+            Votre score : {{ score() }} @if (maxScore() != null) { / {{ maxScore() }} }
+            } @else {
+            Vous avez déjà passé ce quiz.
+            }
+        </p>
+        <div class="quiz-review-actions">
+            <button mat-flat-button color="primary" (click)="doRestart()">Refaire le quiz</button>
+        </div>
+    </div>
+    }
+
     @if (quizResource.isLoading()) {
     <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     }

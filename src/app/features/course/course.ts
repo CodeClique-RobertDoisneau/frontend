@@ -5,28 +5,18 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, ActivatedRoute } from '@angular/router';
-import { MatTreeModule, MatTreeNestedDataSource } from '@angular/material/tree';
-import { NestedTreeControl } from '@angular/cdk/tree';
 import { Location } from '@angular/common';
 
+import { httpResource } from '@angular/common/http';
 
-import { toSignal, toObservable } from '@angular/core/rxjs-interop';
-import { switchMap, map, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
-
-
-import { QuizComponent } from '@shared/components/quiz/quiz';
+import { QuizComponent } from './components/quiz/quiz';
+import { Lesson } from './components/lesson/lesson';
+import { Exercise } from './components/exercise/exercise';
+import { Toc } from './components/toc/toc';
 import { NodeService, NodeInfo } from '@shared/services/node.service';
-import { MarkdownViewer } from '@shared/components/markdown-viewer/markdown-viewer';
 import { Pyodide } from '@shared/services/pyodide/pyodide';
 import { BreadcrumbService, BreadcrumbItem } from '@shared/services/breadcrumb.service';
 import { AuthService } from '@shared/services/auth.service';
-
-interface TocNode {
-  name: string;
-  level: number;
-  children?: TocNode[];
-}
 
 @Component({
   selector: 'app-course',
@@ -34,11 +24,12 @@ interface TocNode {
     MatProgressSpinnerModule,
     MatButtonModule,
     MatIconModule,
-    MatTreeModule,
     MatSidenavModule,
     FormsModule,
-    MarkdownViewer,
-    QuizComponent
+    QuizComponent,
+    Lesson,
+    Exercise,
+    Toc,
   ],
   templateUrl: './course.html',
   styleUrl: './course.scss',
@@ -46,145 +37,52 @@ interface TocNode {
   providers: [Pyodide]
 })
 export class Course {
-  readonly id = input.required<string>(); // Item ID from route
+  readonly id = input.required<string>();
   pyodide = inject(Pyodide);
 
-  private NodeService = inject(NodeService);
   private location = inject(Location);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private breadcrumbService = inject(BreadcrumbService);
   private authService = inject(AuthService);
 
-  reviewMode = signal(false);
   restartMode = signal(false);
 
-
-
-  error = signal('');
-  isVerifying = signal(false);
-
-  // Tree control for TOC
-  treeControl = new NestedTreeControl<TocNode>((node: TocNode) => node.children);
-  dataSource = new MatTreeNestedDataSource<TocNode>();
-
-  // Combined data signal: Item + Section (using the first section as context)
-  readonly data = toSignal(
-    toObservable(this.id).pipe(
-      switchMap((id: string) => this.NodeService.getNode(id)),
-      switchMap((item: NodeInfo) => {
-        // If item has no children (sections), return just item with undefined section
-        if (!item.children || item.children.length === 0) {
-          return of({ item, section: undefined });
-        }
-        // Extract section ID (could be number or NodeInfo object)
-        const firstSection = item.children[0];
-        const sectionId = typeof firstSection === 'object' ? firstSection.id : firstSection;
-        return this.NodeService.getNode(sectionId).pipe(
-          map((section: NodeInfo) => ({ item, section }))
-        );
-      }),
-      catchError((err: any) => {
-        if (err.status === 403) {
-          this.error.set("Vous n'êtes pas autorisé à accéder à cette page.");
-        } else {
-          this.error.set('Erreur lors du chargement du cours.');
-        }
-        return of(null);
-      })
-    )
-  );
-
-  // Compute TOC from markdown content
-  readonly toc = computed(() => {
-    const content = this.data()?.item.content?.content;
-    if (!content || typeof content !== 'string') return [];
-    return this.buildToc(content);
-  });
+  dataResource = httpResource<NodeInfo>(() => `/api/nodes/${this.id()}/`);
+  data = computed(() => this.dataResource.value());
 
   constructor() {
-    // Update tree data source and breadcrumb when data changes
     effect(() => {
       const d = this.data();
-      if (d?.item) {
-        // Build breadcrumb
+      if (d) {
         const lastChapter = this.breadcrumbService.getLastChapter();
         const crumbs: BreadcrumbItem[] = [];
-
         if (lastChapter) {
           crumbs.push({ label: lastChapter.title, url: `/chapter/${lastChapter.id}` });
         }
-        crumbs.push({ label: d.item.title });
+        crumbs.push({ label: d.title });
         this.breadcrumbService.setBreadcrumbs(crumbs);
-
-
-        console.log('Current item:', d.item);
-        console.log('Item type:', d.item.type);
       }
-      this.dataSource.data = this.toc();
-      this.treeControl.dataNodes = this.toc();
-      this.treeControl.expandAll(); // Default to expanded
     });
 
-    // Ensure we have the user state for isEditor()
     if (!this.authService.currentUser()) {
       this.authService.getMe().subscribe();
     }
 
-    // Check initial queryParams for ?review=true, ?restart=true
     this.route.queryParams.subscribe(params => {
-      this.reviewMode.set(params['review'] === 'true');
       this.restartMode.set(params['restart'] === 'true');
     });
+  }
 
+  onItemCompleted() {
+    this.dataResource.reload();
   }
 
   doRestart() {
-    this.router.navigate([], { relativeTo: this.route, queryParams: { restart: 'true', review: null }, queryParamsHandling: 'merge' });
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { restart: 'true', review: null },
+      queryParamsHandling: 'merge'
+    });
   }
-
-  hasChild = (_: number, node: TocNode) => !!node.children && node.children.length > 0;
-
-  //Permet de scroller automatiquement avec le sommaire
-  scrollToHeader(name: string) {
-    const elements = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'));
-    const target = elements.find(el => el.textContent?.trim() === name.trim());
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }
-
-  private buildToc(content: string): TocNode[] {
-    const lines = content.split('\n');
-    const root: TocNode = { name: 'root', level: 0, children: [] };
-    const stack: TocNode[] = [root];
-
-    const headerRegex = /^(#{1,6})\s+(.+)$/;
-
-    for (const line of lines) {
-      const match = line.match(headerRegex);
-      if (match) {
-        const level = match[1].length;
-        const name = match[2];
-        const node: TocNode = { name, level, children: [] };
-
-        while (stack.length > 1 && stack[stack.length - 1].level >= level) {
-          stack.pop();
-        }
-
-        const parent = stack[stack.length - 1];
-        if (parent.children) {
-          parent.children.push(node);
-        }
-        stack.push(node);
-      }
-    }
-
-    return root.children || [];
-  }
-
-  readonly isAlreadyFinished = computed(() => {
-    const d = this.data();
-    return !!d?.item.user_progress?.done;
-  });
 }

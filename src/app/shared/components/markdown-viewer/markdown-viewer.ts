@@ -23,8 +23,8 @@ import { RemarkModule, KatexComponent } from 'ngx-remark';
 import { CodeBlock } from '@shared/components/code-block/code-block';
 import { MermaidBlock } from '@shared/components/mermaid-block/mermaid-block';
 import { Outline } from '@shared/components/outline/outline';
-import { VideoBlock } from "../video-block/video-block";
-import { QuizComponent } from '@shared/components/quiz/quiz';
+import { VideoBlock } from "@shared/components/video-block/video-block";
+import { QuizComponent } from '@features/course/components/quiz/quiz';
 
 @Component({
   selector: 'app-markdown-viewer',

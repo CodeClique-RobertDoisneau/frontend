@@ -1,4 +1,4 @@
-import { Component, signal, computed, ChangeDetectionStrategy, effect, untracked, input } from '@angular/core';
+import { Component, signal, computed, ChangeDetectionStrategy, effect, untracked, input, output } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
@@ -6,7 +6,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { HttpResourceRequest } from '@angular/common/http';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatButtonModule } from '@angular/material/button';
-import { ɵEmptyOutletComponent } from "@angular/router";
 
 
 export interface QuizItem {
@@ -29,7 +28,7 @@ export type QuizResult = [boolean[], string][];
 
 @Component({
   selector: 'app-quiz',
-  imports: [MatCheckboxModule, MatRadioModule, MatIconModule, MatProgressBarModule, MatButtonModule, ɵEmptyOutletComponent],
+  imports: [MatCheckboxModule, MatRadioModule, MatIconModule, MatProgressBarModule, MatButtonModule],
   templateUrl: './quiz.html',
   styleUrl: './quiz.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,6 +49,9 @@ export class QuizComponent {
   userAnswers = signal<boolean[][]>([]);
   quizSubmitted = signal(false);
   submissionTrigger = signal(0);
+  _internalRestart = signal(false);
+
+  submitted = output<void>();
 
 
   quizResource = httpResource<any>(() => {
@@ -71,8 +73,14 @@ export class QuizComponent {
     return data.map(q => [q.answers || [], q.explanation || '']);
   });
 
-  //score
-  //maxScore
+  isAlreadyFinished = computed(() => {
+    return !!this.quizResource.value()?.user_progress?.done && !this.forceRestart() && !this._internalRestart();
+  });
+
+  score = computed(() => this.quizResource.value()?.user_progress?.score);
+  maxScore = computed(() => this.quizResource.value()?.user_progress?.max_score);
+
+  isRestart = computed(() => this.forceRestart() || this._internalRestart());
 
   // 1. On parse la donnée UNE SEULE FOIS de manière centralisée
   parsedQuizData = computed<QuizItem[] | null>(() => {
@@ -149,7 +157,7 @@ export class QuizComponent {
       const data = this.parsedQuizData();
       if (!data) return;
 
-      const fRestart = this.forceRestart();
+      const fRestart = this.isRestart();
       const fValidated = this.showCorrectionOnly();
 
       untracked(() => {
@@ -226,6 +234,12 @@ export class QuizComponent {
   submit() {
     this.quizSubmitted.set(true);
     this.submissionTrigger.update(v => v + 1);
+    this.submitted.emit();
+  }
+
+  doRestart() {
+    this._internalRestart.set(true);
+    this.quizSubmitted.set(false);
   }
 
 

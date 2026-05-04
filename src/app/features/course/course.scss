@@ -35,21 +35,6 @@
   margin-bottom: 48px;
 }
 
-/* Paginator */
-.paginator-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-top: 0;
-  /* Removed top margins and borders */
-
-  mat-paginator {
-    background: transparent;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-  }
-}
-
 /* TOC Sidebar */
 .toc-sidebar {
   position: sticky;
