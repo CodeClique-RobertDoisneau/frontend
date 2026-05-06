@@ -44,8 +44,12 @@
               <div style="display:flex; align-items:center; gap:1rem;">
                 <mat-icon style="font-size:48px; width:48px; height:48px;">person</mat-icon>
                 <div style="flex:1;">
-                  <div><strong>théo_codeur</strong></div>
-                  <div>Élève · 1ère G2</div>
+                  <div><strong ngNonBindable>{{user.username}}</strong></div>
+                  <div>
+                    <span ngNonBindable>{{user.role_display}}</span>
+                    ·
+                    <span ngNonBindable>{{user.class_name}}</span>
+                  </div>
                 </div>
                 <button mat-icon-button aria-label="Modifier"><mat-icon>edit</mat-icon></button>
               </div>
@@ -58,8 +62,8 @@
               <button mat-icon-button aria-label="Modifier"><mat-icon>edit</mat-icon></button>
             </div>
             <mat-card-content>
-              <p><strong>Nom d'utilisateur :</strong> lea_codeuse</p>
-              <p><strong>Email :</strong> lea.martin&#64;example.com</p>
+              <p><strong>Nom d'utilisateur :</strong> <span ngNonBindable>{{user.username}}</span></p>
+              <p><strong>Email :</strong> <span ngNonBindable>{{user.email}}</span></p>
             </mat-card-content>
           </mat-card>
         }
@@ -71,14 +75,9 @@
               <h3 class="mat-title-large" style="margin:0;">Mot de passe</h3>
               <button mat-icon-button aria-label="Modifier le mot de passe"><mat-icon>edit</mat-icon></button>
             </div>
-            <mat-card-content>Dernière modification il y a 2 mois.</mat-card-content>
-          </mat-card>
-          <mat-card>
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1rem 0;">
-              <h3 class="mat-title-large" style="margin:0;">Authentification à deux facteurs</h3>
-              <button mat-button>Activer</button>
-            </div>
-            <mat-card-content>Bientôt disponible.</mat-card-content>
+            <mat-card-content>
+              Dernière modification : <span ngNonBindable>{{user.password_last_changed}}</span>.
+            </mat-card-content>
           </mat-card>
         }
 
@@ -86,10 +85,17 @@
           <h2 class="mat-headline-small">Mes classes</h2>
           <mat-card>
             <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1rem 0;">
-              <h3 class="mat-title-large" style="margin:0;">1ère G2 — 2025–2026</h3>
+              <h3 class="mat-title-large" style="margin:0;">
+                <span ngNonBindable>{{user.class_name}}</span>
+                —
+                <span ngNonBindable>{{user.academic_year}}</span>
+              </h3>
               <button mat-button>Quitter</button>
             </div>
-            <mat-card-content>Rejointe le 12 septembre 2025 · Prof : M. Dupont</mat-card-content>
+            <mat-card-content>
+              Rejointe le <span ngNonBindable>{{user.class_join_date}}</span>
+              · Prof : <span ngNonBindable>{{user.class_teacher}}</span>
+            </mat-card-content>
           </mat-card>
           <mat-card>
             <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem;">

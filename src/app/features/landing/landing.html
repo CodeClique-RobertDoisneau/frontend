@@ -20,11 +20,6 @@
           Essayer l'éditeur Python
         </button>
       </div>
-      <div style="display:flex; flex-wrap:wrap; gap:2rem; margin-top:2rem;">
-        <div><div class="mat-headline-medium" style="color:var(--mat-sys-primary)">142</div><div>Élèves</div></div>
-        <div><div class="mat-headline-medium" style="color:var(--mat-sys-primary)">28</div><div>Cours dispo.</div></div>
-        <div><div class="mat-headline-medium" style="color:var(--mat-sys-primary)">94%</div><div>Taux de complétion</div></div>
-      </div>
     </div>
     <div class="hero-visual" aria-hidden="true">
       <img [src]="theming.resolvedTheme() === 'dark' ? 'img/persona/maths-darkmode.png' : 'img/persona/Maths-Happy.webp'" alt="" style="max-height:360px; max-width:100%; display:block; margin:0 auto;">
@@ -38,7 +33,7 @@
       <mat-card appearance="outlined">
         <mat-card-content>
           <div class="feature-visual">
-            <mat-icon>terminal</mat-icon>
+            <img src="img/editeur.png" alt="Aperçu de l'éditeur Python intégré" loading="lazy">
           </div>
           <h3 class="mat-title-large">Python directement dans le cours</h3>
           <p>Pas d'installation, pas de config. Tu lis, tu codes, tu vois le résultat — tout au même endroit.</p>
@@ -56,7 +51,7 @@
       <mat-card appearance="outlined">
         <mat-card-content>
           <div class="feature-visual">
-            <mat-icon>play_circle</mat-icon>
+            <img src="img/video.png" alt="Aperçu d'une vidéo d'introduction" loading="lazy">
           </div>
           <h3 class="mat-title-large">Vidéos d'introduction</h3>
           <p>Une vidéo courte pour bien démarrer chaque notion avant de te lancer dans le code.</p>
