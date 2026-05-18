@@ -11,7 +11,7 @@
   </ng-template>
   <remark-katex *remarkTemplate="'math'; let node" [expr]="node.value" class="math-display" />
   <remark-katex *remarkTemplate="'inlineMath'; let node" [expr]="node.value" class="math-inline" />
-  <app-outline *remarkTemplate="'outline'; let node" [outlineType]="node.attributes.outlineType ?? 'AIDE'" [node]="node.children" [processor]="processor" />
+  <app-outline *remarkTemplate="'outline'; let node" [outlineType]="node.attributes.outlineType ?? 'AIDE'" [pyodide]="pyodide()" [node]="node.children" [processor]="processor" />
   <app-quiz *remarkTemplate="'quiz'; let node" [quizId]="node.attributes?.id" />
   <app-video-block *remarkTemplate="'video'; let node" [link]="node.attributes.link" />
 </remark>
