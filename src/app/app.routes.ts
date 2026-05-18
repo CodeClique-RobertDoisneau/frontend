@@ -9,8 +9,8 @@ export const routes: Routes = [
   },
   {
     title: 'Connexion',
-    path: 'connexion',
-    loadComponent: () => import('@features/connexion/connexion').then(m => m.Connexion)
+    path: 'login',
+    loadComponent: () => import('@features/login/login').then(m => m.Login)
   },
   {
     title: 'Dashboard',

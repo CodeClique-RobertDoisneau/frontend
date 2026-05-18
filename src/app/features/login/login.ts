@@ -12,7 +12,7 @@ import { Auth } from '@shared/services/auth/auth';
 import { ApiError } from '@shared/services/api/api';
 
 @Component({
-  selector: 'app-connexion',
+  selector: 'app-login',
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -21,10 +21,10 @@ import { ApiError } from '@shared/services/api/api';
     MatIconModule,
     MatProgressSpinnerModule,
   ],
-  templateUrl: './connexion.html',
-  styleUrl: './connexion.scss',
+  templateUrl: './login.html',
+  styleUrl: './login.scss',
 })
-export class Connexion {
+export class Login {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -69,7 +69,7 @@ export class Connexion {
     } catch (err: unknown) {
       this.isLoading.set(false);
       const typedErr = err as ApiError;
-      if (typedErr.status === 401 || typedErr.message === 'Invalid credentials') {
+      if (typedErr.status === 401 || typedErr.status === 403 || typedErr.message === 'Invalid credentials') {
         this.errorMessage.set("Nom d'utilisateur ou mot de passe incorrect.");
       } else if (typedErr.status === 0) {
         this.errorMessage.set('Impossible de contacter le serveur. Vérifiez votre connexion.');

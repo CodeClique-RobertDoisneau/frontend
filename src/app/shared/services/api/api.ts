@@ -28,7 +28,13 @@ export class Api {
     const res = await fetch(url, { ...options, headers });
 
     if (!res.ok) {
-      const errorBody = await res.json().catch(() => res.text().catch(() => ''));
+      const errorText = await res.text().catch(() => '');
+      let errorBody;
+      try {
+        errorBody = errorText ? JSON.parse(errorText) : '';
+      } catch {
+        errorBody = errorText;
+      }
       throw {
         status: res.status,
         message: errorBody?.detail || errorBody?.message || 'Request failed',
@@ -36,8 +42,16 @@ export class Api {
       } as ApiError;
     }
 
-    const text = await res.text();
-    return (text ? JSON.parse(text) : {}) as T;
+    const text = await res.text().catch(() => '');
+    if (!text) {
+      return {} as T;
+    }
+
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      return text as unknown as T;
+    }
   }
 
   get<T>(urlFactory: () => string | undefined) {
