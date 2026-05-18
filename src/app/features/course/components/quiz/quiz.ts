@@ -1,4 +1,4 @@
-import { Component, signal, computed, ChangeDetectionStrategy, effect, untracked, input, output } from '@angular/core';
+import { Component, signal, computed, ChangeDetectionStrategy, effect, untracked, input, output, ResourceStatus } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
@@ -192,6 +192,23 @@ export class QuizComponent {
         }
       });
     });
+
+    // 2.5. Effect to handle submitResource resolution or error
+    effect(() => {
+      const status = this.submitResource.status();
+      const error = this.submitResource.error();
+
+      if (this.submissionTrigger() === 0) return;
+
+      untracked(() => {
+        if (status === ResourceStatus.Resolved) {
+          this.quizSubmitted.set(true);
+          this.submitted.emit();
+        } else if (status === ResourceStatus.Error) {
+          console.error("Quiz submission failed:", error);
+        }
+      });
+    });
   }
 
 
@@ -232,14 +249,13 @@ export class QuizComponent {
   });
 
   submit() {
-    this.quizSubmitted.set(true);
     this.submissionTrigger.update(v => v + 1);
-    this.submitted.emit();
   }
 
   doRestart() {
     this._internalRestart.set(true);
     this.quizSubmitted.set(false);
+    this.submissionTrigger.set(0);
   }
 
 

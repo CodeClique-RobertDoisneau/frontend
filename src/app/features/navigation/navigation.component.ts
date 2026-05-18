@@ -47,6 +47,10 @@ export class NavigationComponent {
   theming = inject(Theming);
   authService = inject(Auth);
 
+  constructor() {
+    this.authService.getMe().catch(() => {});
+  }
+
   title = toSignal(
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd),
