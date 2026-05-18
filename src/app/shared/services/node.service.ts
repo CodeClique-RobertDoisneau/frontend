@@ -1,73 +1,15 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, map, tap } from 'rxjs';
+import { ApiService } from './api.service';
+import { httpResource, HttpResourceRef } from '@angular/common/http';
+import { NodeLinkInfo, NodeInfo, UserInfo, ClassGroupInfo, ClassGroupSyllabusInfo, MembershipInfo } from './node.service.types';
 
-export interface NodeInfo {
-  id: number | string;
-  owner?: number;
-  created_at?: string;
-  modified_at?: string;
-  type: string;
-  public?: boolean;
-  title: string;
-  description?: string;
-  grade_level?: string;
-  difficulty?: number;
-  subject?: string;
-  content?: any;
-  children: any[];
-  user_progress?: {
-    done: boolean;
-    score?: number;
-    max_score?: number;
-    modified_at: string;
-  } | null;
-}
-
-
-
-export interface UserInfo {
-  url: string;
-  id: number;
-  username: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  groups: string[];
-  class_groups: MembershipInfo[];
-}
-
-export interface ClassGroupInfo {
-  url: string;
-  id: number;
-  class_name: string;
-  academic_year: string;
-  users: string[];
-  syllabus: string[];
-  join_code: string;
-}
-
-export interface ClassGroupSyllabusInfo {
-  id: number;
-  class_group: number;
-  node: number;
-  order_index: number;
-}
-
-export interface MembershipInfo {
-  url: string;
-  id: number;
-  user: string;
-  class_group: string;
-  user_status: string;
-}
+export * from './node.service.types';
 
 export const SUBJECT_LABELS: Record<string, string> = {
   'MA': 'Maths',
   'PH': 'Physique',
   'CO': 'NSI'
 };
-
 
 export const GRADE_LABELS: Record<string, string> = {
   'SE': 'Seconde',
@@ -81,50 +23,49 @@ export const TYPE_LABELS: Record<string, string> = {
   'EX': 'Exercice',
 };
 
-
-
 @Injectable({
   providedIn: 'root'
 })
 export class NodeService {
-  private http = inject(HttpClient);
-  private API_URL = '/api';
+  private api = inject(ApiService);
 
-  getNode(id: string | number): Observable<NodeInfo> {
-    return this.http.get<NodeInfo>(`${this.API_URL}/nodes/${id}/`);
+  getNode(id: string | number): HttpResourceRef<NodeInfo | undefined> {
+    return this.api.get<NodeInfo>(() => `/api/nodes/${id}/`);
   }
 
-  updateNodeContent(id: string | number, payload: any): Observable<any> {
-    return this.http.patch<any>(`${this.API_URL}/nodes/${id}/`, { content: payload });
+  getNodePromise(id: string | number): Promise<NodeInfo> {
+    return this.api.getPromise<NodeInfo>(`/api/nodes/${id}/`);
   }
 
-
-  verifyNode(id: string | number, submission: any = null, modified_at: string = ''): Observable<any> {
-    const payload = { answer: submission, modified_at };
-    return this.http.post<any>(`${this.API_URL}/nodes/${id}/answer/`, payload);
+  updateNodeContent(id: string | number, payload: string | Record<string, unknown>): Promise<NodeInfo> {
+    return this.api.patch<NodeInfo>(`/api/nodes/${id}/`, { content: payload });
   }
 
-  getUser(): Observable<UserInfo> {
-    return this.http.get<UserInfo>(`${this.API_URL}/users/me/`);
+  verifyNode(
+    id: string | number,
+    submission: Record<string, unknown> | string | null = null,
+    modified_at: string = ''
+  ): Promise<Record<string, unknown>> {
+    return this.api.post<Record<string, unknown>>(`/api/nodes/${id}/answer/`, { answer: submission, modified_at });
   }
 
-  getClassGroup(groupId: number): Observable<ClassGroupInfo> {
-    return this.http.get<ClassGroupInfo>(`${this.API_URL}/class-groups/${groupId}/`);
+  getUser(): HttpResourceRef<UserInfo | undefined> {
+    return this.api.get<UserInfo>(() => '/api/users/me/');
   }
 
-  getClassGroupSyllabus(): Observable<ClassGroupSyllabusInfo[]> {
-    return this.http.get<ClassGroupSyllabusInfo[]>(`${this.API_URL}/classgroupsyllabus/`).pipe(
-      tap(res => console.log('getClassGroupSyllabus result:', res))
-    );
+  getClassGroup(groupId: number): HttpResourceRef<ClassGroupInfo | undefined> {
+    return this.api.get<ClassGroupInfo>(() => `/api/class-groups/${groupId}/`);
   }
 
+  getClassGroupPromise(groupId: number): Promise<ClassGroupInfo> {
+    return this.api.getPromise<ClassGroupInfo>(`/api/class-groups/${groupId}/`);
+  }
 
-  getCodeCliqueSyllabus(): Observable<NodeInfo[]> {
-    return this.http.get<NodeInfo[]>(`${this.API_URL}/nodes/codeclique/`).pipe(
-      map(nodes => nodes.map(n => ({ ...n, children: [] }))),
-      tap(res => console.log('getCodeCliqueSyllabus result:', res))
-    );
+  getClassGroupSyllabus(): HttpResourceRef<ClassGroupSyllabusInfo[] | undefined> {
+    return this.api.get<ClassGroupSyllabusInfo[]>(() => '/api/classgroupsyllabus/');
+  }
+
+  getCodeCliqueSyllabus(): HttpResourceRef<NodeInfo[] | undefined> {
+    return this.api.get<NodeInfo[]>(() => '/api/nodes/codeclique/');
   }
 }
-
-

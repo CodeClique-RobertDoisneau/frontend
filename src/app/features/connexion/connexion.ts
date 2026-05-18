@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AuthService } from '@shared/services/auth.service';
+import { ApiError } from '@shared/services/api.service';
 
 @Component({
   selector: 'app-connexion',
@@ -53,7 +54,7 @@ export class Connexion {
     }
   }
 
-  onSubmit() {
+  async onSubmit() {
     if (this.loginForm.invalid) return;
 
     this.isLoading.set(true);
@@ -61,21 +62,20 @@ export class Connexion {
 
     const { username, password } = this.loginForm.value;
 
-    this.authService.login(username!, password!).subscribe({
-      next: () => {
-        this.isLoading.set(false);
-        this.router.navigateByUrl(this.redirectUrl);
-      },
-      error: (err) => {
-        this.isLoading.set(false);
-        if (err.status === 401 || err.message === 'Invalid credentials') {
-          this.errorMessage.set("Nom d'utilisateur ou mot de passe incorrect.");
-        } else if (err.status === 0) {
-          this.errorMessage.set('Impossible de contacter le serveur. Vérifiez votre connexion.');
-        } else {
-          this.errorMessage.set('Une erreur est survenue. Veuillez réessayer.');
-        }
-      },
-    });
+    try {
+      await this.authService.login(username!, password!);
+      this.isLoading.set(false);
+      this.router.navigateByUrl(this.redirectUrl);
+    } catch (err: unknown) {
+      this.isLoading.set(false);
+      const typedErr = err as ApiError;
+      if (typedErr.status === 401 || typedErr.message === 'Invalid credentials') {
+        this.errorMessage.set("Nom d'utilisateur ou mot de passe incorrect.");
+      } else if (typedErr.status === 0) {
+        this.errorMessage.set('Impossible de contacter le serveur. Vérifiez votre connexion.');
+      } else {
+        this.errorMessage.set('Une erreur est survenue. Veuillez réessayer.');
+      }
+    }
   }
 }

@@ -1,112 +1,63 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, switchMap, catchError, throwError } from 'rxjs';
-import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { ApiService } from './api.service';
+import { UserInfo } from './node.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private http = inject(HttpClient);
   private router = inject(Router);
+  private api = inject(ApiService);
   private apiUrl = '/api';
 
-  /**
-   * Reads the CSRF token from the 'csrftoken' cookie.
-   */
-  private getCsrfToken(): string {
-    const match = document.cookie.match(/csrftoken=([^;]+)/);
-    return match ? match[1] : '';
+  currentUser = signal<UserInfo | null>(null);
+
+  async login(username: string, password: string): Promise<UserInfo> {
+    // 1. GET login page to ensure CSRF cookie is set
+    await fetch(`${this.apiUrl}/auth/login/`);
+
+    // 2. POST login credentials using ApiService urlencoded search params
+    const body = new URLSearchParams({ username, password });
+    await this.api.post<string>(`${this.apiUrl}/auth/login/`, body);
+
+    // 3. Populate user profile on success
+    return this.getMe();
   }
 
-  /**
-   * Step 1: GET the login page so Django sets the csrftoken cookie.
-   * Step 2: POST username + password with the CSRF token.
-   * Step 3: Verify login worked by calling GET /api/users/me/.
-   *
-   * DRF's login endpoint returns HTML, not JSON, so we use responseType: 'text'.
-   * On success it redirects (302) which fetch follows automatically.
-   * We verify the login actually worked by calling getMe() afterward.
-   */
-  login(username: string, password: string): Observable<any> {
-    // First, GET the login page to ensure the CSRF cookie is set
-    return this.http.get(`${this.apiUrl}/auth/login/`, { responseType: 'text' }).pipe(
-      switchMap(() => {
-        // Now we have the CSRF cookie — build the POST
-        const body = new URLSearchParams();
-        body.set('username', username);
-        body.set('password', password);
-
-        const headers = new HttpHeaders({
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'X-CSRFToken': this.getCsrfToken(),
-        });
-
-        return this.http.post(`${this.apiUrl}/auth/login/`, body.toString(), {
-          headers,
-          responseType: 'text', // DRF returns HTML, not JSON
-        });
-      }),
-      // After POST succeeded (or redirected), verify we're actually logged in
-      switchMap(() => this.getMe()),
-      catchError((err) => {
-        // If getMe() returns 401/403, login credentials were wrong
-        if (err.status === 401 || err.status === 403) {
-          return throwError(() => ({ status: 401, message: 'Invalid credentials' }));
-        }
-        return throwError(() => err);
-      })
-    );
+  async logout(): Promise<void> {
+    try {
+      await this.api.post<string>(`${this.apiUrl}/auth/logout/`);
+    } finally {
+      this.currentUser.set(null);
+      this.router.navigate(['/']);
+    }
   }
 
-  logout(): void {
-    this.http.post(`${this.apiUrl}/auth/logout/`, null, {
-      responseType: 'text',
-    }).subscribe({
-      next: () => {
-        this.currentUser.set(null);
-        this.router.navigate(['/']);
-      },
-      error: () => {
-        this.currentUser.set(null);
-        this.router.navigate(['/']);
-      }
-    });
+  async getMe(): Promise<UserInfo> {
+    try {
+      const user = await this.api.getPromise<UserInfo>(`${this.apiUrl}/users/me/`);
+      this.currentUser.set(user);
+      return user;
+    } catch (err) {
+      this.currentUser.set(null);
+      throw err;
+    }
   }
 
-  currentUser = signal<any>(null);
-
-  /**
-   * Get the current authenticated user's info.
-   * Returns user data if authenticated, 401/403 if not.
-   */
-  getMe(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/users/me/`).pipe(
-      tap((user) => this.currentUser.set(user))
-    );
+  async updateMe(data: Record<string, unknown>): Promise<UserInfo> {
+    const user = await this.api.put<UserInfo>(`${this.apiUrl}/users/me/`, data);
+    this.currentUser.set(user);
+    return user;
   }
 
-  /**
-   * Update the current user's profile.
-   */
-  updateMe(data: Record<string, any>): Observable<any> {
-    return this.http.put(`${this.apiUrl}/users/me/`, data);
+  getUser(id: number | string) {
+    return this.api.get<UserInfo>(() => `${this.apiUrl}/users/${id}/`);
   }
 
-  // TODO a supp ou pas, garder un seul getUser
-  /**
-   * Get a specific user by ID (admin only).
-   */
-  getUser(id: number | string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/users/${id}/`);
-  }
-
-  /**
-   * Join a class group via a code.
-   */
-  joinClass(code: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/class-groups/join-code/${code}/`, null);
+  async joinClass(code: string): Promise<UserInfo> {
+    const user = await this.api.post<UserInfo>(`${this.apiUrl}/class-groups/join-code/${code}/`);
+    this.currentUser.set(user);
+    return user;
   }
 }
-

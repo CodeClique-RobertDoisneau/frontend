@@ -37,6 +37,7 @@ import { AuthService } from '@shared/services/auth.service';
   providers: [Pyodide]
 })
 export class Course {
+  // Course identifier input
   readonly id = input.required<string>();
   pyodide = inject(Pyodide);
 
@@ -66,7 +67,7 @@ export class Course {
     });
 
     if (!this.authService.currentUser()) {
-      this.authService.getMe().subscribe();
+      this.authService.getMe().catch(() => {});
     }
 
     this.route.queryParams.subscribe(params => {

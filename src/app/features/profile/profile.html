@@ -9,7 +9,7 @@
     <span>{{ errorMessage() }}</span>
   </div>
 </div>
-} @else if (user()) {
+} @else if (user(); as u) {
 <div class="profile-container">
   <div class="profile-card">
     <div class="profile-header">
@@ -17,8 +17,8 @@
         <mat-icon>account_circle</mat-icon>
       </div>
       <div class="header-info">
-        <h1>{{ user().first_name || user().username }} {{ user().last_name }}</h1>
-        <p class="user-id">ID: {{ user().id }}</p>
+        <h1>{{ u.first_name || u.username }} {{ u.last_name }}</h1>
+        <p class="user-id">ID: {{ u.id }}</p>
       </div>
     </div>
 
@@ -55,22 +55,22 @@
         }
       </mat-form-field>
 
-      @if (user().groups?.length) {
+      @if (u.groups.length) {
       <div class="section">
         <h3>Groupes</h3>
         <mat-chip-set>
-          @for (group of user().groups; track group) {
+          @for (group of u.groups; track group) {
           <mat-chip>{{ group }}</mat-chip>
           }
         </mat-chip-set>
       </div>
       }
 
-      @if (user().class_groups?.length) {
+      @if (u.class_groups.length) {
       <div class="section">
         <h3>Classes</h3>
         <div class="class-list">
-          @for (cg of user().class_groups; track cg) {
+          @for (cg of u.class_groups; track cg) {
           <div class="class-item">
             <mat-chip>Classe #{{ getGroupId(cg) }}</mat-chip>
             <a mat-button color="primary" [routerLink]="['/courses']" [queryParams]="{group: getGroupId(cg)}">
