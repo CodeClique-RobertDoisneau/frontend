@@ -9,7 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 
-import { NodeInfo, TYPE_LABELS } from '@shared/services/node.service';
+import { NodeInfo, TYPE_LABELS } from '@shared/services/node/node';
 
 
 @Component({

@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
-import { NodeInfo, GRADE_LABELS, SUBJECT_LABELS } from '@shared/services/node.service';
+import { NodeInfo, GRADE_LABELS, SUBJECT_LABELS } from '@shared/services/node/node';
 import { httpResource } from '@angular/common/http';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { SectionCard } from './components/section-card/section-card';

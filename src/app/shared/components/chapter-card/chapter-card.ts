@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
-import { NodeInfo } from '@shared/services/node.service';
+import { NodeInfo } from '@shared/services/node/node';
 
 @Component({
   selector: 'app-chapter-card',

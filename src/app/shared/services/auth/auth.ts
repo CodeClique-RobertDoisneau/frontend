@@ -1,27 +1,24 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { ApiService } from './api.service';
-import { UserInfo } from './node.service';
+import { Api } from '../api/api';
+import { UserInfo } from '../node/node.types';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AuthService {
+export class Auth {
   private router = inject(Router);
-  private api = inject(ApiService);
+  private api = inject(Api);
   private apiUrl = '/api';
 
   currentUser = signal<UserInfo | null>(null);
 
   async login(username: string, password: string): Promise<UserInfo> {
-    // 1. GET login page to ensure CSRF cookie is set
     await fetch(`${this.apiUrl}/auth/login/`);
 
-    // 2. POST login credentials using ApiService urlencoded search params
     const body = new URLSearchParams({ username, password });
     await this.api.post<string>(`${this.apiUrl}/auth/login/`, body);
 
-    // 3. Populate user profile on success
     return this.getMe();
   }
 

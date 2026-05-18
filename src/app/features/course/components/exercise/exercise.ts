@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, input, inject } from '@angular/core';
 import { MarkdownViewer } from '@shared/components/markdown-viewer/markdown-viewer';
-import { NodeInfo } from '@shared/services/node.service';
+import { NodeInfo } from '@shared/services/node/node';
 import { Pyodide } from '@shared/services/pyodide/pyodide';
 
 @Component({

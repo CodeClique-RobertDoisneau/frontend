@@ -6,7 +6,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { ChapterCard } from '@shared/components/chapter-card/chapter-card';
 import { Persona } from '@shared/components/persona/persona';
-import { NodeInfo } from '@shared/services/node.service';
+import { NodeInfo } from '@shared/services/node/node';
 
 
 @Component({

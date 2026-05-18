@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, effect, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
-import { ApiService } from '@shared/services/api.service';
+import { Api } from '@shared/services/api/api';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -11,8 +11,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 
-import { AuthService } from '@shared/services/auth.service';
-import { UserInfo, MembershipInfo } from '@shared/services/node.service';
+import { Auth } from '@shared/services/auth/auth';
+import { UserInfo, MembershipInfo } from '@shared/services/node/node';
 
 @Component({
   selector: 'app-profile',
@@ -34,8 +34,8 @@ import { UserInfo, MembershipInfo } from '@shared/services/node.service';
 export class Profile implements OnInit {
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
-  private api = inject(ApiService);
+  private authService = inject(Auth);
+  private api = inject(Api);
 
   isSaving = signal(false);
   isJoining = signal(false);

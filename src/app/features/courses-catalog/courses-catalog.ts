@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
-import { NodeInfo, NodeService, ClassGroupInfo, ClassGroupSyllabusInfo, SUBJECT_LABELS, GRADE_LABELS } from '@shared/services/node.service';
+import { NodeInfo, Node, ClassGroupInfo, ClassGroupSyllabusInfo, SUBJECT_LABELS, GRADE_LABELS } from '@shared/services/node/node';
 import { BreadcrumbService } from '@shared/services/breadcrumb.service';
 
 interface GroupSyllabi {
@@ -27,7 +27,7 @@ interface CatalogValue {
   styleUrl: './courses-catalog.scss',
 })
 export class CoursesCatalog implements OnInit {
-  private NodeService = inject(NodeService);
+  private NodeService = inject(Node);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private breadcrumbService = inject(BreadcrumbService);

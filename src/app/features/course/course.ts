@@ -13,10 +13,10 @@ import { QuizComponent } from './components/quiz/quiz';
 import { Lesson } from './components/lesson/lesson';
 import { Exercise } from './components/exercise/exercise';
 import { Toc } from './components/toc/toc';
-import { NodeService, NodeInfo } from '@shared/services/node.service';
+import { Node, NodeInfo } from '@shared/services/node/node';
 import { Pyodide } from '@shared/services/pyodide/pyodide';
 import { BreadcrumbService, BreadcrumbItem } from '@shared/services/breadcrumb.service';
-import { AuthService } from '@shared/services/auth.service';
+import { Auth } from '@shared/services/auth/auth';
 
 @Component({
   selector: 'app-course',
@@ -45,7 +45,7 @@ export class Course {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private breadcrumbService = inject(BreadcrumbService);
-  private authService = inject(AuthService);
+  private authService = inject(Auth);
 
   restartMode = signal(false);
 

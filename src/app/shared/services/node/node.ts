@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { ApiService } from './api.service';
-import { httpResource, HttpResourceRef } from '@angular/common/http';
-import { NodeLinkInfo, NodeInfo, UserInfo, ClassGroupInfo, ClassGroupSyllabusInfo, MembershipInfo } from './node.service.types';
+import { Api } from '../api/api';
+import { HttpResourceRef } from '@angular/common/http';
+import { NodeInfo, UserInfo, ClassGroupInfo, ClassGroupSyllabusInfo } from './node.types';
 
-export * from './node.service.types';
+export * from './node.types';
 
 export const SUBJECT_LABELS: Record<string, string> = {
   'MA': 'Maths',
@@ -26,8 +26,8 @@ export const TYPE_LABELS: Record<string, string> = {
 @Injectable({
   providedIn: 'root'
 })
-export class NodeService {
-  private api = inject(ApiService);
+export class Node {
+  private api = inject(Api);
 
   getNode(id: string | number): HttpResourceRef<NodeInfo | undefined> {
     return this.api.get<NodeInfo>(() => `/api/nodes/${id}/`);

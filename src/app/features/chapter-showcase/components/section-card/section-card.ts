@@ -2,7 +2,7 @@ import { Component, input, computed } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
-import { NodeInfo } from '@shared/services/node.service';
+import { NodeInfo } from '@shared/services/node/node';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';

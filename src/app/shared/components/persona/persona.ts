@@ -1,7 +1,7 @@
 import { Component, input, computed, inject, SecurityContext } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-import { SUBJECT_LABELS } from '@shared/services/node.service'
+import { SUBJECT_LABELS } from '@shared/services/node/node';
 
 @Component({
   selector: 'app-persona',

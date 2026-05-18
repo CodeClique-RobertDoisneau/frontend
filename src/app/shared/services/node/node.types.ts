@@ -1,5 +1,3 @@
-import { HttpResourceRef } from '@angular/common/http';
-
 export interface NodeLinkInfo {
   id: number;
   order_index: number;

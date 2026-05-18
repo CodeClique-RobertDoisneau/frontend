@@ -8,8 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { AuthService } from '@shared/services/auth.service';
-import { ApiError } from '@shared/services/api.service';
+import { Auth } from '@shared/services/auth/auth';
+import { ApiError } from '@shared/services/api/api';
 
 @Component({
   selector: 'app-connexion',
@@ -28,7 +28,7 @@ export class Connexion {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private authService = inject(AuthService);
+  private authService = inject(Auth);
 
   showPassword = signal(false);
   showForgotPassword = signal(false);

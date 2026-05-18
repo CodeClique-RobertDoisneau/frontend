@@ -17,7 +17,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Footer } from '@shared/components/footer/footer';
 import { Breadcrumb } from '@shared/components/breadcrumb/breadcrumb';
 import { Theming } from '@shared/services/theming/theming';
-import { AuthService } from '@shared/services/auth.service';
+import { Auth } from '@shared/services/auth/auth';
 
 
 @Component({
@@ -45,7 +45,7 @@ export class NavigationComponent {
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   theming = inject(Theming);
-  authService = inject(AuthService);
+  authService = inject(Auth);
 
   title = toSignal(
     this.router.events.pipe(
