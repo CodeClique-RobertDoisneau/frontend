@@ -27,15 +27,6 @@ export class HorizontalSlider {
     }
   );
 
-
-  getChapterId(child: any): string {
-    if (typeof child === 'object') {
-      return (child.child && child.child.id) ? child.child.id : child.id;
-    }
-    return child;
-  }
-
-
   scrollContainer = viewChild<ElementRef<HTMLElement>>('sliderContent');
 
   scrollPosition = signal(0);

@@ -1,39 +1,16 @@
-<!--Contenue de la card pendant le chargement-->
-@if (chapterInfo.isLoading()) {
-<mat-card class="chapter-card skeleton" appearance="outlined">
-  <mat-card-header>
-    <mat-card-title>Chapitre...</mat-card-title>
-    <mat-card-subtitle>Chargement</mat-card-subtitle>
-  </mat-card-header>
-
-  <mat-card-content>
-    <p>Chargement du chapitre...</p>
-  </mat-card-content>
-  <mat-card-actions>
-    <button matButton="outlined" disabled>Voir</button>
-    <button matButton="filled" disabled>Continuer</button>
-  </mat-card-actions>
-</mat-card>
-
-} @else if (chapterInfo.value(); as chapter) {
 <mat-card class="chapter-card" appearance="outlined">
 
   <mat-card-header>
-    <mat-card-title>{{ chapter.title }}</mat-card-title>
+    <mat-card-title>{{ chapter().title }}</mat-card-title>
     <mat-card-subtitle></mat-card-subtitle><!--- TODO -->
   </mat-card-header>
 
   <mat-card-content>
-    <p>{{ chapter.description }}</p>
+    <p>{{ chapter().description }}</p>
   </mat-card-content>
 
   <mat-card-actions>
-    <a matButton="outlined" [routerLink]="['/chapter', chapter.id]">Voir</a>
+    <a matButton="outlined" [routerLink]="['/chapter', chapter().id]">Voir</a>
     <a matButton="filled" routerLink="" disabled>Continuer</a>
   </mat-card-actions>
 </mat-card>
-} @else if (chapterInfo.error()) {
-<div class="error-msg" role="alert">
-  Impossible de charger le chapitre.
-</div>
-}
