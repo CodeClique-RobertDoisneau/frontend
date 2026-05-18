@@ -1,4 +1,4 @@
-import { Component, signal, computed, ChangeDetectionStrategy, effect, untracked, input, output, ResourceStatus } from '@angular/core';
+import { Component, signal, computed, ChangeDetectionStrategy, effect, untracked, input, output } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
@@ -201,10 +201,10 @@ export class QuizComponent {
       if (this.submissionTrigger() === 0) return;
 
       untracked(() => {
-        if (status === ResourceStatus.Resolved) {
+        if (status === 'resolved') {
           this.quizSubmitted.set(true);
           this.submitted.emit();
-        } else if (status === ResourceStatus.Error) {
+        } else if (status === 'error') {
           console.error("Quiz submission failed:", error);
         }
       });

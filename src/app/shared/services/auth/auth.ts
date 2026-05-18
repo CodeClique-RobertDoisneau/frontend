@@ -53,7 +53,8 @@ export class Auth {
   }
 
   async joinClass(code: string): Promise<UserInfo> {
-    const user = await this.api.post<UserInfo>(`${this.apiUrl}/class-groups/join-code/${code}/`);
+    const encoded = encodeURIComponent(code);
+    const user = await this.api.post<UserInfo>(`${this.apiUrl}/class-groups/join-code/${encoded}/`);
     this.currentUser.set(user);
     return user;
   }

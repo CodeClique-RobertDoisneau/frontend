@@ -117,7 +117,10 @@ export class Profile implements OnInit {
       if (typedErr?.status === 400) {
         const errors = typedErr.error;
         const messages = Object.entries(errors || {})
-          .map(([key, val]) => `${key}: ${(val as string[]).join(', ')}`)
+          .map(([key, val]) => {
+            const valStr = Array.isArray(val) ? val.join(', ') : String(val);
+            return `${key}: ${valStr}`;
+          })
           .join(' | ');
         this.errorMessage.set(messages || 'Données invalides.');
       } else {
