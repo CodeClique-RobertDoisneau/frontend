@@ -1,0 +1,138 @@
+ 
+
+.quiz-container {
+
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    padding: 24px;
+}
+
+.question-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.quiz-question-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--mat-sys-on-surface);
+
+    mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+    }
+
+    h3 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+}
+
+.quiz-card {
+    background-color: var(--mat-sys-surface-container-lowest);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 12px;
+    padding: 24px;
+
+
+    .question-text {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--mat-sys-on-surface);
+    }
+
+    .instruction-text {
+        font-size: 0.9rem;
+        font-style: italic;
+        color: var(--mat-sys-on-surface-variant);
+        margin-bottom: 24px;
+    }
+
+    .options-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 32px;
+    }
+
+    .option-item {
+        display: flex;
+        align-items: center;
+    }
+}
+
+.explanation-box {
+    display: flex;
+    gap: 16px;
+    background-color: #a9d4ff; // Bleu clair proche de l'image
+    padding: 20px;
+    border-radius: 12px;
+    color: #1a1c1e;
+
+    mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        color: #1a1c1e;
+    }
+
+    .explanation-content {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .explanation-label {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .explanation-text {
+            margin: 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .answers-summary {
+            font-weight: 600;
+            margin-top: 4px;
+            opacity: 0.8;
+        }
+    }
+}
+
+.score-display {
+    background-color: var(--mat-sys-surface-container-lowest);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    align-items: center;
+
+
+    .score-text {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--mat-sys-primary);
+    }
+
+    mat-progress-bar {
+        height: 8px;
+        border-radius: 4px;
+        width: 100%;
+        max-width: 400px;
+    }
+}
+
+.quiz-footer {
+    display: flex;
+    justify-content: center;
+}

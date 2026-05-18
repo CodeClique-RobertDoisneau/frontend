@@ -1,1 +1,137 @@
-<p>profile works!</p>
+@if (isLoading()) {
+<div class="profile-container">
+  <mat-spinner diameter="48"></mat-spinner>
+</div>
+} @else if (errorMessage() && !user()) {
+<div class="profile-container">
+  <div class="error-banner">
+    <mat-icon>error</mat-icon>
+    <span>{{ errorMessage() }}</span>
+  </div>
+</div>
+} @else if (user(); as u) {
+<div class="profile-container">
+  <div class="profile-card">
+    <div class="profile-header">
+      <div class="avatar">
+        <mat-icon>account_circle</mat-icon>
+      </div>
+      <div class="header-info">
+        <h1>{{ u.first_name || u.username }} {{ u.last_name }}</h1>
+        <p class="user-id">ID: {{ u.id }}</p>
+      </div>
+    </div>
+
+    <form [formGroup]="profileForm" (ngSubmit)="onSave()">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nom d'utilisateur</mat-label>
+        <input matInput formControlName="username" />
+        <mat-icon matPrefix>person</mat-icon>
+        @if (profileForm.get('username')?.hasError('required') && profileForm.get('username')?.touched) {
+        <mat-error>Le nom d'utilisateur est requis</mat-error>
+        }
+      </mat-form-field>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Prénom</mat-label>
+          <input matInput formControlName="first_name" />
+          <mat-icon matPrefix>badge</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Nom</mat-label>
+          <input matInput formControlName="last_name" />
+          <mat-icon matPrefix>badge</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email" />
+        <mat-icon matPrefix>email</mat-icon>
+        @if (profileForm.get('email')?.hasError('email') && profileForm.get('email')?.touched) {
+        <mat-error>Adresse email invalide</mat-error>
+        }
+      </mat-form-field>
+
+      @if (u.groups.length) {
+      <div class="section">
+        <h3>Groupes</h3>
+        <mat-chip-set>
+          @for (group of u.groups; track group) {
+          <mat-chip>{{ group }}</mat-chip>
+          }
+        </mat-chip-set>
+      </div>
+      }
+
+      @if (u.class_groups.length) {
+      <div class="section">
+        <h3>Classes</h3>
+        <div class="class-list">
+          @for (cg of u.class_groups; track cg) {
+          <div class="class-item">
+            <mat-chip>Classe #{{ getGroupId(cg) }}</mat-chip>
+            <a mat-button color="primary" [routerLink]="['/courses']" [queryParams]="{group: getGroupId(cg)}">
+              <mat-icon>visibility</mat-icon>
+              Voir les cours associés
+            </a>
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+
+      @if (isOwnProfile()) {
+      <div class="join-class-section section">
+        <h3>Rejoindre une classe</h3>
+        <div class="join-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Code d'invitation</mat-label>
+            <input matInput name="joinCode" [ngModel]="joinCode()" (ngModelChange)="joinCode.set($event)"
+              [ngModelOptions]="{standalone: true}" placeholder="Ex: AB1234" [disabled]="isJoining()" />
+            <mat-icon matPrefix>vpn_key</mat-icon>
+          </mat-form-field>
+          <button mat-flat-button color="accent" type="button" class="join-btn" (click)="onJoinClass()"
+            [disabled]="!joinCode() || isJoining()">
+            @if (isJoining()) {
+            <mat-spinner diameter="22"></mat-spinner>
+            } @else {
+            Rejoindre
+            }
+          </button>
+        </div>
+      </div>
+      }
+
+      @if (errorMessage()) {
+
+      <div class="error-banner">
+        <mat-icon>error</mat-icon>
+        <span>{{ errorMessage() }}</span>
+      </div>
+      }
+
+      @if (successMessage()) {
+      <div class="success-banner">
+        <mat-icon>check_circle</mat-icon>
+        <span>{{ successMessage() }}</span>
+      </div>
+      }
+
+      @if (isOwnProfile()) {
+      <button mat-flat-button color="primary" type="submit" class="save-btn full-width"
+        [disabled]="profileForm.invalid || profileForm.pristine || isSaving()">
+        @if (isSaving()) {
+        <mat-spinner diameter="22"></mat-spinner>
+        } @else {
+        Enregistrer les modifications
+        }
+      </button>
+      }
+    </form>
+  </div>
+</div>
+}

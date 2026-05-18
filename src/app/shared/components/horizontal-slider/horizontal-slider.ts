@@ -1,10 +1,13 @@
-import { Component, ElementRef, viewChild, signal, computed } from '@angular/core';
-import { ChapterCard, ChapterInfo } from '../chapter-card/chapter-card';
+import { Component, ElementRef, viewChild, signal, computed, input } from '@angular/core';
+import { httpResource } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { httpResource } from '@angular/common/http';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Persona } from '../persona/persona';
+
+import { ChapterCard } from '@shared/components/chapter-card/chapter-card';
+import { Persona } from '@shared/components/persona/persona';
+import { NodeInfo } from '@shared/services/node/node';
+
 
 @Component({
   selector: 'app-horizontal-slider',
@@ -13,29 +16,29 @@ import { Persona } from '../persona/persona';
   imports: [ChapterCard, MatButtonModule, MatIconModule, MatProgressSpinnerModule, Persona],
 })
 export class HorizontalSlider {
-  apiPath = '/api/chapter/';
-  chapters = httpResource<ChapterInfo[]>(() => this.apiPath);
-  sliderContent = viewChild<ElementRef<HTMLElement>>('sliderContent');
+  id = input.required<number | string>();
+  nodeInfo = httpResource<NodeInfo>(() => `/api/nodes/${this.id()}/`);
 
-  hasData = computed(() => (this.chapters.value()?.length ?? 0) > 0);
+  chapters = computed(
+    () => {
+      const data = this.nodeInfo.value();
+      if (!data || !data.children) return [];
+      return data.children;
+    }
+  );
 
-  scroll(offset: number) {
-    const el = this.sliderContent()?.nativeElement;
-    el?.scrollBy({ left: offset, behavior: 'smooth' });
-  }
+  scrollContainer = viewChild<ElementRef<HTMLElement>>('sliderContent');
 
-  private scrollContainer = viewChild<ElementRef<HTMLElement>>('sliderContent');
-
-  // Track the scroll position
   scrollPosition = signal(0);
   maxScroll = signal(10);
 
-  // Determine visibility
   showLeftArrow = computed(() => this.scrollPosition() > 5);
-  showRightArrow = computed(() => {
-    // Hide if we are within 5px of the end
-    return this.scrollPosition() < (this.maxScroll() - 5);
-  });
+  showRightArrow = computed(() => this.scrollPosition() < (this.maxScroll() - 5));
+
+  scroll(offset: number) {
+    const el = this.scrollContainer()?.nativeElement;
+    el?.scrollBy({ left: offset, behavior: 'smooth' });
+  }
 
   onScroll(event: Event) {
     const el = event.target as HTMLElement;

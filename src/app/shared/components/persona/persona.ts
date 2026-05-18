@@ -1,6 +1,8 @@
 import { Component, input, computed, inject, SecurityContext } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
+import { SUBJECT_LABELS } from '@shared/services/node/node';
+
 @Component({
   selector: 'app-persona',
   templateUrl: './persona.html',
@@ -10,17 +12,19 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 export class Persona {
   private sanitizer = inject(DomSanitizer);
 
-  subject = input<string>('Maths');
+  subject = input<string>('MA');
   pose = input<string>('Default');
 
-  // Trust the URL for the [data] binding
+  subjectName = computed(
+    () => SUBJECT_LABELS[this.subject()] || 'Maths'
+  );
+
   imagePath = computed<SafeResourceUrl>(() => {
-    const url = `img/persona/${this.subject()}-${this.pose()}.webp`;
+    const url = `img/persona/${this.subjectName()}-${this.pose()}.webp`;
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   });
 
-  // Create a dynamic description for accessibility
   personaDesc = computed(() =>
-    `Illustration of a ${this.subject()} teacher in a ${this.pose()} pose`
+    `Illustration du professeur de ${this.subjectName()} en pose ${this.pose()}`
   );
 }

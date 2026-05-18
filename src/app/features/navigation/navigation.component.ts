@@ -1,15 +1,7 @@
 import { Component, effect, inject } from '@angular/core';
+import { Router, ActivatedRoute, RouterOutlet, RouterLink, NavigationEnd } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import {
-  Router,
-  ActivatedRoute,
-  RouterOutlet,
-  RouterLink,
-  NavigationEnd
-} from '@angular/router';
-
-
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleGroup, MatButtonToggle } from '@angular/material/button-toggle';
@@ -23,7 +15,10 @@ import { toSignal } from '@angular/core/rxjs-interop';
 
 
 import { Footer } from '@shared/components/footer/footer';
+import { Breadcrumb } from '@shared/components/breadcrumb/breadcrumb';
 import { Theming } from '@shared/services/theming/theming';
+import { Auth } from '@shared/services/auth/auth';
+
 
 @Component({
   selector: 'app-navigation',
@@ -41,17 +36,24 @@ import { Theming } from '@shared/services/theming/theming';
     RouterOutlet,
     RouterLink,
     Footer,
+    Breadcrumb,
   ]
+
 })
 export class NavigationComponent {
   private breakpointObserver = inject(BreakpointObserver);
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   theming = inject(Theming);
+  authService = inject(Auth);
+
+  constructor() {
+    this.authService.getMe().catch(() => {});
+  }
 
   title = toSignal(
     this.router.events.pipe(
-      filter((event) => event instanceof NavigationEnd), 
+      filter((event) => event instanceof NavigationEnd),
       map(() => {
         let route = this.activatedRoute.root;
         while (route.firstChild) {
@@ -68,4 +70,8 @@ export class NavigationComponent {
       map(result => result.matches),
       shareReplay()
     );
+
+  logout() {
+    this.authService.logout();
+  }
 }

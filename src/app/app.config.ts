@@ -2,7 +2,7 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessC
 
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withXsrfConfiguration } from '@angular/common/http';
 
 import { provideRouter, TitleStrategy, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
 import { AppTitleStrategy } from './app.title-strategy';
@@ -15,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes, withComponentInputBinding(), withInMemoryScrolling({anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled', })),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch(), withXsrfConfiguration({ cookieName: 'csrftoken', headerName: 'X-CSRFToken' })),
     provideClientHydration(withEventReplay()),
     {provide: TitleStrategy, useClass: AppTitleStrategy},
     {provide: MAT_ICON_DEFAULT_OPTIONS, useValue: {fontSet: 'material-symbols-outlined'}}, provideCharts(withDefaultRegisterables())

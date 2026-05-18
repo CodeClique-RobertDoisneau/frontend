@@ -1,30 +1,55 @@
-import { Component, ChangeDetectionStrategy, input, inject } from '@angular/core';
-import { toSignal, toObservable } from '@angular/core/rxjs-interop';
+import { Component, ChangeDetectionStrategy, input, computed, inject, effect } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
-import { RouterLink } from '@angular/router';
-import { CourseService } from '@features/course/course.service';
-import { ChapterMenu } from '@shared/components/chapter-menu/chapter-menu';
-import { switchMap } from 'rxjs';
+import { NodeInfo, GRADE_LABELS, SUBJECT_LABELS } from '@shared/services/node/node';
+import { httpResource } from '@angular/common/http';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { SectionCard } from './components/section-card/section-card';
+import { MatListModule } from '@angular/material/list';
+import { BreadcrumbService } from '@shared/services/breadcrumb.service';
 
 @Component({
   selector: 'app-chapter-showcase',
-  imports: [MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatChipsModule, MatDividerModule, RouterLink, ChapterMenu],
+  imports: [MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatChipsModule, MatDividerModule, MatExpansionModule, SectionCard, MatListModule],
   templateUrl: './chapter-showcase.html',
   styleUrl: './chapter-showcase.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChapterShowcase {
   readonly id = input.required<string>();
+  private breadcrumbService = inject(BreadcrumbService);
 
-  private courseService = inject(CourseService);
+  //Necessaire pour pouvoir l'utiliser dans le .html
+  GRADE_LABELS = GRADE_LABELS;
+  SUBJECT_LABELS = SUBJECT_LABELS;
 
-  readonly chapter = toSignal(
-    toObservable(this.id).pipe(
-      switchMap(id => this.courseService.getChapter(id))
-    )
+  chapterInfo = httpResource<NodeInfo>(() => `/api/nodes/${this.id()}/`);
+
+  sectionIds = computed(
+    () => {
+      const node = this.chapterInfo.value();
+      if (!node || !node.children) return [];
+      return node.children.map(
+        (child: any) => {
+          if (typeof child === 'object') {
+            return (child.child && child.child.id) ? child.child.id : child.id;
+          }
+          return child;
+        }
+      );
+    }
   );
+
+  constructor() {
+    effect(() => {
+      const info = this.chapterInfo.value();
+      if (info) {
+        this.breadcrumbService.setBreadcrumbs(this.breadcrumbService.getChapterBreadcrumbs(info.title, info.id));
+        this.breadcrumbService.setLastChapter(info.id, info.title);
+      }
+    });
+  }
 }

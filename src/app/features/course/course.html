@@ -1,69 +1,38 @@
 <div class="course-container">
   @if (data(); as d) {
   <div class="content-layout">
-    <!-- Back FAB (Sticky Column) -->
-    <button mat-fab class="back-fab" (click)="goBack()" color="primary" aria-label="Go back">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-
-    <!-- Main Content Column -->
+    <!-- Contenu principal -->
     <main class="main-column">
-      <h1 class="chapter-title">{{ d.item.title }}</h1>
-
-      <!-- Paginator moved between title and content -->
-      <div class="paginator-wrapper">
-        <mat-paginator [length]="d.section?.items?.length || 0" [pageSize]="1" [pageIndex]="currentIndex()"
-          (page)="onPageChange($event)" hidePageSize showFirstLastButtons aria-label="Select item">
-        </mat-paginator>
+      <div class="title-row">
+        <h1 class="chapter-title">{{ d.title }}</h1>
       </div>
 
       <div class="content-wrapper">
-        @if (d.item.item_type === 'QUIZZ' || d.item.name.toLowerCase().includes('qui')) {
-        <app-quiz [quizData]="d.item.content"></app-quiz>
-        } @else {
-        <app-markdown-viewer [markdown]="d.item.content || ''" [pyodide]="this.pyodide"
-          [packages]="['numpy']"></app-markdown-viewer>
+        @if (d.type === 'QU') {
+        <app-quiz [quizId]="d.id" [forceRestart]="restartMode()" (submitted)="onItemCompleted()"></app-quiz>
+        } @else if (d.type === 'EX') {
+        <app-exercise [node]="d"></app-exercise>
+        } @else if (d.type === 'LE') {
+        <app-lesson [node]="d"></app-lesson>
         }
       </div>
     </main>
 
-    <!-- TOC Sidebar -->
+    <!-- Barre latérale Sommaire -->
     <aside class="toc-sidebar">
-      @if (dataSource.data.length > 0) {
-      <h3 class="toc-header">Table of Contents</h3>
-      <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="toc-tree">
-        <!-- Leaf Node -->
-        <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
-          <button mat-button (click)="scrollToHeader(node.name)" class="toc-link">
-            {{ node.name }}
-          </button>
-        </mat-tree-node>
-
-        <!-- Expandable Node -->
-        <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
-          <div class="mat-tree-node">
-            <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name">
-              <mat-icon class="mat-icon-rtl-mirror">
-                {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-              </mat-icon>
-            </button>
-            <button mat-button (click)="scrollToHeader(node.name)" class="toc-link">
-              {{ node.name }}
-            </button>
-          </div>
-          <div [class.toc-invisible]="!treeControl.isExpanded(node)" role="group">
-            <ng-container matTreeNodeOutlet></ng-container>
-          </div>
-        </mat-nested-tree-node>
-      </mat-tree>
-      }
+      <app-toc [content]="d.content?.content || ''"></app-toc>
     </aside>
+  </div>
 
+  } @else if (dataResource.error()) {
+  <div class="loading-container">
+    <mat-icon class="error-icon">block</mat-icon>
+    <p>Erreur lors du chargement du cours.</p>
   </div>
   } @else {
   <div class="loading-container">
     <mat-spinner diameter="48"></mat-spinner>
-    <p>Loading course content...</p>
+    <p>Chargement du contenu...</p>
   </div>
   }
 </div>

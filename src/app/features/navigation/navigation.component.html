@@ -1,8 +1,6 @@
 <mat-sidenav-container class="sidenav-container">
-  <mat-sidenav #drawer class="sidenav" fixedInViewport
-      [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
-      [mode]="(isHandset$ | async) ? 'over' : 'side'"
-      [opened]="(isHandset$ | async) === false">
+  <mat-sidenav #drawer class="sidenav" fixedInViewport [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+    [mode]="(isHandset$ | async) ? 'over' : 'side'" [opened]="(isHandset$ | async) === false">
     <div class="sidenav-layout-wrapper">
       <a routerLink="/" class="logo-wrapper">
         <img src="img/CodeClique.webp" alt="App logo" class="logo">
@@ -10,7 +8,7 @@
       <mat-nav-list>
         <a mat-list-item routerLink="/dashboard" aria-label="Dashboard menu button">
           <mat-icon matListItemIcon>dashboard</mat-icon>
-          <span matListItemTitle>Dashboard</span> 
+          <span matListItemTitle>Dashboard</span>
         </a>
         <a mat-list-item routerLink="/codeclique-ide" aria-label="Free Python IDE menu button">
           <mat-icon matListItemIcon>terminal</mat-icon>
@@ -20,13 +18,24 @@
           <mat-icon matListItemIcon>school</mat-icon>
           <span matListItemTitle>Tous les cours</span>
         </a>
-        
+
         <div class="vertical-fill"></div>
-        
+
+        @if (authService.currentUser()) {
+        <a mat-list-item (click)="logout()" aria-label="Logout menu button" style="cursor: pointer;">
+          <mat-icon matListItemIcon>logout</mat-icon>
+          <span matListItemTitle>Se déconnecter</span>
+        </a>
         <a mat-list-item routerLink="/profile" aria-label="Profile menu button">
           <mat-icon matListItemIcon>account_circle</mat-icon>
           <span matListItemTitle>Mon Profil</span>
         </a>
+        } @else {
+        <a mat-list-item routerLink="/login" aria-label="Login menu button">
+          <mat-icon matListItemIcon>login</mat-icon>
+          <span matListItemTitle>Se connecter</span>
+        </a>
+        }
         <a mat-list-item routerLink="/settings" aria-label="Settings menu button">
           <mat-icon matListItemIcon>settings</mat-icon>
           <span matListItemTitle>Paramètres</span>
@@ -39,15 +48,12 @@
   <mat-sidenav-content>
     <mat-toolbar color="primary">
       @if (isHandset$ | async) {
-        <button
-        type="button"
-          aria-label="Toggle sidenav"
-          matIconButton
-          (click)="drawer.toggle()">
-          <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
-        </button>
+      <button type="button" aria-label="Toggle sidenav" matIconButton (click)="drawer.toggle()">
+        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+      </button>
       }
       <span>{{ title() }}</span>
+      <app-breadcrumb />
       <span class="toolbar-spacer"></span>
       <mat-button-toggle-group
         [value]="theming.theme()"
@@ -60,9 +66,11 @@
         <mat-button-toggle value="dark"><mat-icon>brightness_high</mat-icon></mat-button-toggle>
       </mat-button-toggle-group>
     </mat-toolbar>
+
     <div class="main-container">
-      <router-outlet /> 
+      <router-outlet />
     </div>
+
     <app-footer></app-footer>
   </mat-sidenav-content>
 </mat-sidenav-container>

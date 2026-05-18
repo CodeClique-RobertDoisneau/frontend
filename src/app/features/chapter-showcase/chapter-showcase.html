@@ -1,35 +1,52 @@
 <div class="showcase-container">
-  @if (chapter(); as chapterData) {
-    <div class="hero-section">
-      <button mat-fab class="back-fab" routerLink="/courses" color="primary" aria-label="Back to courses">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <div class="hero-content">
-        
-        <h1 class="chapter-title">{{ chapterData.title }}</h1>
-        <p class="chapter-description">{{ chapterData.description }}</p>
-        
-        <div class="meta-chips">
-          <mat-chip-set>
-            <mat-chip class="grade-chip">
-              {{ chapterData.grade_level }}
-            </mat-chip>
-            <mat-chip>
-              <mat-icon matChipAvatar>list</mat-icon>
-              {{ chapterData.sections ? chapterData.sections.length : 0 }} Sections
-            </mat-chip>
-          </mat-chip-set>
-        </div>
+  @if (chapterInfo.isLoading()) {
+  <div class="loading-container">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Chargement du chapitre...</p>
+  </div>
+  } @else if (chapterInfo.error()) {
+  <div class="loading-container">
+    <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: var(--mat-sys-error)">block</mat-icon>
+    <p>Vous n'êtes pas autorisé à accéder à cette page.</p>
+  </div>
+  } @else if (chapterInfo.value(); as chapterData) {
+  <div class="hero-section">
+
+    <div class="hero-content">
+      <h1 class="chapter-title">{{ chapterData.title }}</h1>
+      <p class="chapter-description">{{ chapterData.description }}</p>
+
+      <div class="meta-chips">
+        <mat-chip-set>
+          @if (chapterData.grade_level) {
+          <mat-chip class="grade-chip">
+            <mat-icon matChipAvatar>school</mat-icon>
+            {{ GRADE_LABELS[chapterData.grade_level] || chapterData.grade_level }}
+          </mat-chip>
+          }
+          @if (chapterData.subject) {
+          <mat-chip class="subject-chip">
+            <mat-icon matChipAvatar>menu_book</mat-icon>
+            {{ SUBJECT_LABELS[chapterData.subject] || chapterData.subject }}
+          </mat-chip>
+          }
+          <mat-chip>
+            <mat-icon matChipAvatar>list</mat-icon>
+            {{ sectionIds().length }} sections
+          </mat-chip>
+        </mat-chip-set>
       </div>
     </div>
+  </div>
 
-    <div class="menu-container">
-      <app-chapter-menu [chapter]="chapterData"></app-chapter-menu>
-    </div>
-  } @else {
-     <div class="loading-container">
-      <mat-spinner diameter="48"></mat-spinner>
-      <p>Loading chapter...</p>
-    </div>
+  <div class="children-container">
+    <mat-accordion multi class="sections-accordion">
+      @for (sectionId of sectionIds(); track sectionId) {
+      <app-section-card [id]="sectionId"></app-section-card>
+      } @empty {
+      <div class="empty-message">Aucune sections dans ce chapitre.</div>
+      }
+    </mat-accordion>
+  </div>
   }
 </div>

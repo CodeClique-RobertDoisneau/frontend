@@ -1,0 +1,90 @@
+<main class="quiz-container">
+    @if (isAlreadyFinished()) {
+    <div class="success-banner quiz-success-banner" style="margin-bottom: 2rem;">
+        <mat-icon class="quiz-success-icon">stars</mat-icon>
+        <h2>Quiz Terminé !</h2>
+        <p>
+            @if (score() != null) {
+            Votre score : {{ score() }} @if (maxScore() != null) { / {{ maxScore() }} }
+            } @else {
+            Vous avez déjà passé ce quiz.
+            }
+        </p>
+        <div class="quiz-review-actions">
+            <button mat-flat-button color="primary" (click)="doRestart()">Refaire le quiz</button>
+        </div>
+    </div>
+    }
+
+    @if (quizResource.isLoading()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
+    @else if (formState(); as questions) {
+    @for (question of questions; track question.question; let qIdx = $index) {
+    <div class="question-wrapper">
+        <header class="quiz-question-header">
+            <mat-icon>quiz</mat-icon>
+            <h3>Question {{ qIdx + 1 }}</h3>
+        </header>
+
+        <section class="quiz-card">
+            <p class="question-text">{{ question.question }}</p>
+
+            @if (question.instruction) {
+            <p class="instruction-text">{{ question.instruction }}</p>
+            }
+
+            <div class="options-list" role="group">
+                @for (option of question.options; track $index; let oIdx = $index) {
+                @let isChecked = userAnswers()[qIdx][oIdx];
+                <div class="option-item">
+                    @if (question.multiple_answers) {
+                    <mat-checkbox [checked]="isChecked" [disabled]="quizSubmitted()"
+                        (change)="updateAnswer(qIdx, oIdx, true)">
+                        {{ option }}
+                    </mat-checkbox>
+                    } @else {
+                    <mat-radio-button [checked]="isChecked" [disabled]="quizSubmitted()"
+                        (change)="updateAnswer(qIdx, oIdx, false)">
+                        {{ option }}
+                    </mat-radio-button>
+                    }
+                </div>
+                }
+            </div>
+
+            @if (quizSubmitted() && QuizCorrection()[qIdx]) {
+            <div class="explanation-box">
+                <mat-icon>lightbulb_outline</mat-icon>
+                <div class="explanation-content">
+                    <span class="explanation-label">Correction</span>
+                    <p class="explanation-text">{{ QuizCorrection()[qIdx][1] }}</p>
+                    <small class="answers-summary">{{ getCorrectAnswersText(QuizCorrection()[qIdx][0]) }}</small>
+                </div>
+            </div>
+            }
+        </section>
+    </div>
+    }
+
+    @if (questions.length > 0 && !quizSubmitted() && !showCorrectionOnly()) {
+    @if (submitResource.error()) {
+    <div class="error-msg" role="alert" style="margin-bottom: 1rem;">
+        Une erreur est survenue lors de la validation. Veuillez réessayer.
+    </div>
+    }
+    <footer class="quiz-footer">
+        <button mat-fab extended (click)="submit()" [disabled]="submitResource.isLoading()">
+            <mat-icon>{{ submitResource.isLoading() ? 'hourglass_empty' : 'check_circle' }}</mat-icon>
+            {{ submitResource.isLoading() ? 'Vérification...' : 'Vérifier mes réponses' }}
+        </button>
+    </footer>
+    }
+    }
+
+    @else if (quizResource.error()) {
+    <div class="error-msg" role="alert">
+        Impossible de charger le quiz. Veuillez réessayer plus tard.
+    </div>
+    }
+</main>

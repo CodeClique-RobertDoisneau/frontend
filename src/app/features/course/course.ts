@@ -1,25 +1,22 @@
-import { Component, ChangeDetectionStrategy, input, inject, computed, effect } from '@angular/core';
-import { toSignal, toObservable } from '@angular/core/rxjs-interop';
-import { switchMap, map, tap } from 'rxjs/operators';
+import { Component, ChangeDetectionStrategy, input, inject, computed, effect, signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
-import { CourseService, Item, Section } from './course.service';
-import { MarkdownViewer } from '@shared/components/markdown-viewer/markdown-viewer';
-import { MatPaginatorModule, PageEvent, MatPaginatorIntl } from '@angular/material/paginator';
-import { MatTreeModule, MatTreeNestedDataSource } from '@angular/material/tree';
-import { NestedTreeControl } from '@angular/cdk/tree';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { CustomPaginatorIntl } from '@shared/providers/custom-paginator-intl';
-import { Pyodide } from '@shared/services/pyodide/pyodide';
-import { QuizComponent } from '@shared/components/quiz/quiz';
 
-interface TocNode {
-  name: string;
-  level: number;
-  children?: TocNode[];
-}
+import { httpResource } from '@angular/common/http';
+
+import { QuizComponent } from './components/quiz/quiz';
+import { Lesson } from './components/lesson/lesson';
+import { Exercise } from './components/exercise/exercise';
+import { Toc } from './components/toc/toc';
+import { Node, NodeInfo } from '@shared/services/node/node';
+import { Pyodide } from '@shared/services/pyodide/pyodide';
+import { BreadcrumbService, BreadcrumbItem } from '@shared/services/breadcrumb.service';
+import { Auth } from '@shared/services/auth/auth';
 
 @Component({
   selector: 'app-course',
@@ -27,134 +24,66 @@ interface TocNode {
     MatProgressSpinnerModule,
     MatButtonModule,
     MatIconModule,
-    MatPaginatorModule,
-    MatTreeModule,
-    MarkdownViewer,
-    QuizComponent
+    MatSidenavModule,
+    FormsModule,
+    QuizComponent,
+    Lesson,
+    Exercise,
+    Toc,
   ],
   templateUrl: './course.html',
   styleUrl: './course.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [Pyodide, { provide: MatPaginatorIntl, useClass: CustomPaginatorIntl }]
+  providers: [Pyodide]
 })
 export class Course {
-  readonly id = input.required<string>(); // Item ID from route
+  // Course identifier input
+  readonly id = input.required<string>();
   pyodide = inject(Pyodide);
 
-  private courseService = inject(CourseService);
   private location = inject(Location);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private breadcrumbService = inject(BreadcrumbService);
+  private authService = inject(Auth);
 
-  // Tree control for TOC
-  treeControl = new NestedTreeControl<TocNode>(node => node.children);
-  dataSource = new MatTreeNestedDataSource<TocNode>();
+  restartMode = signal(false);
 
-  // Combined data signal: Item + Section (using the first section as context)
-  readonly data = toSignal(
-    toObservable(this.id).pipe(
-      switchMap(id => this.courseService.getItem(id)),
-      switchMap(item => {
-        // If item has no sections, return just item with undefined section
-        if (!item.sections || item.sections.length === 0) {
-          return [{ item, section: undefined }];
-        }
-        // Fetch the first section as context
-        return this.courseService.getSection(item.sections[0]).pipe(
-          map(section => ({ item, section }))
-        );
-      })
-    )
-  );
-
-  // Compute TOC from markdown content
-  readonly toc = computed(() => {
-    const content = this.data()?.item.content;
-    if (!content) return [];
-    return this.buildToc(content);
-  });
-
-  // Compute current page index for paginator
-  readonly currentIndex = computed(() => {
-    const d = this.data();
-    if (!d || !d.section || !d.section.items) return 0;
-    const index = d.section.items.findIndex(i => i.id === d.item.id);
-    return index >= 0 ? index : 0;
-  });
+  dataResource = httpResource<NodeInfo>(() => `/api/nodes/${this.id()}/`);
+  data = computed(() => this.dataResource.value());
 
   constructor() {
-    // Update tree data source when toc changes
     effect(() => {
       const d = this.data();
-      if (d?.item) {
-        console.log('Current item:', d.item);
-        console.log('Item type:', d.item.item_type);
+      if (d) {
+        const lastChapter = this.breadcrumbService.getLastChapter();
+        const crumbs: BreadcrumbItem[] = [];
+        if (lastChapter) {
+          crumbs.push({ label: lastChapter.title, url: `/chapter/${lastChapter.id}` });
+        }
+        crumbs.push({ label: d.title });
+        this.breadcrumbService.setBreadcrumbs(crumbs);
       }
-      this.dataSource.data = this.toc();
-      this.treeControl.dataNodes = this.toc();
-      this.treeControl.expandAll(); // Default to expanded
+    });
+
+    if (!this.authService.currentUser()) {
+      this.authService.getMe().catch(() => {});
+    }
+
+    this.route.queryParams.subscribe(params => {
+      this.restartMode.set(params['restart'] === 'true');
     });
   }
 
-  goBack() {
-    const d = this.data();
-    if (d && d.section && d.section.chapters && d.section.chapters.length > 0) {
-      // Navigate to the first parent chapter
-      this.router.navigate(['/chapter', d.section.chapters[0]]);
-    } else {
-      // Fallback to simpler history back if no chapter context is found
-      this.location.back();
-    }
+  onItemCompleted() {
+    this.dataResource.reload();
   }
 
-  onPageChange(event: PageEvent) {
-    const d = this.data();
-    if (!d || !d.section || !d.section.items) return;
-
-    // MatPaginator index is 0-based, matches array index
-    const nextItem = d.section.items[event.pageIndex];
-    if (nextItem) {
-      this.router.navigate(['/course', nextItem.id]);
-    }
-  }
-
-  hasChild = (_: number, node: TocNode) => !!node.children && node.children.length > 0;
-
-  scrollToHeader(name: string) {
-    // Simple scroll by text content matching
-    // In a real app with marked, we might use slugs, but this works for "jump to header"
-    const elements = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'));
-    const target = elements.find(el => el.textContent?.trim() === name.trim());
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }
-
-  private buildToc(content: string): TocNode[] {
-    const lines = content.split('\n');
-    const root: TocNode = { name: 'root', level: 0, children: [] };
-    const stack: TocNode[] = [root];
-
-    const headerRegex = /^(#{1,6})\s+(.+)$/;
-
-    for (const line of lines) {
-      const match = line.match(headerRegex);
-      if (match) {
-        const level = match[1].length;
-        const name = match[2];
-        const node: TocNode = { name, level, children: [] };
-
-        while (stack.length > 1 && stack[stack.length - 1].level >= level) {
-          stack.pop();
-        }
-
-        const parent = stack[stack.length - 1];
-        if (parent.children) {
-          parent.children.push(node);
-        }
-        stack.push(node);
-      }
-    }
-
-    return root.children || [];
+  doRestart() {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { restart: 'true', review: null },
+      queryParamsHandling: 'merge'
+    });
   }
 }

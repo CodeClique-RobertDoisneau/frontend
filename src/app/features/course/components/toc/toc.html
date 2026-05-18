@@ -1,0 +1,32 @@
+@if (toc().length > 0) {
+<h3 class="toc-header">Sommaire</h3>
+<mat-tree #tree [dataSource]="toc()" [childrenAccessor]="childrenAccessor" class="toc-tree">
+
+  <!-- Nœud feuille -->
+  <mat-tree-node *matTreeNodeDef="let node">
+    <button mat-button (click)="scrollToHeader($event, node.name)" class="toc-link">
+      {{ node.name }}
+    </button>
+  </mat-tree-node>
+
+  <!-- Nœud extensible -->
+  <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+    <div class="mat-tree-node">
+      <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Basculer ' + node.name">
+        <mat-icon>
+          {{ tree.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
+        </mat-icon>
+      </button>
+      <button mat-button (click)="scrollToHeader($event, node.name)" class="toc-link">
+        {{ node.name }}
+      </button>
+    </div>
+    @if (tree.isExpanded(node)) {
+    <div role="group">
+      <ng-container matTreeNodeOutlet></ng-container>
+    </div>
+    }
+  </mat-nested-tree-node>
+
+</mat-tree>
+}

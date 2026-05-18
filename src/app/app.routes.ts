@@ -8,6 +8,11 @@ export const routes: Routes = [
     component: Landing,
   },
   {
+    title: 'Connexion',
+    path: 'login',
+    loadComponent: () => import('@features/login/login').then(m => m.Login)
+  },
+  {
     title: 'Dashboard',
     path: 'dashboard',
     loadComponent: () => import('@features/dashboard/dashboard').then(m => m.Dashboard)
@@ -40,6 +45,11 @@ export const routes: Routes = [
   {
     title: 'Mon Profil',
     path: 'profile',
+    loadComponent: () => import('@features/profile/profile').then(m => m.Profile)
+  },
+  {
+    title: 'Profil utilisateur',
+    path: 'profile/:id',
     loadComponent: () => import('@features/profile/profile').then(m => m.Profile)
   },
   {

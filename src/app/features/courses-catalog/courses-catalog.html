@@ -1,4 +1,63 @@
 <section class="features-section">
   <h2>Mes cours</h2>
-  <app-horizontal-slider></app-horizontal-slider>
+
+  <!-- Filtres -->
+  <div class="filters">
+    <!-- Dropdown class group -->
+    <div class="filter-group">
+      <mat-form-field appearance="outline" class="group-select">
+        <mat-label>Classe</mat-label>
+        <mat-select [value]="activeGroupId()" (selectionChange)="onGroupChange($event.value)">
+          <mat-option [value]="null">Toutes les classes</mat-option>
+          @for (group of classGroups(); track group.id) {
+          <mat-option [value]="group.id">{{ group.class_name }} ({{ group.academic_year }})</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Chips matière -->
+    <div class="filter-group">
+      <span class="filter-label">Matière :</span>
+      <mat-chip-set>
+        @for (entry of subjects; track entry[0]) {
+        <mat-chip [highlighted]="activeSubject() === entry[0]" (click)="toggleSubject(entry[0])">
+          {{ entry[1] }}
+        </mat-chip>
+        }
+      </mat-chip-set>
+    </div>
+
+    <!-- Chips niveau -->
+    <div class="filter-group">
+      <span class="filter-label">Niveau :</span>
+      <mat-chip-set>
+        @for (entry of grades; track entry[0]) {
+        <mat-chip [highlighted]="activeGrade() === entry[0]" (click)="toggleGrade(entry[0])">
+          {{ entry[1] }}
+        </mat-chip>
+        }
+      </mat-chip-set>
+    </div>
+
+    @if (hasActiveFilters()) {
+    <button class="clear-btn" (click)="clearFilters()">
+      <mat-icon>close</mat-icon>
+      Effacer les filtres
+    </button>
+    }
+  </div>
+
+  <!-- Contenu -->
+  @if (isLoading()) {
+  <p>Chargement des cours...</p>
+  } @else if (error()) {
+  <p class="error">{{ error() }}</p>
+  } @else {
+  @for (syllabusId of filteredSyllabiIds(); track syllabusId) {
+  <app-horizontal-slider [id]="syllabusId"></app-horizontal-slider>
+  } @empty {
+  <p class="no-results">Aucun cours ne correspond aux filtres sélectionnés.</p>
+  }
+  }
 </section>

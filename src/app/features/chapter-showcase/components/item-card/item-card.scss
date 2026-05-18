@@ -1,0 +1,107 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
+.item-card-container {
+    cursor: pointer;
+}
+
+.item-card-inner {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: "icon title status";
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    text-decoration: none;
+    background-color: var(--mat-sys-surface-container-low);
+    border: 1px solid var(--mat-sys-outline-variant);
+    transition: all 0.2s ease;
+    color: var(--mat-sys-on-surface);
+
+    &:hover {
+        background-color: var(--mat-sys-surface-container);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+}
+
+.item-icon {
+    grid-area: icon;
+    color: var(--mat-sys-primary); // Bleu
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.item-title {
+    grid-area: title;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--mat-sys-on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-status-group {
+    grid-area: status;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+@media (max-width: 600px) {
+    .item-card-inner {
+        grid-template-columns: auto 1fr;
+        grid-template-areas: 
+            "title title"
+            "icon status";
+        row-gap: 8px;
+        column-gap: 12px;
+        padding: 12px 16px;
+    }
+
+    .item-title {
+        white-space: normal; // Allows wrapping naturally so title is fully readable on mobile
+    }
+    
+    .item-status-group {
+        justify-content: flex-end;
+    }
+}
+
+.item-type-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    background-color: var(--mat-sys-primary-container); // Bleu clair
+    color: var(--mat-sys-on-primary-container);
+    padding: 2px 10px;
+    border-radius: 16px;
+    letter-spacing: 0.8px;
+}
+
+.status-icon {
+    color: var(--mat-sys-outline); // Gris par défaut
+
+    &.done {
+        color: var(--mat-sys-primary); // Jaune (Variable M3)
+    }
+}
+
+.edit-icon {
+    color: var(--mat-sys-primary);
+    cursor: pointer;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    transition: color 0.2s;
+    &:hover {
+        color: var(--mat-sys-on-surface);
+    }
+}
