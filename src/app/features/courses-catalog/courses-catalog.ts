@@ -1,10 +1,14 @@
 import { Component, inject, signal, computed, resource, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { HorizontalSlider } from '@shared/components/horizontal-slider/horizontal-slider';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { NodeInfo, Node, ClassGroupInfo, ClassGroupSyllabusInfo, SUBJECT_LABELS, GRADE_LABELS } from '@shared/services/node/node';
 import { BreadcrumbService } from '@shared/services/breadcrumb.service';
@@ -22,7 +26,17 @@ interface CatalogValue {
 
 @Component({
   selector: 'app-courses-catalog',
-  imports: [HorizontalSlider, MatChipsModule, MatIconModule, MatSelectModule, MatFormFieldModule],
+  imports: [
+    HorizontalSlider,
+    MatChipsModule,
+    MatIconModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    FormsModule
+  ],
   templateUrl: './courses-catalog.html',
   styleUrl: './courses-catalog.scss',
 })
@@ -114,6 +128,7 @@ export class CoursesCatalog implements OnInit {
   });
 
   // Filtres actifs
+  search = signal('');
   activeSubject = signal<string | null>(null);
   activeGrade = signal<string | null>(null);
   activeGroupId = signal<number | null>(null);
@@ -128,6 +143,7 @@ export class CoursesCatalog implements OnInit {
     const subject = this.activeSubject();
     const grade = this.activeGrade();
     const groupId = this.activeGroupId();
+    const query = this.search().trim().toLowerCase();
 
     // Filtre par class group
     if (groupId) {
@@ -145,6 +161,9 @@ export class CoursesCatalog implements OnInit {
     }
     if (grade) {
       syllabi = syllabi.filter((s: NodeInfo) => s.grade_level === grade);
+    }
+    if (query) {
+      syllabi = syllabi.filter((s: NodeInfo) => s.title.toLowerCase().includes(query));
     }
     return syllabi.map((s: NodeInfo) => s.id);
   });
@@ -174,11 +193,12 @@ export class CoursesCatalog implements OnInit {
   }
 
   clearFilters() {
+    this.search.set('');
     this.updateQueryParams({ subject: null, grade: null, group: null });
   }
 
   hasActiveFilters(): boolean {
-    return !!(this.activeSubject() || this.activeGrade() || this.activeGroupId());
+    return !!(this.activeSubject() || this.activeGrade() || this.activeGroupId() || this.search());
   }
 
   private updateQueryParams(params: Record<string, string | null>) {
