@@ -10,6 +10,7 @@ type Tab = 'profile' | 'security' | 'classes' | 'notifications' | 'data';
   selector: 'app-settings',
   imports: [MatButtonModule, MatCardModule, MatIconModule, MatListModule],
   templateUrl: './settings.html',
+  styleUrl: './settings.scss',
 })
 export class Settings {
   activeTab = signal<Tab>('profile');

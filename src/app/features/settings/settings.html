@@ -1,7 +1,7 @@
-<div style="display:block; max-width:960px; padding:1.5rem 2rem 3rem;">
+<div class="settings-container">
   <h1 class="mat-display-small">Paramètres du compte</h1>
 
-  <div style="display:grid; grid-template-columns:240px 1fr; gap:2rem;">
+  <div class="settings-layout">
 
     <!-- Sub-navigation -->
     <mat-nav-list>
@@ -26,14 +26,14 @@
         <span matListItemTitle>Mes données</span>
       </a>
       <mat-divider></mat-divider>
-      <a mat-list-item style="color: var(--mat-sys-error);">
+      <a mat-list-item class="delete-account-item">
         <mat-icon matListItemIcon>delete</mat-icon>
         <span matListItemTitle>Supprimer le compte</span>
       </a>
     </mat-nav-list>
 
     <!-- Content -->
-    <section style="display:flex; flex-direction:column; gap:1rem;">
+    <section class="settings-content">
 
       @switch (activeTab()) {
         @case ('profile') {
@@ -41,9 +41,9 @@
 
           <mat-card>
             <mat-card-content>
-              <div style="display:flex; align-items:center; gap:1rem;">
-                <mat-icon style="font-size:48px; width:48px; height:48px;">person</mat-icon>
-                <div style="flex:1;">
+              <div class="profile-header">
+                <mat-icon class="profile-avatar">person</mat-icon>
+                <div class="profile-details">
                   <div><strong ngNonBindable>{{user.username}}</strong></div>
                   <div>
                     <span ngNonBindable>{{user.role_display}}</span>
@@ -57,8 +57,8 @@
           </mat-card>
 
           <mat-card>
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1rem 0;">
-              <h3 class="mat-title-large" style="margin:0;">Compte</h3>
+            <div class="card-header">
+              <h3 class="mat-title-large">Compte</h3>
               <button mat-icon-button aria-label="Modifier"><mat-icon>edit</mat-icon></button>
             </div>
             <mat-card-content>
@@ -71,8 +71,8 @@
         @case ('security') {
           <h2 class="mat-headline-small">Sécurité</h2>
           <mat-card>
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1rem 0;">
-              <h3 class="mat-title-large" style="margin:0;">Mot de passe</h3>
+            <div class="card-header">
+              <h3 class="mat-title-large">Mot de passe</h3>
               <button mat-icon-button aria-label="Modifier le mot de passe"><mat-icon>edit</mat-icon></button>
             </div>
             <mat-card-content>
@@ -84,8 +84,8 @@
         @case ('classes') {
           <h2 class="mat-headline-small">Mes classes</h2>
           <mat-card>
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1rem 0;">
-              <h3 class="mat-title-large" style="margin:0;">
+            <div class="card-header">
+              <h3 class="mat-title-large">
                 <span ngNonBindable>{{user.class_name}}</span>
                 —
                 <span ngNonBindable>{{user.academic_year}}</span>
@@ -98,8 +98,8 @@
             </mat-card-content>
           </mat-card>
           <mat-card>
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem;">
-              <h3 class="mat-title-large" style="margin:0;">Rejoindre une classe</h3>
+            <div class="card-header full-padding">
+              <h3 class="mat-title-large">Rejoindre une classe</h3>
               <button mat-flat-button color="primary"><mat-icon>add</mat-icon> Code</button>
             </div>
           </mat-card>
@@ -115,8 +115,8 @@
         @case ('data') {
           <h2 class="mat-headline-small">Mes données</h2>
           <mat-card>
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1rem 0;">
-              <h3 class="mat-title-large" style="margin:0;">Exporter mes données</h3>
+            <div class="card-header">
+              <h3 class="mat-title-large">Exporter mes données</h3>
               <button mat-icon-button aria-label="Télécharger"><mat-icon>download</mat-icon></button>
             </div>
             <mat-card-content>Reçois une copie de tes données au format JSON.</mat-card-content>
