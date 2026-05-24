@@ -61,3 +61,14 @@ export interface MembershipInfo {
   class_group: string;
   user_status: string;
 }
+
+export interface GroupSyllabi {
+  groupId: number;
+  syllabusIds: (string | number)[];
+}
+
+export interface CatalogValue {
+  groups: ClassGroupInfo[];
+  allSyllabi: NodeInfo[];
+  groupSyllabiMap: GroupSyllabi[];
+}

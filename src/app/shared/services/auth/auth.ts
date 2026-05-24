@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Api } from '../api/api';
 import { UserInfo } from '../node/node.types';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -33,7 +34,7 @@ export class Auth {
 
   async getMe(): Promise<UserInfo> {
     try {
-      const user = await this.api.getPromise<UserInfo>(`${this.apiUrl}/users/me/`);
+      const user = await firstValueFrom(this.api.http.get<UserInfo>(`${this.apiUrl}/users/me/`));
       this.currentUser.set(user);
       return user;
     } catch (err) {

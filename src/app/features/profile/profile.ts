@@ -2,6 +2,7 @@ import { Component, inject, signal, computed, effect, OnInit } from '@angular/co
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { Api } from '@shared/services/api/api';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -74,8 +75,8 @@ export class Profile implements OnInit {
     });
 
     effect(() => {
-      const err = this.userResource.error() as { status?: number } | undefined;
-      if (err) {
+      const err = this.userResource.error();
+      if (err instanceof HttpErrorResponse) {
         if (err.status === 401 || err.status === 403) {
           this.errorMessage.set(this.isOwnProfile() 
             ? 'Vous devez être connecté pour voir votre profil.' 
@@ -113,16 +114,19 @@ export class Profile implements OnInit {
       setTimeout(() => this.successMessage.set(''), 3000);
       this.userResource.reload();
     } catch (err: unknown) {
-      const typedErr = err as { status?: number; error?: Record<string, unknown> };
-      if (typedErr?.status === 400) {
-        const errors = typedErr.error;
-        const messages = Object.entries(errors || {})
-          .map(([key, val]) => {
-            const valStr = Array.isArray(val) ? val.join(', ') : String(val);
-            return `${key}: ${valStr}`;
-          })
-          .join(' | ');
-        this.errorMessage.set(messages || 'Données invalides.');
+      if (err instanceof HttpErrorResponse) {
+        if (err.status === 400) {
+          const errors = err.error as Record<string, unknown> | null;
+          const messages = Object.entries(errors || {})
+            .map(([key, val]) => {
+              const valStr = Array.isArray(val) ? val.join(', ') : String(val);
+              return `${key}: ${valStr}`;
+            })
+            .join(' | ');
+          this.errorMessage.set(messages || 'Données invalides.');
+        } else {
+          this.errorMessage.set('Erreur lors de la sauvegarde.');
+        }
       } else {
         this.errorMessage.set('Erreur lors de la sauvegarde.');
       }
@@ -146,11 +150,15 @@ export class Profile implements OnInit {
       setTimeout(() => this.successMessage.set(''), 3000);
       this.userResource.reload();
     } catch (err: unknown) {
-      const typedErr = err as { status?: number; error?: { detail?: string } };
-      if (typedErr?.status === 404) {
-        this.errorMessage.set("Code d'invitation invalide.");
-      } else if (typedErr?.status === 400) {
-        this.errorMessage.set(typedErr.error?.detail || "Erreur lors de l'ajout à la classe.");
+      if (err instanceof HttpErrorResponse) {
+        if (err.status === 404) {
+          this.errorMessage.set("Code d'invitation invalide.");
+        } else if (err.status === 400) {
+          const detail = err.error?.detail;
+          this.errorMessage.set(detail || "Erreur lors de l'ajout à la classe.");
+        } else {
+          this.errorMessage.set("Une erreur est survenue.");
+        }
       } else {
         this.errorMessage.set("Une erreur est survenue.");
       }

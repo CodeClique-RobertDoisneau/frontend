@@ -1,95 +1,85 @@
-import { Injectable } from '@angular/core';
-import { httpResource } from '@angular/common/http';
-
-export interface ApiError {
-  status: number;
-  message: string;
-  error?: Record<string, unknown> | string;
-}
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { httpResource, HttpResourceOptions, HttpResourceRef } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Api {
-  private getCsrfToken(): string {
-    const match = document.cookie.match(/csrftoken=([^;]+)/);
-    return match ? match[1] : '';
+  public http = inject(HttpClient);
+
+  /**
+   * Performs a GET request using Angular's new signal-based resource API.
+   * Leverages internal caching, reactive dependency tracking, and automatic resource cleanup.
+   */
+  get<T>(url: () => string | undefined, options?: HttpResourceOptions<T, unknown>): HttpResourceRef<T | undefined> {
+    return httpResource<T>(url, options);
   }
 
-  private async request<T>(url: string, options: RequestInit = {}): Promise<T> {
-    const headers = new Headers(options.headers || {});
-
-    if (!headers.has('Content-Type') && !(options.body instanceof URLSearchParams)) {
-      headers.set('Content-Type', 'application/json');
+  /**
+   * Performs a POST request returning a Promise.
+   * Handles URLSearchParams automatically to ensure proper form encoding headers.
+   */
+  post<T>(
+    url: string,
+    body?: unknown,
+    options?: {
+      headers?: HttpHeaders | { [header: string]: string | string[] };
     }
+  ): Promise<T> {
+    let requestBody = body;
+    let requestHeaders = options?.headers;
 
-    headers.set('X-CSRFToken', this.getCsrfToken());
-
-    const res = await fetch(url, { ...options, headers });
-
-    if (!res.ok) {
-      const errorText = await res.text().catch(() => '');
-      let errorBody;
-      try {
-        errorBody = errorText ? JSON.parse(errorText) : '';
-      } catch {
-        errorBody = errorText;
+    if (body instanceof URLSearchParams) {
+      requestBody = body.toString();
+      let headersMap = requestHeaders instanceof HttpHeaders
+        ? requestHeaders
+        : new HttpHeaders(requestHeaders as { [header: string]: string | string[] } | undefined);
+      if (!headersMap.has('Content-Type')) {
+        headersMap = headersMap.set('Content-Type', 'application/x-www-form-urlencoded');
       }
-      throw {
-        status: res.status,
-        message: errorBody?.detail || errorBody?.message || 'Request failed',
-        error: errorBody,
-      } as ApiError;
+      requestHeaders = headersMap;
     }
 
-    const text = await res.text().catch(() => '');
-    if (!text) {
-      return {} as T;
+    return firstValueFrom(this.http.post<T>(url, requestBody, { ...options, headers: requestHeaders }));
+  }
+
+  /**
+   * Performs a PUT request returning a Promise.
+   */
+  put<T>(
+    url: string,
+    body?: unknown,
+    options?: {
+      headers?: HttpHeaders | { [header: string]: string | string[] };
     }
+  ): Promise<T> {
+    return firstValueFrom(this.http.put<T>(url, body, options));
+  }
 
-    try {
-      return JSON.parse(text) as T;
-    } catch {
-      return text as unknown as T;
+  /**
+   * Performs a PATCH request returning a Promise.
+   */
+  patch<T>(
+    url: string,
+    body?: unknown,
+    options?: {
+      headers?: HttpHeaders | { [header: string]: string | string[] };
     }
+  ): Promise<T> {
+    return firstValueFrom(this.http.patch<T>(url, body, options));
   }
 
-  get<T>(urlFactory: () => string | undefined) {
-    return httpResource<T>(urlFactory);
-  }
-
-  async getPromise<T>(url: string, options?: RequestInit): Promise<T> {
-    return this.request<T>(url, { method: 'GET', ...options });
-  }
-
-  async post<T>(url: string, body?: unknown, options?: RequestInit): Promise<T> {
-    return this.request<T>(url, {
-      method: 'POST',
-      body: body instanceof URLSearchParams ? body : JSON.stringify(body),
-      ...options
-    });
-  }
-
-  async put<T>(url: string, body?: unknown, options?: RequestInit): Promise<T> {
-    return this.request<T>(url, {
-      method: 'PUT',
-      body: JSON.stringify(body),
-      ...options
-    });
-  }
-
-  async patch<T>(url: string, body?: unknown, options?: RequestInit): Promise<T> {
-    return this.request<T>(url, {
-      method: 'PATCH',
-      body: JSON.stringify(body),
-      ...options
-    });
-  }
-
-  async delete<T>(url: string, options?: RequestInit): Promise<T> {
-    return this.request<T>(url, {
-      method: 'DELETE',
-      ...options
-    });
+  /**
+   * Performs a DELETE request returning a Promise.
+   */
+  delete<T>(
+    url: string,
+    options?: {
+      headers?: HttpHeaders | { [header: string]: string | string[] };
+    }
+  ): Promise<T> {
+    return firstValueFrom(this.http.delete<T>(url, options));
   }
 }

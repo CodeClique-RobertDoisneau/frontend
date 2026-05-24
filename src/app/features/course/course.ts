@@ -41,7 +41,6 @@ export class Course {
   readonly id = input.required<string>();
   pyodide = inject(Pyodide);
 
-  private location = inject(Location);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private breadcrumbService = inject(BreadcrumbService);
@@ -49,10 +48,11 @@ export class Course {
 
   restartMode = signal(false);
 
-  dataResource = httpResource<NodeInfo>(() => `/api/nodes/${this.id()}/`);
-  data = computed(() => this.dataResource.value());
+  course = httpResource<NodeInfo>(() => `/api/nodes/${this.id()}/`);
+  data = computed(() => this.course.value());
 
   constructor() {
+    // Breadcrumbs
     effect(() => {
       const d = this.data();
       if (d) {
@@ -66,6 +66,7 @@ export class Course {
       }
     });
 
+    // Ensure user data is loaded for progress tracking if logged in
     if (!this.authService.currentUser()) {
       this.authService.getMe().catch(() => {});
     }
@@ -76,7 +77,7 @@ export class Course {
   }
 
   onItemCompleted() {
-    this.dataResource.reload();
+    this.course.reload();
   }
 
   doRestart() {

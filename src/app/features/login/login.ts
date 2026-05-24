@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { Auth } from '@shared/services/auth/auth';
-import { ApiError } from '@shared/services/api/api';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -68,11 +68,14 @@ export class Login {
       this.router.navigateByUrl(this.redirectUrl);
     } catch (err: unknown) {
       this.isLoading.set(false);
-      const typedErr = err as ApiError;
-      if (typedErr.status === 401 || typedErr.status === 403 || typedErr.message === 'Invalid credentials') {
-        this.errorMessage.set("Nom d'utilisateur ou mot de passe incorrect.");
-      } else if (typedErr.status === 0) {
-        this.errorMessage.set('Impossible de contacter le serveur. Vérifiez votre connexion.');
+      if (err instanceof HttpErrorResponse) {
+        if (err.status === 401 || err.status === 403 || err.error?.detail === 'Invalid credentials') {
+          this.errorMessage.set("Nom d'utilisateur ou mot de passe incorrect.");
+        } else if (err.status === 0) {
+          this.errorMessage.set('Impossible de contacter le serveur. Vérifiez votre connexion.');
+        } else {
+          this.errorMessage.set('Une erreur est survenue. Veuillez réessayer.');
+        }
       } else {
         this.errorMessage.set('Une erreur est survenue. Veuillez réessayer.');
       }
