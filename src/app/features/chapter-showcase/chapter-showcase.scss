@@ -42,12 +42,11 @@
   font-family: 'Rubik', sans-serif;
   font-size: 3rem;
   font-weight: 700;
-  margin: 0 0 16px;
+  margin: 0 0 24px;
   line-height: 1.1;
   color: inherit;
   display: inline-block;
 }
-
 
 .meta-chips {
   display: flex;
@@ -56,11 +55,38 @@
 }
 
 .children-container {
-  max-width: 1200px;
+  max-width: 960px;
   margin: 4rem auto;
   padding: 0 2rem;
   box-sizing: border-box;
   width: 100%;
+}
+
+.grade-chip {
+  background-color: var(--mat-sys-primary-container) !important;
+  color: var(--mat-sys-on-primary-container) !important;
+
+  ::ng-deep mat-icon {
+    color: var(--mat-sys-on-primary-container) !important;
+  }
+}
+
+.subject-chip {
+  background-color: var(--mat-sys-tertiary-container) !important;
+  color: var(--mat-sys-on-tertiary-container) !important;
+
+  ::ng-deep mat-icon {
+    color: var(--mat-sys-on-tertiary-container) !important;
+  }
+}
+
+.sections-chip {
+  background-color: var(--mat-sys-secondary-container) !important;
+  color: var(--mat-sys-on-secondary-container) !important;
+
+  ::ng-deep mat-icon {
+    color: var(--mat-sys-on-secondary-container) !important;
+  }
 }
 
 .empty-message {
@@ -83,6 +109,7 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: center !important;
+      gap: 8px !important;
     }
   }
 }
@@ -94,9 +121,8 @@
 
   .chapter-title {
     font-size: 2rem;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
   }
-
 
   .children-container {
     margin: 2.5rem auto;
