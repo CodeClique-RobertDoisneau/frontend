@@ -1,96 +1,78 @@
 <div class="landing">
-  <!-- HERO -->
   <section class="hero">
     <div class="hero-copy">
       <h1 class="hero-title">
         Le code,<br>
         <mark>à ton rythme.</mark>
       </h1>
-      <p class="mat-body-large">
-        Cours interactifs, exercices Python en un clic et progression suivie semaine après semaine.
-        Tout pour réussir, rien d'inutile.
+      <p class="hero-subtitle">
+        Apprends à coder en Python à l'aide de cours interactifs et d'exercices pratiques intégrés. Suis ta progression en direct et maîtrise les bases de la programmation pas à pas, sans blabla.
       </p>
-      <div style="display:flex; flex-wrap:wrap; gap:0.75rem; margin-top:1.5rem;">
-        <button mat-flat-button color="primary" routerLink="/courses">
-          Commencer un cours
-          <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+      <div class="hero-actions">
+        <button mat-fab extended color="primary" routerLink="/courses">
+          <mat-icon>school</mat-icon>
+          Parcourir les cours
         </button>
-        <button mat-stroked-button routerLink="/free-python-ide">
-          <mat-icon>play_arrow</mat-icon>
-          Essayer l'éditeur Python
+        <button mat-fab extended routerLink="/codeclique-ide">
+          <mat-icon>terminal</mat-icon>
+          Essayer l'éditeur libre Python
         </button>
       </div>
     </div>
     <div class="hero-visual" aria-hidden="true">
-      <img [src]="theming.resolvedTheme() === 'dark' ? 'img/persona/maths-darkmode.png' : 'img/persona/Maths-Happy.webp'" alt="" style="max-height:360px; max-width:100%; display:block; margin:0 auto;">
+      <img [src]="theming.resolvedTheme() === 'dark' ? 'img/persona/maths-darkmode.png' : 'img/persona/Maths-Happy.webp'" alt="Apprendre à coder avec CodeClique" class="persona-img">
     </div>
   </section>
 
-  <!-- POURQUOI CODECLIQUE -->
-  <section>
-    <h2 class="mat-headline-medium" style="margin:0 0 1.5rem;">Pourquoi CodeClique</h2>
-    <div class="cards-grid">
-      <mat-card appearance="outlined">
-        <mat-card-content>
-          <div class="feature-visual">
-            <img src="img/editeur.png" alt="Aperçu de l'éditeur Python intégré" loading="lazy">
-          </div>
-          <h3 class="mat-title-large">Python directement dans le cours</h3>
-          <p>Pas d'installation, pas de config. Tu lis, tu codes, tu vois le résultat — tout au même endroit.</p>
-        </mat-card-content>
-      </mat-card>
-      <mat-card appearance="outlined">
-        <mat-card-content>
-          <div class="feature-visual">
-            <mat-icon>quiz</mat-icon>
-          </div>
-          <h3 class="mat-title-large">Quiz à la fin de chaque partie</h3>
-          <p>Vérifie ce que tu as compris avant de passer à la suite. Correction immédiate.</p>
-        </mat-card-content>
-      </mat-card>
-      <mat-card appearance="outlined">
-        <mat-card-content>
-          <div class="feature-visual">
-            <img src="img/video.png" alt="Aperçu d'une vidéo d'introduction" loading="lazy">
-          </div>
-          <h3 class="mat-title-large">Vidéos d'introduction</h3>
-          <p>Une vidéo courte pour bien démarrer chaque notion avant de te lancer dans le code.</p>
-        </mat-card-content>
-      </mat-card>
+  <section class="showcase-section">
+    <div class="showcase-content">
+      <span class="badge badge-tertiary">Pratique instantanée</span>
+      <h2 class="showcase-headline">Python directement intégré à tes cours</h2>
+      <p class="showcase-description">
+        Pas besoin d'installer de logiciels ni de configurer ton ordinateur. Tout se passe directement dans ton navigateur : lis la leçon, écris ton code juste à côté, et lance ton programme pour voir le résultat instantanément.
+      </p>
+    </div>
+    
+    <div class="showcase-visual">
+      <div class="component-container">
+        <app-code-block 
+          [initialCode]="'def saluer(nom):\n    print(\'Bonjour \' + nom + \' !\')\n\nsaluer(\'CodeClique\')'" 
+          language="python" 
+          [pyodide]="pyodide">
+        </app-code-block>
+      </div>
     </div>
   </section>
 
-  <!-- ACCÈS RAPIDE -->
-  <section>
-    <h2 class="mat-headline-medium" style="margin:0 0 1.5rem;">Accès rapide</h2>
-    <div class="cards-grid">
-      <a routerLink="/dashboard" style="text-decoration:none; color:inherit;">
-        <mat-card appearance="outlined">
-          <mat-card-content>
-            <mat-icon style="color:var(--mat-sys-primary); font-size:32px; width:32px; height:32px;">dashboard</mat-icon>
-            <h3 class="mat-title-large">Dashboard</h3>
-            <p>Reprends où tu t'es arrêté.</p>
-          </mat-card-content>
-        </mat-card>
-      </a>
-      <a routerLink="/courses" style="text-decoration:none; color:inherit;">
-        <mat-card appearance="outlined">
-          <mat-card-content>
-            <mat-icon style="color:var(--mat-sys-primary); font-size:32px; width:32px; height:32px;">school</mat-icon>
-            <h3 class="mat-title-large">Catalogue</h3>
-            <p>Python, web, algorithmes…</p>
-          </mat-card-content>
-        </mat-card>
-      </a>
-      <a routerLink="/free-python-ide" style="text-decoration:none; color:inherit;">
-        <mat-card appearance="outlined">
-          <mat-card-content>
-            <mat-icon style="color:var(--mat-sys-primary); font-size:32px; width:32px; height:32px;">terminal</mat-icon>
-            <h3 class="mat-title-large">Éditeur Python</h3>
-            <p>Code en un clic, sans installer.</p>
-          </mat-card-content>
-        </mat-card>
-      </a>
+  <section class="showcase-section">
+    <div class="showcase-visual">
+      <div class="component-container">
+        <app-quiz [previewData]="quizData"></app-quiz>
+      </div>
+    </div>
+
+    <div class="showcase-content">
+      <span class="badge">Contenu interactif</span>
+      <h2 class="showcase-headline">Des cours vivants et dynamiques</h2>
+      <p class="showcase-description">
+        Oublie les cours théoriques interminables. Valide ce que tu viens d'apprendre grâce à des quiz rapides. Reçois une correction immédiate avec des explications claires pour comprendre tes erreurs et continuer à avancer l'esprit tranquille.
+      </p>
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <div class="showcase-content">
+      <span class="badge badge-tertiary">Explications visuelles</span>
+      <h2 class="showcase-headline">Des cours illustrés en vidéo</h2>
+      <p class="showcase-description">
+        Parce que c'est toujours plus facile quand c'est imagé, chaque grande notion commence par une courte vidéo explicative. C'est le meilleur moyen de visualiser le fonctionnement des boucles, des variables ou des listes avant de passer à la pratique.
+      </p>
+    </div>
+    
+    <div class="showcase-visual">
+      <div class="component-container">
+        <app-video-block link="https://www.youtube-nocookie.com/embed/KT6v9_X9w3M"></app-video-block>
+      </div>
     </div>
   </section>
 </div>

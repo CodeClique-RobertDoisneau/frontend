@@ -4,9 +4,24 @@ code-editor {
   border-radius: 10px;
   border: 1px solid var(--mat-sys-outline);
   margin: 1em 0;
-  overflow-x: auto;
-  white-space: pre-wrap;
+  overflow: hidden;
+  white-space: pre;
   min-height: 38px;
+  max-width: 100%;
+}
+
+::ng-deep {
+  .cm-editor {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  .cm-scroller {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+  }
+  .cm-content {
+    white-space: pre !important;
+  }
 }
 
 .code-block-interactive, .code-block-minimal {
