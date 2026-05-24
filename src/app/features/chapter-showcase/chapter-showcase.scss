@@ -48,13 +48,6 @@
   display: inline-block;
 }
 
-.chapter-description {
-  font-size: 1.3rem;
-  line-height: 1.6;
-  max-width: 700px;
-  margin: 0 auto 2.5rem;
-  color: var(--mat-sys-on-surface-variant);
-}
 
 .meta-chips {
   display: flex;
@@ -104,11 +97,6 @@
     margin-bottom: 12px;
   }
 
-  .chapter-description {
-    font-size: 1.1rem;
-    margin-bottom: 2rem;
-    line-height: 1.4;
-  }
 
   .children-container {
     margin: 2.5rem auto;
