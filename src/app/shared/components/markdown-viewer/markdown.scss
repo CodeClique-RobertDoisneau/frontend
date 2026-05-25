@@ -1,62 +1,72 @@
 /* Markdown */
 /* Always encapsulate in remark to prevent style leakage */
-remark {
-  margin: 1em;
-  line-height: normal;
+remark,
+remark-node {
+  display: block;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+remark-node {
+  line-height: 1.65;
 
   /* Headings */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-weight: bold;
+  > h1,
+  > h2,
+  > h3,
+  > h4,
+  > h5,
+  > h6 {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 700;
     padding-top: 1rem;
-    padding-bottom: 0.75rem;
+    padding-bottom: 0.4rem;
+    color: var(--mat-sys-on-surface);
   }
 
-  h1,
-  h2 {
+  > h1,
+  > h2 {
     color: var(--mat-sys-primary);
-    border-bottom: 1px solid var(--mat-sys-outline);
-    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    padding-bottom: 0.4rem;
   }
 
-  h1 {
+  > h1 {
     font-size: 2.5rem;
   }
 
-  h2 {
+  > h2 {
     font-size: 1.75rem;
   }
 
-  h3 {
+  > h3 {
     font-size: 1.5rem;
   }
 
-  h4 {
+  > h4 {
     font-size: 1.25rem;
   }
 
-  h5 {
+  > h5 {
     font-size: 1.125rem;
   }
 
-  h6 {
+  > h6 {
     font-size: 1rem;
   }
 
   /* Paragraphs */
-  p {
-    font-size: 1rem;
-    padding-bottom: 0.75rem;
+  > p {
+    font-size: 1.1rem;
+    padding-bottom: 1rem;
+    color: var(--mat-sys-on-surface);
   }
 
   /* Links */
   a {
     color: var(--mat-sys-tertiary);
     text-decoration: underline;
+    font-weight: 500;
   }
 
   a:hover {
@@ -64,15 +74,16 @@ remark {
   }
 
   /* Lists */
-  ul,
-  ol {
-    padding-left: 1.5rem;
-    padding-bottom: 0.75rem;
+  > ul,
+  > ol {
+    padding-left: 2rem;
+    padding-bottom: 1rem;
   }
 
   li {
-    font-size: 1rem;
-    padding-bottom: 0.25rem;
+    font-size: 1.1rem;
+    padding-bottom: 0.5rem;
+    color: var(--mat-sys-on-surface);
   }
 
   /* Code */
@@ -81,67 +92,105 @@ remark {
   }
 
   code {
-    font-size: 0.9rem;
-    background-color: var(--mat-sys-surface);
-    padding: 0.2rem;
-    border-radius: 5px;
-  }
-
-  pre {
-    font-family: 'Roboto Mono';
-    font-size: 1rem;
-    background-color: var(--mat-sys-surface);
-    border-radius: 10px;
-    border: 1px solid var(--mat-sys-outline);
-    padding: 0.75em;
-    overflow-x: auto;
-    white-space: pre-wrap;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.9em;
+    background-color: var(--mat-sys-surface-container-high);
+    border: 1px solid var(--mat-sys-outline-variant);
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    color: var(--mat-sys-on-surface);
   }
 
   /* Blockquotes */
-  blockquote {
-    font-style: italic;
-    background-color: var(--mat-sys-surface-container-highest);
-    border-left: 4px solid var(--mat-sys-primary);
-    padding: 0.5rem;
-    padding-bottom: 0.75rem;
+  > blockquote {
+    font-style: normal;
+    background-color: var(--mat-sys-surface-container-low);
+    border-left: 5px solid var(--mat-sys-primary);
+    border-radius: 0 12px 12px 0;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+
+    p {
+      padding-bottom: 0;
+      font-size: 1.1rem;
+      color: var(--mat-sys-on-surface);
+    }
   }
 
   /* Images */
-  img {
-    width: max(300px, 40%);
-    max-height: 400px;
-  }
+  // img {
+  //   max-width: 100%;
+  //   height: auto;
+  //   border-radius: 16px;
+  //   border: 1px solid var(--mat-sys-outline-variant);
+  //   margin: 1rem 0;
+  //   display: inline-block;
+  //   vertical-align: middle;
+  // }
 
-  p:has(img) {
+  > div:has(> img),
+  > p:has(> img),
+  > p:has(> a > img) {
     display: flex;
     justify-content: center;
+    align-items: center;
+    
+    img {
+      display: block;
+      min-width: min(200px, 100%);
+      margin: 0;
+      border: 1px solid var(--mat-sys-outline-variant);
+      border-radius: 1rem;
+      padding: 1rem;
+    }
   }
 
   /* Horizontal Line */
-  hr {
+  > hr {
     border: 0;
-    border-top: 1px solid var(--mat-sys-outline);
-    padding: 1rem 0;
+    border-top: 1px solid var(--mat-sys-outline-variant);
+    padding: 1.5rem 0;
   }
 
   /* Tables */
-  table {
-    padding: auto;
-    border-collapse: collapse;
-    padding-bottom: 0.75rem;
+  > table {
+    display: block;
+    max-width: 100%;
+    width: fit-content;
+    overflow-x: auto;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 1rem;
+    overflow: hidden;
+    margin: 1.5rem auto;
+    box-sizing: border-box;
   }
 
   th,
   td {
-    padding: 0.5rem;
-    border: 1px solid var(--mat-sys-outline);
+    padding: 1rem;
     text-align: left;
   }
 
   th {
-    color: var(--mat-sys-primary);
-    background-color: var(--mat-sys-surface-container-high);
+    color: var(--mat-sys-on-primary-container);
+    background-color: var(--mat-sys-primary-container);
+    font-weight: 700;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+  }
+
+  td {
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    color: var(--mat-sys-on-surface);
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:nth-child(even) {
+    background-color: var(--mat-sys-surface-container-lowest);
   }
 
   /* Inline Elements */
@@ -157,24 +206,56 @@ remark {
     text-decoration: underline;
   }
 
-  /* Checkboxes */
-  input[type="checkbox"] {
-    appearance: none;
-    width: 1rem;
-    height: 1rem;
-    border: 1px solid var(--mat-sys-outline);
-    border-radius: 0.25rem;
-    position: relative;
-    background-color: var(--mat-sys-surface-container-high);
-  }
+  /* Details and Summary (Collapsible Boxes) */
+  details {
+    background-color: var(--mat-sys-surface-container-low);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    transition: all 0.3s ease;
 
-  input[type="checkbox"]:checked {
-    background-color: var(--mat-sys-primary);
+    &[open] {
+      background-color: var(--mat-sys-surface-container-lowest);
+      border-color: var(--mat-sys-primary);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+      summary {
+        border-bottom: 1px solid var(--mat-sys-outline-variant);
+        padding-bottom: 0.75rem;
+        margin-bottom: 0.75rem;
+        color: var(--mat-sys-primary);
+      }
+    }
+
+    summary {
+      font-family: 'Rubik', sans-serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      color: var(--mat-sys-on-surface);
+      outline: none;
+      user-select: none;
+      transition: color 0.2s ease;
+      display: list-item;
+
+      &:hover {
+        color: var(--mat-sys-primary);
+      }
+    }
   }
 
   /* Maths */
-  remark-katex.math-display {
+  > remark-katex,
+  .katex {
+    font-size: 1.15em;
+  }
+
+  > remark-katex.math-display,
+  .katex-display {
     display: block;
     text-align: center;
+    margin: 1.75rem 0;
+    font-size: 1.25em;
   }
 }

@@ -1,4 +1,4 @@
-import { Component, signal, computed, ChangeDetectionStrategy, effect, untracked, input, output } from '@angular/core';
+import { Component, signal, computed, ChangeDetectionStrategy, effect, untracked, input, output, inject } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
@@ -6,6 +6,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { HttpResourceRequest } from '@angular/common/http';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatButtonModule } from '@angular/material/button';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
+import { map } from 'rxjs';
 
 
 export interface QuizItem {
@@ -41,7 +44,13 @@ export type QuizResult = [boolean[], string][];
 
 export class QuizComponent {
   quizId = input<string | number | undefined>(undefined);
-  forceRestart = input<boolean>(false);
+  private route = inject(ActivatedRoute);
+  forceRestart = toSignal(
+    this.route.queryParams.pipe(
+      map(params => params['restart'] === 'true')
+    ),
+    { initialValue: false }
+  );
   showCorrectionOnly = input<boolean>(false);
   previewData = input<string | null>(null);//for edit mode
 

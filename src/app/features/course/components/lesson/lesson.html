@@ -1,1 +1,13 @@
-<app-markdown-viewer [markdown]="node().content?.content || ''" [pyodide]="pyodide"></app-markdown-viewer>
+<div class="content-layout">
+  <!-- Contenu principal -->
+  <main class="main-column">
+    <div class="markdown-wrapper">
+      <app-markdown-viewer [markdown]="markdown()" [pyodide]="pyodide"></app-markdown-viewer>
+    </div>
+  </main>
+
+  <!-- Barre latérale Sommaire -->
+  <aside class="toc-sidebar">
+    <app-toc [content]="markdown()"></app-toc>
+  </aside>
+</div>

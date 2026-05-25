@@ -1,11 +1,12 @@
 code-editor {
+  display: block;
+  box-sizing: border-box;
   font-family: 'Roboto Mono';
   font-size: 1rem;
-  border-radius: 10px;
+  border-radius: 1rem;
   border: 1px solid var(--mat-sys-outline);
-  margin: 1em 0;
-  overflow-x: auto;
-  white-space: pre-wrap;
+  overflow: hidden;
+  margin: 1rem 0;
   min-height: 38px;
 }
 
@@ -23,70 +24,59 @@ code-editor {
       border-radius: 5px;
       padding: 0 0.25em;
       margin: 0.5em;
-      z-index: 1;
     }
   }
 }
 
 .code-block-interactive {
-  .python-console {
+  .python-console, .python-error {
     display: flex;
     gap: 1em;
-    .console-header { 
+
+    .console-header, .error-header {
       padding: 1em 0;
-      color: var(--mat-sys-primary);
       font-weight: bold;
     }
-    .console-body {
+
+    .console-body, .error-body {
       flex: 1;
-      .console-content {
+      .console-content, .error-content {
         max-height: 20rem;
         margin: 0;
         padding: 1em;
-        font-family: 'Roboto Mono', monospace;
         white-space: pre-wrap;
         overflow-y: auto;
-        .inline-input {
-          width: 100%;
-          display: inline-flex;
-          align-items: center;
-          vertical-align: middle;
-          input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            border-bottom: 1px solid var(--mat-sys-primary);
-            font-family: inherit;
-            font-size: inherit;
-            outline: none;
-            padding: 0;
-            &:focus {
-              border-bottom-width: 2px;
-            }
-          }
+      }
+    }
+  }
+
+  .python-console {
+    .console-header {
+      color: var(--mat-sys-primary);
+    }
+    .console-body .console-content .inline-input {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
+      input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        border-bottom: 1px solid var(--mat-sys-primary);
+        font-family: inherit;
+        font-size: inherit;
+        outline: none;
+        padding: 0;
+        &:focus {
+          border-bottom-width: 2px;
         }
       }
     }
   }
+
   .python-error {
-    display: flex;
-    gap: 1em;
     color: var(--mat-sys-error);
-    .error-header { 
-      padding: 1em 0;
-      font-weight: bold;
-    }
-    .error-body {
-      flex: 1;
-      .error-content {
-        max-height: 20rem;
-        margin: 0;
-        padding: 1em;
-        font-family: 'Roboto Mono', monospace;
-        white-space: pre-wrap;
-        overflow-y: auto;
-      }
-    }
   }
 
   .python-plot {

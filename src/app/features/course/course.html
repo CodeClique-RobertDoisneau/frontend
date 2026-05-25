@@ -1,29 +1,45 @@
 <div class="course-container">
   @if (data(); as d) {
-  <div class="content-layout">
-    <!-- Contenu principal -->
-    <main class="main-column">
+    <header class="course-header">
       <div class="title-row">
         <h1 class="chapter-title">{{ d.title }}</h1>
-      </div>
-
-      <div class="content-wrapper">
-        @if (d.type === 'QU') {
-        <app-quiz [quizId]="d.id" [forceRestart]="restartMode()" (submitted)="onItemCompleted()"></app-quiz>
-        } @else if (d.type === 'EX') {
-        <app-exercise [node]="d"></app-exercise>
-        } @else if (d.type === 'LE') {
-        <app-lesson [node]="d"></app-lesson>
+        @if (typeLabel() || subjectLabel() || gradeLabel() || difficultyLabel()) {
+          <div class="tags-container">
+            @if (typeLabel()) {
+              <span class="tag-badge type-tag">{{ typeLabel() }}</span>
+            }
+            @if (subjectLabel()) {
+              <span class="tag-badge subject-tag">{{ subjectLabel() }}</span>
+            }
+            @if (gradeLabel()) {
+              <span class="tag-badge grade-tag">{{ gradeLabel() }}</span>
+            }
+            @if (difficultyLabel()) {
+              <span class="tag-badge difficulty-tag" [class]="'difficulty-' + (d.difficulty || 1)">
+                {{ difficultyLabel() }}
+              </span>
+            }
+          </div>
         }
       </div>
-    </main>
+    </header>
 
-    <!-- Barre latérale Sommaire -->
-    <aside class="toc-sidebar">
-      <app-toc [content]="d.content?.content || ''"></app-toc>
-    </aside>
-  </div>
-
+    @if (d.type === 'LE') {
+      <app-lesson [markdown]="d.content?.content || ''"></app-lesson>
+    } @else {
+      <div class="content-layout">
+        <!-- Contenu principal -->
+        <main class="main-column">
+          <div class="content-wrapper">
+            @if (d.type === 'QU') {
+              <app-quiz [quizId]="d.id" (submitted)="onItemCompleted()"></app-quiz>
+            } @else if (d.type === 'EX') {
+              <app-exercise [node]="d"></app-exercise>
+            }
+          </div>
+        </main>
+      </div>
+    }
   } @else if (course.error()) {
   <div class="loading-container">
     <mat-icon class="error-icon">block</mat-icon>

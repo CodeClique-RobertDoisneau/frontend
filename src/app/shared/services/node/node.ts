@@ -30,8 +30,11 @@ export const TYPE_LABELS: Record<string, string> = {
 export class Node {
   private api = inject(Api);
 
-  getNode(id: string | number): HttpResourceRef<NodeInfo | undefined> {
-    return this.api.get<NodeInfo>(() => `/api/nodes/${id}/`);
+  getNode(id: string | number | (() => string | number)): HttpResourceRef<NodeInfo | undefined> {
+    return this.api.get<NodeInfo>(() => {
+      const resolvedId = typeof id === 'function' ? id() : id;
+      return `/api/nodes/${resolvedId}/`;
+    });
   }
 
   updateNodeContent(id: string | number, payload: string | Record<string, unknown>): Promise<NodeInfo> {
@@ -50,8 +53,11 @@ export class Node {
     return this.api.get<UserInfo>(() => '/api/users/me/');
   }
 
-  getClassGroup(groupId: number): HttpResourceRef<ClassGroupInfo | undefined> {
-    return this.api.get<ClassGroupInfo>(() => `/api/class-groups/${groupId}/`);
+  getClassGroup(groupId: number | (() => number)): HttpResourceRef<ClassGroupInfo | undefined> {
+    return this.api.get<ClassGroupInfo>(() => {
+      const resolvedId = typeof groupId === 'function' ? groupId() : groupId;
+      return `/api/class-groups/${resolvedId}/`;
+    });
   }
 
   getClassGroupSyllabus(): HttpResourceRef<ClassGroupSyllabusInfo[] | undefined> {
