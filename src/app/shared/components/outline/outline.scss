@@ -13,11 +13,11 @@ mat-icon {
 }
 
 .outline_div {
-    border-radius: 12px;
     display: flex;
-    padding: 0 15px 15px 15px;
     flex-direction: column;
-    margin: 2rem;
+    margin: 2rem 0;
+    border-radius: 12px;
+    padding: 0 15px;
 }
 
 h2 {
@@ -51,36 +51,32 @@ remark {
     width: 100%;
 }
 
+// Types
 .EXEMPLE {
     border: 3px solid #A7A7A7;
     background: rgba(167, 167, 167, 0.10);
 }
-
 .RETENIR {
     border: 3px solid #358218;
     background: rgba(53, 130, 24, 0.10);
 }
-
 .REMARQUE {
-border: 3px solid #1E7AE0;
-background: rgba(30, 122, 224, 0.10);
+    border: 3px solid #1E7AE0;
+    background: rgba(30, 122, 224, 0.10);
 }
 .INFORMATION {
-border: 3px solid #1E7AE0;
-background: rgba(30, 122, 224, 0.10);
+    border: 3px solid #1E7AE0;
+    background: rgba(30, 122, 224, 0.10);
 }
-
 .ATTENTION {
     border: 3px solid #FF8A00;
     background: rgba(255, 138, 0, 0.10);
 }
-
 .ERREUR {
     border: 3px solid #FF8A00;
     background: rgba(255, 138, 0, 0.10);
 }
-
 .QUESTION, .AIDE {
-border: 3px solid #E1E2E8;
-background: rgba(225, 226, 232, 0.10);
+    border: 3px solid #E1E2E8;
+    background: rgba(225, 226, 232, 0.10);
 }
