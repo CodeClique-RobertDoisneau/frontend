@@ -1,42 +1,18 @@
 import { Component, inject, signal, computed, resource, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { HorizontalSlider } from '@shared/components/horizontal-slider/horizontal-slider';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { NodeInfo, Node, ClassGroupInfo, ClassGroupSyllabusInfo, SUBJECT_LABELS, GRADE_LABELS } from '@shared/services/node/node';
+import { NodeInfo, Node, ClassGroupInfo, CatalogValue, GroupSyllabi, SUBJECT_LABELS, GRADE_LABELS } from '@shared/services/node/node';
 import { BreadcrumbService } from '@shared/services/breadcrumb.service';
-
-interface GroupSyllabi {
-  groupId: number;
-  syllabusIds: (string | number)[];
-}
-
-interface CatalogValue {
-  groups: ClassGroupInfo[];
-  allSyllabi: NodeInfo[];
-  groupSyllabiMap: GroupSyllabi[];
-}
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-courses-catalog',
-  imports: [
-    HorizontalSlider,
-    MatChipsModule,
-    MatIconModule,
-    MatSelectModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    FormsModule
-  ],
+  imports: [HorizontalSlider, MatChipsModule, MatIconModule, MatSelectModule, MatFormFieldModule],
   templateUrl: './courses-catalog.html',
   styleUrl: './courses-catalog.scss',
 })
@@ -46,89 +22,28 @@ export class CoursesCatalog implements OnInit {
   private router = inject(Router);
   private breadcrumbService = inject(BreadcrumbService);
 
-  // 1. Primary resources retrieved reactively via NodeService httpResource GET calls
-  classGroupSyllabusResource = this.NodeService.getClassGroupSyllabus();
-  codeCliqueSyllabusResource = this.NodeService.getCodeCliqueSyllabus();
+  // Expose the single unified catalog resource from Node domain service
+  catalogResource = this.NodeService.getCatalog();
 
-  // 2. Custom Page-Specific Parallel Resource Orchestration
-  catalogResource = resource<CatalogValue, { entries: ClassGroupSyllabusInfo[]; codeClique: NodeInfo[] } | null>({
-    params: () => {
-      const entries = this.classGroupSyllabusResource.value();
-      const codeClique = this.codeCliqueSyllabusResource.value();
-      return (entries && codeClique) ? { entries, codeClique } : null;
-    },
-    loader: async ({ params }) => {
-      if (!params) {
-        return { groups: [], allSyllabi: [], groupSyllabiMap: [] };
-      }
-      const { entries, codeClique } = params;
-
-      const groupMap = new Map<number, (string | number)[]>();
-      for (const entry of entries) {
-        if (!groupMap.has(entry.class_group)) {
-          groupMap.set(entry.class_group, []);
-        }
-        groupMap.get(entry.class_group)!.push(entry.node);
-      }
-
-      const uniqueGroupIds = [...groupMap.keys()];
-      const uniqueNodeIds = [...new Set(entries.map(e => e.node))];
-
-      // Dynamic concurrent fetching in parallel
-      const [groups, classGroupNodes] = await Promise.all([
-        Promise.all(uniqueGroupIds.map(id => this.NodeService.getClassGroupPromise(id))),
-        Promise.all(uniqueNodeIds.map(id => this.NodeService.getNodePromise(id)))
-      ]);
-
-      // Deduplicate the merged syllabi list
-      const nodeMap = new Map<number | string, NodeInfo>();
-      for (const n of classGroupNodes) {
-        nodeMap.set(n.id, n);
-      }
-      for (const n of codeClique) {
-        const cleanedNode = { ...n, children: [] };
-        if (!nodeMap.has(cleanedNode.id)) {
-          nodeMap.set(cleanedNode.id, cleanedNode);
-        }
-      }
-
-      return {
-        groups,
-        allSyllabi: [...nodeMap.values()],
-        groupSyllabiMap: Array.from(groupMap, ([groupId, syllabusIds]) => ({ groupId, syllabusIds } as GroupSyllabi))
-      };
-    }
-  });
-
-  // 3. Derived Reactive Computeds
+  // Derived Reactive Computeds
   allSyllabi = computed(() => this.catalogResource.value()?.allSyllabi || []);
   classGroups = computed(() => this.catalogResource.value()?.groups || []);
   groupSyllabiMap = computed(() => this.catalogResource.value()?.groupSyllabiMap || []);
 
-  isLoading = computed(() => {
-    return this.classGroupSyllabusResource.isLoading() || 
-           this.codeCliqueSyllabusResource.isLoading() || 
-           this.catalogResource.isLoading();
-  });
+  isLoading = computed(() => this.catalogResource.isLoading());
 
   error = computed(() => {
-    const err1 = this.classGroupSyllabusResource.error();
-    const err2 = this.codeCliqueSyllabusResource.error();
-    const err3 = this.catalogResource.error();
-    const rawErr = err1 || err2 || err3;
-
-    if (rawErr) {
-      const typedErr = rawErr as { status?: number };
-      if (typedErr?.status === 401 || typedErr?.status === 403) {
+    const err = this.catalogResource.error();
+    if (err instanceof HttpErrorResponse) {
+      if (err.status === 401 || err.status === 403) {
         return "Vous n'êtes pas autorisé à accéder à cette page.";
       }
       return "Impossible de charger les données.";
     }
-    return null;
+    return err ? "Impossible de charger les données." : null;
   });
 
   // Filtres actifs
-  search = signal('');
   activeSubject = signal<string | null>(null);
   activeGrade = signal<string | null>(null);
   activeGroupId = signal<number | null>(null);
@@ -143,7 +58,6 @@ export class CoursesCatalog implements OnInit {
     const subject = this.activeSubject();
     const grade = this.activeGrade();
     const groupId = this.activeGroupId();
-    const query = this.search().trim().toLowerCase();
 
     // Filtre par class group
     if (groupId) {
@@ -161,9 +75,6 @@ export class CoursesCatalog implements OnInit {
     }
     if (grade) {
       syllabi = syllabi.filter((s: NodeInfo) => s.grade_level === grade);
-    }
-    if (query) {
-      syllabi = syllabi.filter((s: NodeInfo) => s.title.toLowerCase().includes(query));
     }
     return syllabi.map((s: NodeInfo) => s.id);
   });
@@ -193,12 +104,11 @@ export class CoursesCatalog implements OnInit {
   }
 
   clearFilters() {
-    this.search.set('');
     this.updateQueryParams({ subject: null, grade: null, group: null });
   }
 
   hasActiveFilters(): boolean {
-    return !!(this.activeSubject() || this.activeGrade() || this.activeGroupId() || this.search());
+    return !!(this.activeSubject() || this.activeGrade() || this.activeGroupId());
   }
 
   private updateQueryParams(params: Record<string, string | null>) {

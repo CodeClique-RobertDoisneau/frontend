@@ -1,91 +1,63 @@
-<div class="catalog">
+<section class="features-section">
+  <h2>Mes cours</h2>
 
-  <header class="page-header">
-    <h1 class="hero-title">Catalogue des cours</h1>
-    <p>Filtre par classe, matière ou niveau pour trouver ton syllabus.</p>
-  </header>
-
-  <section class="filter-bar">
-    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search-field">
-      <mat-icon matIconPrefix>search</mat-icon>
-      <input matInput placeholder="Rechercher un cours par titre…" [ngModel]="search()" (ngModelChange)="search.set($event)">
-      @if (search()) {
-        <button mat-icon-button matIconSuffix aria-label="Effacer" (click)="search.set('')">
-          <mat-icon>close</mat-icon>
-        </button>
-      }
-    </mat-form-field>
-  </section>
-
-  <section class="filter-row">
+  <!-- Filtres -->
+  <div class="filters">
     <!-- Dropdown class group -->
     <div class="filter-group">
-      <mat-form-field appearance="outline" class="group-select" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" class="group-select">
         <mat-label>Classe</mat-label>
         <mat-select [value]="activeGroupId()" (selectionChange)="onGroupChange($event.value)">
           <mat-option [value]="null">Toutes les classes</mat-option>
           @for (group of classGroups(); track group.id) {
-            <mat-option [value]="group.id">{{ group.class_name }} ({{ group.academic_year }})</mat-option>
+          <mat-option [value]="group.id">{{ group.class_name }} ({{ group.academic_year }})</mat-option>
           }
         </mat-select>
       </mat-form-field>
     </div>
 
-    <div class="filter-divider"></div>
-
     <!-- Chips matière -->
     <div class="filter-group">
-      <span class="filter-label">Matière</span>
+      <span class="filter-label">Matière :</span>
       <mat-chip-set>
         @for (entry of subjects; track entry[0]) {
-          <mat-chip [highlighted]="activeSubject() === entry[0]" (click)="toggleSubject(entry[0])">
-            {{ entry[1] }}
-          </mat-chip>
+        <mat-chip [highlighted]="activeSubject() === entry[0]" (click)="toggleSubject(entry[0])">
+          {{ entry[1] }}
+        </mat-chip>
         }
       </mat-chip-set>
     </div>
 
-    <div class="filter-divider"></div>
-
     <!-- Chips niveau -->
     <div class="filter-group">
-      <span class="filter-label">Niveau</span>
+      <span class="filter-label">Niveau :</span>
       <mat-chip-set>
         @for (entry of grades; track entry[0]) {
-          <mat-chip [highlighted]="activeGrade() === entry[0]" (click)="toggleGrade(entry[0])">
-            {{ entry[1] }}
-          </mat-chip>
+        <mat-chip [highlighted]="activeGrade() === entry[0]" (click)="toggleGrade(entry[0])">
+          {{ entry[1] }}
+        </mat-chip>
         }
       </mat-chip-set>
     </div>
 
     @if (hasActiveFilters()) {
-      <button mat-button (click)="clearFilters()" class="reset-btn">
-        <mat-icon>refresh</mat-icon> Réinitialiser
-      </button>
+    <button class="clear-btn" (click)="clearFilters()">
+      <mat-icon>close</mat-icon>
+      Effacer les filtres
+    </button>
     }
-  </section>
+  </div>
 
   <!-- Contenu -->
   @if (isLoading()) {
-    <div class="empty">
-      <mat-spinner diameter="40"></mat-spinner>
-      <p>Chargement des cours…</p>
-    </div>
+  <p>Chargement des cours...</p>
   } @else if (error()) {
-    <div class="empty">
-      <p class="error">{{ error() }}</p>
-    </div>
+  <p class="error">{{ error() }}</p>
   } @else {
-    @for (syllabusId of filteredSyllabiIds(); track syllabusId) {
-      <app-horizontal-slider [id]="syllabusId"></app-horizontal-slider>
-    } @empty {
-      <div class="empty">
-        <mat-icon>search_off</mat-icon>
-        <p>Aucun cours ne correspond aux filtres sélectionnés.</p>
-        <button mat-stroked-button (click)="clearFilters()">Réinitialiser</button>
-      </div>
-    }
+  @for (syllabusId of filteredSyllabiIds(); track syllabusId) {
+  <app-horizontal-slider [id]="syllabusId"></app-horizontal-slider>
+  } @empty {
+  <p class="no-results">Aucun cours ne correspond aux filtres sélectionnés.</p>
   }
-
-</div>
+  }
+</section>
