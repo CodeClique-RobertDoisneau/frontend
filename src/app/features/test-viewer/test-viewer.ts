@@ -4,12 +4,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { MarkdownViewer } from '@shared/components/markdown-viewer/markdown-viewer';
+import { Lesson } from '../course/components/lesson/lesson';
 import { Pyodide } from '@shared/services/pyodide/pyodide';
 
 @Component({
   selector: 'app-test-viewer',
-  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, MarkdownViewer],
+  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, Lesson],
   templateUrl: './test-viewer.html',
   styleUrl: './test-viewer.scss',
   providers: [Pyodide],
