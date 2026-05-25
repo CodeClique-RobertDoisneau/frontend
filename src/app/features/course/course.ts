@@ -4,8 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { Router, ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
+
 
 import { httpResource } from '@angular/common/http';
 
@@ -39,12 +38,11 @@ export class Course {
   readonly id = input.required<string>();
   pyodide = inject(Pyodide);
 
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
+
   private breadcrumbService = inject(BreadcrumbService);
   private authService = inject(Auth);
 
-  restartMode = signal(false);
+
 
   course = httpResource<NodeInfo>(() => `/api/nodes/${this.id()}/`);
   data = computed(() => this.course.value());
@@ -68,21 +66,11 @@ export class Course {
     if (!this.authService.currentUser()) {
       this.authService.getMe().catch(() => {});
     }
-
-    this.route.queryParams.subscribe(params => {
-      this.restartMode.set(params['restart'] === 'true');
-    });
   }
 
   onItemCompleted() {
     this.course.reload();
   }
 
-  doRestart() {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { restart: 'true', review: null },
-      queryParamsHandling: 'merge'
-    });
-  }
+
 }

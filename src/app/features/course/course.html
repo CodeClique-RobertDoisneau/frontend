@@ -12,7 +12,7 @@
 
           <div class="content-wrapper">
             @if (d.type === 'QU') {
-              <app-quiz [quizId]="d.id" [forceRestart]="restartMode()" (submitted)="onItemCompleted()"></app-quiz>
+              <app-quiz [quizId]="d.id" (submitted)="onItemCompleted()"></app-quiz>
             } @else if (d.type === 'EX') {
               <app-exercise [node]="d"></app-exercise>
             }
