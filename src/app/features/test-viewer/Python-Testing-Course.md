@@ -59,6 +59,10 @@ Image en ligne :
 
 ![Logo Python](https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg)
 
+Image en html :
+
+<img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" alt="Logo Python">
+
 Exemple de lien : [Documentation officielle de Python](https://docs.python.org/3/)
 
 ## V / Tableau
@@ -86,6 +90,22 @@ echo "Hello world!"
 ## VII / Mise en forme
 
 **Gras**, *italique*, ~~barré~~ et `code en ligne`
+
+### Listes de tâches (GFM)
+- [x] 🐍 Apprendre la syntaxe de base de Python
+- [x] 🧪 Configurer son premier test unitaire
+- [ ] 🚀 Exécuter les tests avec `pytest` et valider
+
+### Blocs de citation (Blockquotes)
+> **Règle d'or** : Le code est lu beaucoup plus souvent qu'il n'est écrit.
+> — *Guido van Rossum (Créateur de Python)*
+
+### Éléments HTML pliables (Collapsible Details)
+<details>
+  <summary>💡 Besoin d'un indice pour l'exercice ?</summary>
+  
+  Pensez à utiliser `sys.exit(0)` ou `sys.exit(1)` pour renvoyer le code de statut d'erreur adéquat dans votre script !
+</details>
 
 ## VIII / Librairies
 
@@ -132,4 +152,6 @@ $$\int_0^{2\pi} \sin(x) \, dx = 0$$
 ::video{link="https://www.youtube-nocookie.com/embed/3_P-dxrNCq8?si=UDquzF6rLCU4YTBC"}
 
 ### Quizz
+
+::quiz{id="1"}
 
