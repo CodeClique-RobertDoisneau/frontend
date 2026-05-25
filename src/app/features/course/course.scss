@@ -7,16 +7,13 @@
 
 
 /* Layout */
-
-/* Layout */
 .content-layout {
   display: grid;
-  grid-template-columns: 1fr 250px; /* Main | TOC */
-
+  grid-template-columns: 1fr 300px;
   max-width: 1400px;
   margin: 0 auto;
-  gap: 32px;
-  padding: 32px 48px 64px 48px;
+  gap: 2rem;
+  padding: 2rem;
 }
 
 /* Main Content */
@@ -38,45 +35,11 @@
 /* TOC Sidebar */
 .toc-sidebar {
   position: sticky;
-  top: 32px;
+  top: 80px;
   height: fit-content;
-  max-height: calc(100vh - 64px);
+  max-height: calc(100vh - 112px);
   overflow-y: auto;
   padding: 16px;
-  border-left: 1px solid var(--mat-sys-outline-variant);
-
-  .toc-header {
-    font-family: 'Rubik', sans-serif;
-    font-size: 0.95rem;
-    margin-bottom: 16px;
-    color: var(--mat-sys-on-surface-variant);
-  }
-}
-
-.toc-tree {
-  background: transparent;
-}
-
-.toc-link {
-  font-size: 0.8rem;
-  text-align: left;
-  white-space: normal;
-  line-height: 1.4;
-  height: auto;
-  padding: 8px;
-  color: var(--mat-sys-on-surface);
-  
-  &:hover {
-    color: var(--mat-sys-primary);
-  }
-}
-
-.mat-tree-node {
-  min-height: 28px;
-}
-
-.toc-invisible {
-  display: none;
 }
 
 /* Loading State */
@@ -90,7 +53,6 @@
   gap: 16px;
 }
 
-/* Responsive adjustments */
 /* Responsive adjustments */
 @media (max-width: 1024px) {
   .content-layout {
