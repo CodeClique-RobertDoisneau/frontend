@@ -1,57 +1,78 @@
-<div class="landing-container">
-  <header class="hero-section">
-    <div class="hero-content">
-      <h1>Bienvenue sur CodeClique</h1>
-      <p class="subtitle">La plateforme d'apprentissage pour les étudiants du lycée Robert Doisneau.</p>
-      <p class="description">
-        CodeClique est votre espace pour apprendre, partager et progresser ensemble.
-        Accédez à des cours interactifs, suivez des parcours personnalisés et rejoignez une communauté passionnée.
+<div class="landing">
+  <section class="hero">
+    <div class="hero-copy">
+      <h1 class="hero-title">
+        Le code,<br>
+        <mark>à ton rythme.</mark>
+      </h1>
+      <p class="hero-subtitle">
+        Apprends à coder en Python à l'aide de cours interactifs et d'exercices pratiques intégrés. Suis ta progression en direct et maîtrise les bases de la programmation pas à pas, sans blabla.
       </p>
       <div class="hero-actions">
-        <button mat-raised-button color="primary" routerLink="/courses">Découvrir les cours</button>
-        <button mat-stroked-button color="primary" routerLink="/login">Se connecter</button>
+        <button mat-fab extended color="primary" routerLink="/courses">
+          <mat-icon>school</mat-icon>
+          Parcourir les cours
+        </button>
+        <button mat-fab extended routerLink="/codeclique-ide">
+          <mat-icon>terminal</mat-icon>
+          Essayer l'éditeur libre Python
+        </button>
       </div>
     </div>
-  </header>
+    <div class="hero-visual" aria-hidden="true">
+      <img [src]="theming.resolvedTheme() === 'dark' ? 'img/persona/maths-darkmode.png' : 'img/persona/Maths-Happy.webp'" alt="Apprendre à coder avec CodeClique" class="persona-img">
+    </div>
+  </section>
 
-  <section class="features-section">
-    <h2>Accès Rapide</h2>
-    <div class="features-grid">
-      <mat-card class="feature-card">
-        <mat-card-header>
-          <div mat-card-avatar class="feature-icon-container">
-            <mat-icon>map</mat-icon>
-          </div>
-          <mat-card-title>Parcours</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>Suivez des chemins d'apprentissage structurés pour maîtriser de nouvelles compétences.</p>
-        </mat-card-content>
-      </mat-card>
+  <section class="showcase-section">
+    <div class="showcase-content">
+      <span class="badge badge-tertiary">Pratique instantanée</span>
+      <h2 class="showcase-headline">Python directement intégré à tes cours</h2>
+      <p class="showcase-description">
+        Pas besoin d'installer de logiciels ni de configurer ton ordinateur. Tout se passe directement dans ton navigateur : lis la leçon, écris ton code juste à côté, et lance ton programme pour voir le résultat instantanément.
+      </p>
+    </div>
+    
+    <div class="showcase-visual">
+      <div class="component-container">
+        <app-code-block 
+          [initialCode]="'def saluer(nom):\n    print(\'Bonjour \' + nom + \' !\')\n\nsaluer(\'CodeClique\')'" 
+          language="python" 
+          [pyodide]="pyodide">
+        </app-code-block>
+      </div>
+    </div>
+  </section>
 
-      <mat-card class="feature-card">
-        <mat-card-header>
-          <div mat-card-avatar class="feature-icon-container">
-            <mat-icon>school</mat-icon>
-          </div>
-          <mat-card-title>Cours</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>Explorez notre catalogue de cours interactifs sur divers langages et technologies.</p>
-        </mat-card-content>
-      </mat-card>
+  <section class="showcase-section">
+    <div class="showcase-visual">
+      <div class="component-container">
+        <app-quiz [previewData]="quizData"></app-quiz>
+      </div>
+    </div>
 
-      <mat-card class="feature-card">
-        <mat-card-header>
-          <div mat-card-avatar class="feature-icon-container">
-            <mat-icon>login</mat-icon>
-          </div>
-          <mat-card-title>Connexion</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>Connectez-vous pour suivre votre progression et accéder à votre espace personnel.</p>
-        </mat-card-content>
-      </mat-card>
+    <div class="showcase-content">
+      <span class="badge">Contenu interactif</span>
+      <h2 class="showcase-headline">Des cours vivants et dynamiques</h2>
+      <p class="showcase-description">
+        Oublie les cours théoriques interminables. Valide ce que tu viens d'apprendre grâce à des quiz rapides. Reçois une correction immédiate avec des explications claires pour comprendre tes erreurs et continuer à avancer l'esprit tranquille.
+      </p>
+    </div>
+  </section>
+
+  <section class="showcase-section">
+    <div class="showcase-content">
+      <span class="badge badge-tertiary">Explications visuelles</span>
+      <h2 class="showcase-headline">Des cours illustrés en vidéo</h2>
+      <p class="showcase-description">
+        Parce que c'est toujours plus facile quand c'est imagé, chaque grande notion commence par une courte vidéo explicative. C'est le meilleur moyen de visualiser le fonctionnement des boucles, des variables ou des listes avant de passer à la pratique.
+      </p>
+    </div>
+    
+    <div class="showcase-visual">
+      <div class="component-container">
+        <app-video-block link="https://www.youtube-nocookie.com/embed/KT6v9_X9w3M"></app-video-block>
+      </div>
     </div>
   </section>
 </div>
