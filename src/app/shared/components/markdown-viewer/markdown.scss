@@ -206,20 +206,43 @@ remark-node {
     text-decoration: underline;
   }
 
-  /* Checkboxes */
-  input[type="checkbox"] {
-    appearance: none;
-    width: 1.1rem;
-    height: 1.1rem;
-    border: 1px solid var(--mat-sys-outline);
-    border-radius: 0.25rem;
-    position: relative;
-    background-color: var(--mat-sys-surface-container-high);
-    cursor: pointer;
-  }
+  /* Details and Summary (Collapsible Boxes) */
+  details {
+    background-color: var(--mat-sys-surface-container-low);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    transition: all 0.3s ease;
 
-  input[type="checkbox"]:checked {
-    background-color: var(--mat-sys-primary);
+    &[open] {
+      background-color: var(--mat-sys-surface-container-lowest);
+      border-color: var(--mat-sys-primary);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+      summary {
+        border-bottom: 1px solid var(--mat-sys-outline-variant);
+        padding-bottom: 0.75rem;
+        margin-bottom: 0.75rem;
+        color: var(--mat-sys-primary);
+      }
+    }
+
+    summary {
+      font-family: 'Rubik', sans-serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      color: var(--mat-sys-on-surface);
+      outline: none;
+      user-select: none;
+      transition: color 0.2s ease;
+      display: list-item;
+
+      &:hover {
+        color: var(--mat-sys-primary);
+      }
+    }
   }
 
   /* Maths */
