@@ -1,0 +1,47 @@
+/* Layout */
+.content-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  max-width: 1400px;
+  margin: 0 auto;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+/* Main Content */
+.main-column {
+  min-width: 0;
+}
+
+.chapter-title {
+  font-family: 'Rubik', sans-serif;
+  font-size: 2.5rem;
+  margin-bottom: 24px;
+  color: var(--mat-sys-primary);
+}
+
+.markdown-wrapper {
+  margin-bottom: 48px;
+}
+
+/* TOC Sidebar */
+.toc-sidebar {
+  position: sticky;
+  top: 80px;
+  height: fit-content;
+  max-height: calc(100vh - 112px);
+  overflow-y: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .content-layout {
+    grid-template-columns: 1fr;
+    padding: 32px 24px;
+    padding-top: 80px;
+  }
+  
+  .toc-sidebar {
+    display: none;
+  }
+}

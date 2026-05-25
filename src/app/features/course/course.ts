@@ -12,7 +12,6 @@ import { httpResource } from '@angular/common/http';
 import { QuizComponent } from './components/quiz/quiz';
 import { Lesson } from './components/lesson/lesson';
 import { Exercise } from './components/exercise/exercise';
-import { Toc } from './components/toc/toc';
 import { Node, NodeInfo } from '@shared/services/node/node';
 import { Pyodide } from '@shared/services/pyodide/pyodide';
 import { BreadcrumbService, BreadcrumbItem } from '@shared/services/breadcrumb.service';
@@ -29,7 +28,6 @@ import { Auth } from '@shared/services/auth/auth';
     QuizComponent,
     Lesson,
     Exercise,
-    Toc,
   ],
   templateUrl: './course.html',
   styleUrl: './course.scss',

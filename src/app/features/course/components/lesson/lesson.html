@@ -1,1 +1,17 @@
-<app-markdown-viewer [markdown]="node().content?.content || ''" [pyodide]="pyodide"></app-markdown-viewer>
+<div class="content-layout">
+  <!-- Contenu principal -->
+  <main class="main-column">
+    <div class="title-row">
+      <h1 class="chapter-title">{{ node().title }}</h1>
+    </div>
+
+    <div class="markdown-wrapper">
+      <app-markdown-viewer [markdown]="node().content?.content || ''" [pyodide]="pyodide"></app-markdown-viewer>
+    </div>
+  </main>
+
+  <!-- Barre latérale Sommaire -->
+  <aside class="toc-sidebar">
+    <app-toc [content]="node().content?.content || ''"></app-toc>
+  </aside>
+</div>

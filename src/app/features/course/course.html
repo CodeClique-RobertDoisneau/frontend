@@ -1,28 +1,25 @@
 <div class="course-container">
   @if (data(); as d) {
-  <div class="content-layout">
-    <!-- Contenu principal -->
-    <main class="main-column">
-      <div class="title-row">
-        <h1 class="chapter-title">{{ d.title }}</h1>
-      </div>
+    @if (d.type === 'LE') {
+      <app-lesson [node]="d"></app-lesson>
+    } @else {
+      <div class="content-layout">
+        <!-- Contenu principal -->
+        <main class="main-column">
+          <div class="title-row">
+            <h1 class="chapter-title">{{ d.title }}</h1>
+          </div>
 
-      <div class="content-wrapper">
-        @if (d.type === 'QU') {
-        <app-quiz [quizId]="d.id" [forceRestart]="restartMode()" (submitted)="onItemCompleted()"></app-quiz>
-        } @else if (d.type === 'EX') {
-        <app-exercise [node]="d"></app-exercise>
-        } @else if (d.type === 'LE') {
-        <app-lesson [node]="d"></app-lesson>
-        }
+          <div class="content-wrapper">
+            @if (d.type === 'QU') {
+              <app-quiz [quizId]="d.id" [forceRestart]="restartMode()" (submitted)="onItemCompleted()"></app-quiz>
+            } @else if (d.type === 'EX') {
+              <app-exercise [node]="d"></app-exercise>
+            }
+          </div>
+        </main>
       </div>
-    </main>
-
-    <!-- Barre latérale Sommaire -->
-    <aside class="toc-sidebar">
-      <app-toc [content]="d.content?.content || ''"></app-toc>
-    </aside>
-  </div>
+    }
 
   } @else if (course.error()) {
   <div class="loading-container">
