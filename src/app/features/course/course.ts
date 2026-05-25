@@ -1,20 +1,16 @@
-import { Component, ChangeDetectionStrategy, input, inject, computed, effect, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, inject, computed, effect } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 
 
-import { httpResource } from '@angular/common/http';
-
-import { QuizComponent } from './components/quiz/quiz';
-import { Lesson } from './components/lesson/lesson';
-import { Exercise } from './components/exercise/exercise';
-import { Node, NodeInfo } from '@shared/services/node/node';
+import { Node, NodeInfo, SUBJECT_LABELS, GRADE_LABELS, TYPE_LABELS } from '@shared/services/node/node';
 import { Pyodide } from '@shared/services/pyodide/pyodide';
 import { BreadcrumbService, BreadcrumbItem } from '@shared/services/breadcrumb.service';
 import { Auth } from '@shared/services/auth/auth';
+import { QuizComponent } from './components/quiz/quiz';
+import { Lesson } from './components/lesson/lesson';
+import { Exercise } from './components/exercise/exercise';
 
 @Component({
   selector: 'app-course',
@@ -22,8 +18,6 @@ import { Auth } from '@shared/services/auth/auth';
     MatProgressSpinnerModule,
     MatButtonModule,
     MatIconModule,
-    MatSidenavModule,
-    FormsModule,
     QuizComponent,
     Lesson,
     Exercise,
@@ -36,16 +30,36 @@ import { Auth } from '@shared/services/auth/auth';
 export class Course {
   // Course identifier input
   readonly id = input.required<string>();
-  pyodide = inject(Pyodide);
 
-
+  private nodeService = inject(Node);
   private breadcrumbService = inject(BreadcrumbService);
   private authService = inject(Auth);
 
-
-
-  course = httpResource<NodeInfo>(() => `/api/nodes/${this.id()}/`);
+  course = this.nodeService.getNode(() => this.id());
   data = computed(() => this.course.value());
+
+  subjectLabel = computed(() => {
+    const sub = this.data()?.subject;
+    return sub ? SUBJECT_LABELS[sub] || sub : null;
+  });
+
+  gradeLabel = computed(() => {
+    const grade = this.data()?.grade_level;
+    return grade ? GRADE_LABELS[grade] || grade : null;
+  });
+
+  typeLabel = computed(() => {
+    const type = this.data()?.type;
+    return type ? TYPE_LABELS[type] || type : null;
+  });
+
+  difficultyLabel = computed(() => {
+    const diff = this.data()?.difficulty;
+    if (!diff) return null;
+    if (diff <= 1) return 'Facile';
+    if (diff === 2) return 'Moyen';
+    return 'Difficile';
+  });
 
   constructor() {
     // Breadcrumbs
@@ -64,13 +78,11 @@ export class Course {
 
     // Ensure user data is loaded for progress tracking if logged in
     if (!this.authService.currentUser()) {
-      this.authService.getMe().catch(() => {});
+      this.authService.getMe().catch(() => { });
     }
   }
 
   onItemCompleted() {
     this.course.reload();
   }
-
-
 }

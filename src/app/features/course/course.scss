@@ -7,6 +7,13 @@
 
 
 /* Layout */
+.course-header {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 1.5rem 2rem;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
 .content-layout {
   max-width: 1000px;
   margin: 0 auto;
@@ -20,9 +27,65 @@
 
 .chapter-title {
   font-family: 'Rubik', sans-serif;
-  font-size: 2.5rem;
-  margin-bottom: 24px;
+  font-size: 2.85rem;
   color: var(--mat-sys-primary);
+  font-weight: 700;
+}
+
+.title-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.tag-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: 12px;
+  line-height: 1.4;
+  display: inline-flex;
+  align-items: center;
+
+  &.type-tag {
+    background-color: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
+  }
+
+  &.subject-tag {
+    background-color: var(--mat-sys-secondary-container);
+    color: var(--mat-sys-on-secondary-container);
+  }
+
+  &.grade-tag {
+    background-color: var(--mat-sys-tertiary-container);
+    color: var(--mat-sys-on-tertiary-container);
+  }
+
+  &.difficulty-tag {
+    &.difficulty-1 {
+      background-color: rgba(46, 125, 50, 0.12);
+      color: #2e7d32;
+    }
+    &.difficulty-2 {
+      background-color: rgba(239, 108, 0, 0.12);
+      color: #ef6c00;
+    }
+    &.difficulty-3 {
+      background-color: rgba(198, 40, 40, 0.12);
+      color: #c62828;
+    }
+  }
 }
 
 .markdown-wrapper {
