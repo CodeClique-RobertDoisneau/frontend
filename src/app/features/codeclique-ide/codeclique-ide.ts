@@ -40,13 +40,13 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
       title: "L'Éditeur de Code",
       content: "C'est ici, sur la gauche, que vous rédigez vos scripts Python. Profitez de l'auto-complétion intelligente et de la coloration syntaxique pour coder rapidement.",
       selector: '.editor-section',
-      position: 'left'
+      position: 'right'
     },
     {
       title: "Gestion des Onglets",
       content: "Gérez plusieurs fichiers en parallèle. Cliquez sur '+' pour ouvrir un nouvel onglet, ou double-cliquez sur le nom d'un onglet pour le renommer !",
       selector: 'app-tab-bar',
-      position: 'left'
+      position: 'right'
     },
     {
       title: "Exécution Instantanée",
@@ -58,7 +58,7 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
       title: "La Console REPL",
       content: "À droite s'affichent les sorties de vos scripts. Utilisez l'invite interactive en bas pour exécuter des commandes en direct !",
       selector: '.repl-panel',
-      position: 'right'
+      position: 'left'
     },
     {
       title: "Bibliothèques & Outils",

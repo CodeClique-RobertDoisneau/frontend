@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, signal, computed, ChangeDetectionStrategy, effect, HostListener } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -30,6 +30,27 @@ export class IdeTour {
   
   close = output<void>();
 
+  private trigger = signal<number>(0);
+
+  constructor() {
+    effect(() => {
+      this.tourStep();
+      this.steps();
+
+      let count = 0;
+      const interval = setInterval(() => {
+        this.trigger.update(v => v + 1);
+        count++;
+        if (count >= 5) clearInterval(interval);
+      }, 100);
+    });
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    this.trigger.update(v => v + 1);
+  }
+
   currentStep = computed(() => {
     const idx = this.tourStep();
     const list = this.steps();
@@ -37,6 +58,7 @@ export class IdeTour {
   });
 
   spotlightStyle = computed(() => {
+    this.trigger();
     const step = this.currentStep();
     if (!step || !step.selector) return null;
     const el = document.querySelector(step.selector);
@@ -51,6 +73,7 @@ export class IdeTour {
   });
 
   cardStyle = computed(() => {
+    this.trigger();
     const step = this.currentStep();
     if (!step) return null;
     
@@ -58,6 +81,15 @@ export class IdeTour {
     const viewportHeight = window.innerHeight;
     const cardWidth = 340; 
     const cardHeight = 220;
+
+    if (viewportWidth <= 768) {
+      return {
+        bottom: '24px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        position: 'fixed'
+      };
+    }
 
     if (!step.selector) {
       return {
@@ -84,28 +116,21 @@ export class IdeTour {
 
     if (step.position === 'left') {
       top = rect.top + rect.height / 2 - cardHeight / 2;
-      left = rect.right + 20;
+      left = rect.left - cardWidth - 20;
     } else if (step.position === 'right') {
       top = rect.top + rect.height / 2 - cardHeight / 2;
-      left = rect.left - cardWidth - 20;
-    } else if (step.position === 'bottom') {
-      top = rect.bottom + 20;
-      left = rect.left + rect.width / 2 - cardWidth / 2;
+      left = rect.right + 20;
     } else if (step.position === 'top') {
       top = rect.top - cardHeight - 20;
       left = rect.left + rect.width / 2 - cardWidth / 2;
     } else {
-      return {
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        position: 'fixed'
-      };
+      top = rect.bottom + 20;
+      left = rect.left + rect.width / 2 - cardWidth / 2;
     }
 
-    const minPadding = 16;
-    left = Math.max(minPadding, Math.min(left, viewportWidth - cardWidth - minPadding));
-    top = Math.max(minPadding, Math.min(top, viewportHeight - cardHeight - minPadding));
+    const padding = 20;
+    left = Math.max(padding, Math.min(left, viewportWidth - cardWidth - padding));
+    top = Math.max(padding, Math.min(top, viewportHeight - cardHeight - padding));
 
     return {
       top: `${top}px`,
