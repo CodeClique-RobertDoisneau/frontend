@@ -3,7 +3,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
-import { NodeInfo, GRADE_LABELS, SUBJECT_LABELS, Node } from '@shared/services/node/node';
+import { NodeInfo, GRADE_LABELS, SUBJECT_LABELS, Node, NodeLinkInfo } from '@shared/services/node/node';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { SectionCard } from './components/section-card/section-card';
 import { MatListModule } from '@angular/material/list';
@@ -33,11 +33,8 @@ export class ChapterShowcase {
       const node = this.chapterInfo.value();
       if (!node || !node.children) return [];
       return node.children.map(
-        (child: any) => {
-          if (typeof child === 'object') {
-            return (child.child && child.child.id) ? child.child.id : child.id;
-          }
-          return child;
+        (child: NodeLinkInfo) => {
+          return child.child?.id ? child.child.id.toString() : child.id.toString();
         }
       );
     }

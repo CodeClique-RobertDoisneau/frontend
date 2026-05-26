@@ -61,6 +61,8 @@ export class QuizComponent {
   quizSubmitted = signal(false);
   _internalRestart = signal(false);
   submitted = output<void>();
+  isSubmitting = signal(false);
+  submissionError = signal<unknown | null>(null);
 
   private nodeService = inject(Node);
   quizResource = this.nodeService.getNode(() => this.previewData() ? undefined : this.quizId());
@@ -123,7 +125,7 @@ export class QuizComponent {
 
   // 1. On parse la donnée UNE SEULE FOIS de manière centralisée
   parsedQuizData = computed<QuizItem[] | null>(() => {
-    let rawContent: any = null;
+    let rawContent: unknown = null;
     const preview = this.previewData();
 
     if (preview) {
@@ -148,15 +150,16 @@ export class QuizComponent {
 
     try {
       // Fonction helper pour extraire les items d'un objet donné de manière récursive (profondeur limitée)
-      const extractItems = (obj: any, depth = 0): any[] | null => {
+      const extractItems = (obj: unknown, depth = 0): unknown[] | null => {
         if (depth > 3) return null;
         if (Array.isArray(obj)) return obj;
         if (!obj || typeof obj !== 'object') return null;
 
+        const record = obj as Record<string, unknown>;
         // On check les propriétés classiques : .quiz, .content
         const keys = ['quiz', 'content'];
         for (const key of keys) {
-          const val = obj[key];
+          const val = record[key];
           if (!val) continue;
 
           if (Array.isArray(val)) return val;
@@ -179,10 +182,22 @@ export class QuizComponent {
       if (items === null) return null;
       if (items.length === 0) return [];
 
-      return items.map(item => ({
-        ...item,
-        multiple_answers: item.multiple_answers ?? (item.answers ? item.answers.filter((a: any) => a).length > 1 : false)
-      })) as QuizItem[];
+      return (items as Record<string, unknown>[]).map(item => {
+        const question = String(item['question'] || '');
+        const options = Array.isArray(item['options']) ? (item['options'] as string[]) : [];
+        const answers = Array.isArray(item['answers']) ? (item['answers'] as boolean[]) : undefined;
+        const multiple_answers = typeof item['multiple_answers'] === 'boolean'
+          ? item['multiple_answers']
+          : (answers ? answers.filter((a: boolean) => a).length > 1 : false);
+        return {
+          question,
+          options,
+          multiple_answers,
+          instruction: item['instruction'] ? String(item['instruction']) : undefined,
+          explanation: item['explanation'] ? String(item['explanation']) : undefined,
+          answers
+        } as QuizItem;
+      });
     } catch (e) {
       console.error("Failed to parse quiz content", e);
       return null;
@@ -268,6 +283,9 @@ export class QuizComponent {
     const id = this.quizId();
     if (!id || this.previewData() || this.showCorrectionOnly()) return;
 
+    this.isSubmitting.set(true);
+    this.submissionError.set(null);
+
     try {
       const node = this.quizResource.value();
       const modified_at = node?.modified_at || '';
@@ -291,12 +309,16 @@ export class QuizComponent {
       this.submitted.emit();
     } catch (error) {
       console.error("Quiz submission failed:", error);
+      this.submissionError.set(error);
+    } finally {
+      this.isSubmitting.set(false);
     }
   }
 
   doRestart() {
     this._internalRestart.set(true);
     this.quizSubmitted.set(false);
+    this.submissionError.set(null);
   }
 
 

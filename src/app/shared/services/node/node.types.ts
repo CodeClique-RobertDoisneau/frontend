@@ -79,3 +79,15 @@ export interface CatalogValue {
   allSyllabi: NodeInfo[];
   groupSyllabiMap: GroupSyllabi[];
 }
+
+export interface QuizAttempt {
+  id: number;
+  date: string;
+  attempt: {
+    answer: boolean[][];
+    [key: string]: unknown;
+  };
+  score?: number;
+  max_score?: number;
+  [key: string]: unknown;
+}

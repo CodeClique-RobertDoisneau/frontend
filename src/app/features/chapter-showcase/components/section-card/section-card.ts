@@ -1,7 +1,7 @@
 import { Component, input, computed, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
-import { NodeInfo, Node } from '@shared/services/node/node';
+import { NodeInfo, Node, NodeLinkInfo } from '@shared/services/node/node';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -25,11 +25,8 @@ export class SectionCard {
       const node = this.sectionInfo.value();
       if (!node || !node.children) return [];
       return node.children.map(
-        (child: any) => {
-          if (typeof child === 'object') {
-            return (child.child && child.child.id) ? child.child.id : child.id;
-          }
-          return child;
+        (child: NodeLinkInfo) => {
+          return child.child?.id ? child.child.id.toString() : child.id.toString();
         }
       );
     }
