@@ -32,7 +32,7 @@
         <main class="main-column">
           <div class="content-wrapper">
             @if (d.type === 'QU') {
-              <app-quiz [quizId]="d.id" (submitted)="onItemCompleted()"></app-quiz>
+              <app-quiz [quizId]="d.id" mode="graded" (submitted)="onItemCompleted()"></app-quiz>
             } @else if (d.type === 'EX') {
               <app-exercise [node]="d"></app-exercise>
             }

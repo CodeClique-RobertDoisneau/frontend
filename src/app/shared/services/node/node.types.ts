@@ -24,6 +24,13 @@ export interface NodeInfo {
     max_score?: number;
     modified_at: string;
   } | null;
+  progress?: {
+    started_at: string | null;
+    in_progress_at: string | null;
+    completed_at: string | null;
+    last_seen_at: string | null;
+    status: string;
+  } | null;
 }
 
 export interface UserInfo {

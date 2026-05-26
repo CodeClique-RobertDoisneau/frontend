@@ -49,7 +49,8 @@ export class ItemCard {
 
   isDone = computed(() => {
     const node = this.itemInfo.value();
-    return !!node?.user_progress?.done;
+    if (!node) return false;
+    return node.progress?.status === 'CO' || !!node.user_progress?.done;
   });
 
 }
