@@ -38,7 +38,9 @@
             <div class="options-list" role="group">
                 @for (option of question.options; track $index; let oIdx = $index) {
                 @let isChecked = userAnswers()[qIdx][oIdx];
-                <div class="option-item">
+                @let isCorrect = quizSubmitted() && QuizCorrection()[qIdx] && QuizCorrection()[qIdx][0][oIdx];
+                @let isIncorrect = quizSubmitted() && QuizCorrection()[qIdx] && isChecked && !QuizCorrection()[qIdx][0][oIdx];
+                <div class="option-item" [class.option-correct]="isCorrect" [class.option-incorrect]="isIncorrect">
                     <mat-checkbox [checked]="isChecked" [disabled]="quizSubmitted()"
                         (change)="updateAnswer(qIdx, oIdx, true)">
                         {{ option }}
@@ -50,7 +52,9 @@
             <mat-radio-group class="options-list" [disabled]="quizSubmitted()">
                 @for (option of question.options; track $index; let oIdx = $index) {
                 @let isChecked = userAnswers()[qIdx][oIdx];
-                <div class="option-item">
+                @let isCorrect = quizSubmitted() && QuizCorrection()[qIdx] && QuizCorrection()[qIdx][0][oIdx];
+                @let isIncorrect = quizSubmitted() && QuizCorrection()[qIdx] && isChecked && !QuizCorrection()[qIdx][0][oIdx];
+                <div class="option-item" [class.option-correct]="isCorrect" [class.option-incorrect]="isIncorrect">
                     <mat-radio-button [checked]="isChecked" [value]="oIdx"
                         (change)="updateAnswer(qIdx, oIdx, false)">
                         {{ option }}

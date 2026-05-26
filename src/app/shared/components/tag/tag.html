@@ -1,0 +1,8 @@
+<span class="tag-container" [class]="'color-' + color()" [class.size-small]="size() === 'small'" [class.size-large]="size() === 'large'">
+  @if (icon()) {
+    <mat-icon class="tag-icon">{{ icon() }}</mat-icon>
+  }
+  <span class="tag-text">
+    <ng-content></ng-content>
+  </span>
+</span>

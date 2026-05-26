@@ -1,12 +1,12 @@
 import { Component, input, computed, inject } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { RouterLink, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Tag } from '@shared/components/tag/tag';
 
 
 import { NodeInfo, TYPE_LABELS } from '@shared/services/node/node';
@@ -14,7 +14,7 @@ import { NodeInfo, TYPE_LABELS } from '@shared/services/node/node';
 
 @Component({
   selector: 'app-item-card',
-  imports: [MatIconModule, MatChipsModule, MatDividerModule, MatButtonModule, MatProgressSpinnerModule, MatTooltipModule],
+  imports: [MatIconModule, MatDividerModule, MatButtonModule, MatProgressSpinnerModule, MatTooltipModule, Tag],
   templateUrl: './item-card.html',
   styleUrl: './item-card.scss',
 })
@@ -45,6 +45,15 @@ export class ItemCard {
     if (!node) return '';
     // On utilise la clé node.type pour récupérer le label, sinon on renvoie le type brut
     return TYPE_LABELS[node.type] || node.type;
+  });
+
+  difficultyLabel = computed(() => {
+    const node = this.itemInfo.value();
+    const diff = node?.difficulty;
+    if (!diff) return null;
+    if (diff <= 1) return 'Facile';
+    if (diff === 2) return 'Moyen';
+    return 'Difficile';
   });
 
   isDone = computed(() => {

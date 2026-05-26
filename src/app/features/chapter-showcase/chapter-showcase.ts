@@ -2,7 +2,6 @@ import { Component, ChangeDetectionStrategy, input, computed, inject, effect } f
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { NodeInfo, GRADE_LABELS, SUBJECT_LABELS } from '@shared/services/node/node';
 import { httpResource } from '@angular/common/http';
@@ -10,10 +9,11 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { SectionCard } from './components/section-card/section-card';
 import { MatListModule } from '@angular/material/list';
 import { BreadcrumbService } from '@shared/services/breadcrumb.service';
+import { Tag } from '@shared/components/tag/tag';
 
 @Component({
   selector: 'app-chapter-showcase',
-  imports: [MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatChipsModule, MatDividerModule, MatExpansionModule, SectionCard, MatListModule],
+  imports: [MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDividerModule, MatExpansionModule, SectionCard, MatListModule, Tag],
   templateUrl: './chapter-showcase.html',
   styleUrl: './chapter-showcase.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

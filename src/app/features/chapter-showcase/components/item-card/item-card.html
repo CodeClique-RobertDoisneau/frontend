@@ -9,7 +9,14 @@
         <mat-icon class="item-icon">{{ typeIcon() }}</mat-icon>
         <div class="item-title" [title]="item.title">{{ item.title }}</div>
         <div class="item-status-group">
-            <span class="item-type-badge">{{ typeLabel() }}</span>
+            <app-tag color="primary" size="small">
+                {{ typeLabel() }}
+            </app-tag>
+            @if (difficultyLabel()) {
+                <app-tag [color]="(item.difficulty || 1) <= 1 ? 'success' : ((item.difficulty || 1) === 2 ? 'caution' : 'error')" size="small">
+                    {{ difficultyLabel() }}
+                </app-tag>
+            }
             <mat-icon class="status-icon" [class.done]="isDone()">
                 {{ isDone() ? 'check_circle' : 'radio_button_unchecked' }}
             </mat-icon>

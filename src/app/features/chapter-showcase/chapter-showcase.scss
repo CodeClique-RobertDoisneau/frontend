@@ -50,8 +50,10 @@
 
 .meta-chips {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  color: var(--mat-sys-on-surface-variant);
+  gap: 8px;
+  width: 100%;
 }
 
 .children-container {
@@ -62,56 +64,11 @@
   width: 100%;
 }
 
-.grade-chip {
-  background-color: var(--mat-sys-primary-container) !important;
-  color: var(--mat-sys-on-primary-container) !important;
-
-  ::ng-deep mat-icon {
-    color: var(--mat-sys-on-primary-container) !important;
-  }
-}
-
-.subject-chip {
-  background-color: var(--mat-sys-tertiary-container) !important;
-  color: var(--mat-sys-on-tertiary-container) !important;
-
-  ::ng-deep mat-icon {
-    color: var(--mat-sys-on-tertiary-container) !important;
-  }
-}
-
-.sections-chip {
-  background-color: var(--mat-sys-secondary-container) !important;
-  color: var(--mat-sys-on-secondary-container) !important;
-
-  ::ng-deep mat-icon {
-    color: var(--mat-sys-on-secondary-container) !important;
-  }
-}
-
 .empty-message {
   padding: 16px;
   text-align: center;
   color: var(--mat-sys-on-surface-variant);
   font-style: italic;
-}
-
-.meta-chips {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-
-  ::ng-deep {
-    mat-chip-set,
-    .mat-mdc-chip-set,
-    .mdc-evolution-chip-set,
-    .mdc-evolution-chip-set__chips {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center !important;
-      gap: 8px !important;
-    }
-  }
 }
 
 @media (max-width: 768px) {

@@ -4,20 +4,26 @@
       <div class="title-row">
         <h1 class="chapter-title">{{ d.title }}</h1>
         @if (typeLabel() || subjectLabel() || gradeLabel() || difficultyLabel()) {
-          <div class="tags-container">
+          <div class="meta-chips">
             @if (typeLabel()) {
-              <span class="tag-badge type-tag">{{ typeLabel() }}</span>
+              <app-tag color="primary" [icon]="d.type === 'LE' ? 'menu_book' : (d.type === 'QU' ? 'quiz' : 'assignment')">
+                {{ typeLabel() }}
+              </app-tag>
             }
             @if (subjectLabel()) {
-              <span class="tag-badge subject-tag">{{ subjectLabel() }}</span>
+              <app-tag color="secondary" icon="menu_book">
+                {{ subjectLabel() }}
+              </app-tag>
             }
             @if (gradeLabel()) {
-              <span class="tag-badge grade-tag">{{ gradeLabel() }}</span>
+              <app-tag color="tertiary" icon="school">
+                {{ gradeLabel() }}
+              </app-tag>
             }
             @if (difficultyLabel()) {
-              <span class="tag-badge difficulty-tag" [class]="'difficulty-' + (d.difficulty || 1)">
+              <app-tag [color]="(d.difficulty || 1) <= 1 ? 'success' : ((d.difficulty || 1) === 2 ? 'caution' : 'error')" icon="speed">
                 {{ difficultyLabel() }}
-              </span>
+              </app-tag>
             }
           </div>
         }
