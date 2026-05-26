@@ -1,8 +1,7 @@
-import { Component, input, computed } from '@angular/core';
-import { httpResource } from '@angular/common/http';
+import { Component, input, computed, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
-import { NodeInfo } from '@shared/services/node/node';
+import { NodeInfo, Node } from '@shared/services/node/node';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -17,8 +16,9 @@ import { MatExpansionModule } from '@angular/material/expansion';
 })
 export class SectionCard {
   readonly id = input.required<string>();
+  private nodeService = inject(Node);
 
-  sectionInfo = httpResource<NodeInfo>(() => `/api/nodes/${this.id()}/`);
+  sectionInfo = this.nodeService.getNode(() => this.id());
 
   itemIds = computed(
     () => {

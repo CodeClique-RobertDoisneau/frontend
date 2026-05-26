@@ -1,5 +1,4 @@
 import { Component, input, computed, inject } from '@angular/core';
-import { httpResource } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { RouterLink, Router } from '@angular/router';
@@ -9,7 +8,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Tag } from '@shared/components/tag/tag';
 
 
-import { NodeInfo, TYPE_LABELS } from '@shared/services/node/node';
+import { NodeInfo, TYPE_LABELS, Node } from '@shared/services/node/node';
 
 
 @Component({
@@ -22,8 +21,9 @@ import { NodeInfo, TYPE_LABELS } from '@shared/services/node/node';
 export class ItemCard {
   readonly id = input.required<string>();
   private router = inject(Router);
+  private nodeService = inject(Node);
 
-  itemInfo = httpResource<NodeInfo>(() => `/api/nodes/${this.id()}/`);
+  itemInfo = this.nodeService.getNode(() => this.id());
 
   onCardClick(event: Event, id: string | number) {
     this.router.navigate(['/course', id]);

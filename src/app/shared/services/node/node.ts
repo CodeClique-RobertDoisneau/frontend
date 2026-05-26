@@ -49,6 +49,22 @@ export class Node {
     return this.api.post<Record<string, unknown>>(`/api/nodes/${id}/answer/`, { answer: submission, modified_at });
   }
 
+  getAttempts(id: string | number | (() => string | number | undefined)): HttpResourceRef<any[] | undefined> {
+    return this.api.get<any[]>(() => {
+      const resolvedId = typeof id === 'function' ? id() : id;
+      if (!resolvedId) return undefined;
+      return `/api/nodes/${resolvedId}/answer/`;
+    });
+  }
+
+  submitAnswer(id: string | number, answer: boolean[][], modified_at: string): Promise<any> {
+    return this.api.post(`/api/nodes/${id}/answer/`, { answer, modified_at });
+  }
+
+  updateProgress(id: string | number, action: string = 'completed'): Promise<any> {
+    return this.api.post(`/api/nodes/${id}/progress/`, { action_performed: action });
+  }
+
   getUser(): HttpResourceRef<UserInfo | undefined> {
     return this.api.get<UserInfo>(() => '/api/users/me/');
   }

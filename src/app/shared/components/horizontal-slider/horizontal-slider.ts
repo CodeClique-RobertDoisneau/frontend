@@ -1,12 +1,11 @@
-import { Component, ElementRef, viewChild, signal, computed, input } from '@angular/core';
-import { httpResource } from '@angular/common/http';
+import { Component, ElementRef, viewChild, signal, computed, input, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { ChapterCard } from '@shared/components/chapter-card/chapter-card';
 import { Persona } from '@shared/components/persona/persona';
-import { NodeInfo } from '@shared/services/node/node';
+import { NodeInfo, Node } from '@shared/services/node/node';
 
 
 @Component({
@@ -17,7 +16,8 @@ import { NodeInfo } from '@shared/services/node/node';
 })
 export class HorizontalSlider {
   id = input.required<number | string>();
-  nodeInfo = httpResource<NodeInfo>(() => `/api/nodes/${this.id()}/`);
+  private nodeService = inject(Node);
+  nodeInfo = this.nodeService.getNode(() => this.id());
 
   chapters = computed(
     () => {

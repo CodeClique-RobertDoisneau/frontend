@@ -1,15 +1,14 @@
 import { Component, signal, computed, ChangeDetectionStrategy, effect, untracked, input, output, inject } from '@angular/core';
-import { httpResource } from '@angular/common/http';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatIconModule } from '@angular/material/icon';
-import { HttpResourceRequest } from '@angular/common/http';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { map, firstValueFrom } from 'rxjs';
 import { Api } from '@shared/services/api/api';
+import { Node } from '@shared/services/node/node';
 
 
 export interface QuizItem {
@@ -60,32 +59,15 @@ export class QuizComponent {
 
   userAnswers = signal<boolean[][]>([]);
   quizSubmitted = signal(false);
-  submissionTrigger = signal(0);
   _internalRestart = signal(false);
-
   submitted = output<void>();
 
+  private nodeService = inject(Node);
+  quizResource = this.nodeService.getNode(() => this.previewData() ? undefined : this.quizId());
 
-  quizResource = httpResource<any>(() => {
-    if (this.previewData()) return undefined; // Pas besoin d'appeler l'API si previewData est là
-    const id = this.quizId();
-    if (!id) return undefined;
-
-    return {
-      url: `/api/nodes/${id}/`,
-      method: 'GET'
-    } as HttpResourceRequest;
-  });
-
-  attemptsResource = httpResource<any[]>(() => {
+  attemptsResource = this.nodeService.getAttempts(() => {
     if (this.previewData() || this.mode() === 'practice') return undefined;
-    const id = this.quizId();
-    if (!id) return undefined;
-
-    return {
-      url: `/api/nodes/${id}/answer/`,
-      method: 'GET'
-    } as HttpResourceRequest;
+    return this.quizId();
   });
 
 
@@ -255,41 +237,6 @@ export class QuizComponent {
       });
     });
 
-    // 2.5. Effect to handle submitResource resolution or error
-    effect(() => {
-      const status = this.submitResource.status();
-      const error = this.submitResource.error();
-
-      if (this.submissionTrigger() === 0) return;
-
-      untracked(() => {
-        if (status === 'resolved') {
-          this.quizSubmitted.set(true);
-          this._internalRestart.set(false);
-
-          // Update progress status to COMPLETED via the backend POST endpoint!
-          const id = this.quizId();
-          if (id && this.mode() === 'graded') {
-            firstValueFrom(
-              this.api.http.post(`/api/nodes/${id}/progress/`, { action_performed: 'completed' })
-            ).then(() => {
-              this.quizResource.reload();
-              this.attemptsResource.reload();
-              this.submitted.emit();
-            }).catch(err => {
-              console.error("Failed to update progress status:", err);
-              this.quizResource.reload();
-              this.attemptsResource.reload();
-              this.submitted.emit();
-            });
-          } else {
-            this.submitted.emit();
-          }
-        } else if (status === 'error') {
-          console.error("Quiz submission failed:", error);
-        }
-      });
-    });
   }
 
 
@@ -311,41 +258,45 @@ export class QuizComponent {
     return `Réponse : ${indices.join('), ')}${indices.length > 0 ? ')' : ''}`;
   }
 
-  // Elle s'active UNIQUEMENT quand l'utilisateur clique sur "Vérifier mes réponses"
-  submitResource = httpResource<any>(() => {
-    if (this.submissionTrigger() === 0) return undefined;
-    if (this.previewData()) return undefined; // Pas de POST en mode éditeur
-    if (this.showCorrectionOnly()) return undefined; // Pas de POST en mode forcé
-    if (this.mode() === 'practice') return undefined; // Pas de POST en mode practice (leçon)
-    const id = this.quizId();
-    if (!id) return undefined;
-
-    return untracked(() => {
-      const node = this.quizResource.value();
-      const modified_at = node?.modified_at;
-      const answer = this.userAnswers();
-
-      return {
-        url: `/api/nodes/${id}/answer/`,
-        method: 'POST',
-        body: { answer, modified_at }
-      } as HttpResourceRequest;
-    });
-  });
-
-  submit() {
+  async submit() {
     if (this.mode() === 'practice') {
       this.quizSubmitted.set(true);
       this.submitted.emit();
-    } else {
-      this.submissionTrigger.update(v => v + 1);
+      return;
+    }
+
+    const id = this.quizId();
+    if (!id || this.previewData() || this.showCorrectionOnly()) return;
+
+    try {
+      const node = this.quizResource.value();
+      const modified_at = node?.modified_at || '';
+      const answer = this.userAnswers();
+
+      await this.nodeService.submitAnswer(id, answer, modified_at);
+
+      this.quizSubmitted.set(true);
+      this._internalRestart.set(false);
+
+      if (this.mode() === 'graded') {
+        try {
+          await this.nodeService.updateProgress(id, 'completed');
+        } catch (err) {
+          console.error("Failed to update progress status:", err);
+        }
+      }
+
+      this.quizResource.reload();
+      this.attemptsResource.reload();
+      this.submitted.emit();
+    } catch (error) {
+      console.error("Quiz submission failed:", error);
     }
   }
 
   doRestart() {
     this._internalRestart.set(true);
     this.quizSubmitted.set(false);
-    this.submissionTrigger.set(0);
   }
 
 

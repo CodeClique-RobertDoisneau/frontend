@@ -7,7 +7,7 @@
   @if (node.type === 'QU') {
   <app-item-card [id]="node.id.toString()"></app-item-card>
   } @else {
-  <mat-expansion-panel>
+  <mat-expansion-panel expanded>
       <mat-expansion-panel-header>
           <mat-panel-title> {{node.title}} </mat-panel-title>
           <mat-panel-description>
