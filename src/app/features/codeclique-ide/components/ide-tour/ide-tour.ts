@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed } from '@angular/core';
+import { Component, input, output, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,7 +14,6 @@ export interface TourStep {
 
 @Component({
   selector: 'app-ide-tour',
-  standalone: true,
   imports: [
     NgStyle,
     MatCardModule,
@@ -22,7 +21,8 @@ export interface TourStep {
     MatIconModule
   ],
   templateUrl: './ide-tour.html',
-  styleUrl: './ide-tour.scss'
+  styleUrl: './ide-tour.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IdeTour {
   steps = input.required<TourStep[]>();
@@ -57,10 +57,9 @@ export class IdeTour {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     const cardWidth = 340; 
-    const cardHeight = 220; // safe estimation for viewport constraints
+    const cardHeight = 220;
 
     if (!step.selector) {
-      // Centered overlay position
       return {
         top: '50%',
         left: '50%',
@@ -104,7 +103,6 @@ export class IdeTour {
       };
     }
 
-    // High Premium Safety Bounds: Keep card 100% inside screen boundary at all times
     const minPadding = 16;
     left = Math.max(minPadding, Math.min(left, viewportWidth - cardWidth - minPadding));
     top = Math.max(minPadding, Math.min(top, viewportHeight - cardHeight - minPadding));

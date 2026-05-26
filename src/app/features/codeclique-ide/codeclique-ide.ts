@@ -9,7 +9,6 @@ import { IdeTour, TourStep } from './components/ide-tour/ide-tour';
 
 @Component({
   selector: 'app-codeclique-ide',
-  standalone: true,
   imports: [
     MenuBar,
     IdeTabView,
@@ -30,7 +29,6 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
   consoleWidth = signal<number>(450);
   isConsoleVisible = signal<boolean>(true);
 
-  // Guided Tour State Machine
   showTour = signal<boolean>(false);
   tourSteps: TourStep[] = [
     {
@@ -93,7 +91,6 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
     }
     this.registerShortcuts();
 
-    // Auto trigger tour on first browser visit
     setTimeout(() => {
       const tourCompleted = localStorage.getItem('codeclique_ide_tour_completed');
       if (!tourCompleted) {
