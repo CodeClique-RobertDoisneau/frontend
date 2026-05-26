@@ -6,6 +6,7 @@
     (stop)="stopActive()"
     (reset)="resetActive()"
     (loadPackageEvent)="loadPackageActive($event)"
+    (startTourEvent)="startTour()"
   ></app-menu-bar>
 
   <div class="ide-shell" #ideContainer>
@@ -23,3 +24,10 @@
     </div>
   </div>
 </div>
+
+@if (showTour()) {
+  <app-ide-tour
+    [steps]="tourSteps"
+    (close)="closeTour()"
+  ></app-ide-tour>
+}

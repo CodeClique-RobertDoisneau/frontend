@@ -48,6 +48,10 @@
 
   <button mat-button [matMenuTriggerFor]="helpMenu">Aide</button>
   <mat-menu #helpMenu="matMenu">
+    <button mat-menu-item (click)="onStartTour()">
+      <mat-icon>explore</mat-icon>
+      <span>Visite guidée</span>
+    </button>
     <button mat-menu-item (click)="openDocumentation()">
       <mat-icon>help_outline</mat-icon>
       <span>Documentation</span>

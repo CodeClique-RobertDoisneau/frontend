@@ -41,6 +41,7 @@ export class MenuBar {
   stop = output<void>();
   reset = output<void>();
   loadPackageEvent = output<string>();
+  startTourEvent = output<void>();
 
   private fileInput = viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
 
@@ -110,5 +111,9 @@ export class MenuBar {
     this.dialog.open(AboutDialog, {
       width: '500px'
     });
+  }
+
+  onStartTour() {
+    this.startTourEvent.emit();
   }
 }

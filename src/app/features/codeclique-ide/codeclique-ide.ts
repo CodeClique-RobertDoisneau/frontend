@@ -1,19 +1,19 @@
 import { Component, inject, signal, OnInit, ElementRef, viewChild, OnDestroy, viewChildren, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { fromEvent } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { WorkspaceService } from './services/workspace';
 import { ShortcutService } from '@shared/services/shortcut/shortcut';
 import { MenuBar } from './components/menu-bar/menu-bar';
 import { IdeTabView } from './components/ide-tab-view/ide-tab-view';
+import { IdeTour, TourStep } from './components/ide-tour/ide-tour';
 
 @Component({
   selector: 'app-codeclique-ide',
   standalone: true,
   imports: [
-    CommonModule,
     MenuBar,
-    IdeTabView
+    IdeTabView,
+    IdeTour
   ],
   templateUrl: './codeclique-ide.html',
   styleUrl: './codeclique-ide.scss'
@@ -29,6 +29,51 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
 
   consoleWidth = signal<number>(450);
   isConsoleVisible = signal<boolean>(true);
+
+  // Guided Tour State Machine
+  showTour = signal<boolean>(false);
+  tourSteps: TourStep[] = [
+    {
+      title: "Bienvenue sur CodeClique IDE",
+      content: "Nous sommes ravis de vous accueillir ! Suivez ce guide interactif pour prendre en main votre environnement de programmation Python en quelques secondes.",
+      position: 'center'
+    },
+    {
+      title: "L'Éditeur de Code",
+      content: "C'est ici, sur la gauche, que vous rédigez vos scripts Python. Profitez de l'auto-complétion intelligente et de la coloration syntaxique pour coder rapidement.",
+      selector: '.editor-section',
+      position: 'left'
+    },
+    {
+      title: "Gestion des Onglets",
+      content: "Gérez plusieurs fichiers en parallèle. Cliquez sur '+' pour ouvrir un nouvel onglet, ou double-cliquez sur le nom d'un onglet pour le renommer !",
+      selector: 'app-tab-bar',
+      position: 'left'
+    },
+    {
+      title: "Exécution Instantanée",
+      content: "Cliquez sur ce bouton Play (ou utilisez F5 / Ctrl + Enter) pour exécuter immédiatement votre script Python grâce à notre moteur embarqué.",
+      selector: '.execution-controls',
+      position: 'bottom'
+    },
+    {
+      title: "La Console REPL",
+      content: "À droite s'affichent les sorties de vos scripts. Utilisez l'invite interactive en bas pour exécuter des commandes en direct !",
+      selector: '.repl-panel',
+      position: 'right'
+    },
+    {
+      title: "Bibliothèques & Outils",
+      content: "Le menu supérieur vous permet d'importer des packages de calcul (numpy, matplotlib...) en un clic ou de charger des exemples de projets !",
+      selector: 'app-menu-bar',
+      position: 'bottom'
+    },
+    {
+      title: "C'est parti",
+      content: "La visite est terminée. Vous pouvez re-déclencher ce guide à tout moment via le menu Aide > Visite guidée. Excellent code à vous !",
+      position: 'center'
+    }
+  ];
 
   activeIsReady = computed(() => {
     const activeTab = this.workspace.activeTabHandler();
@@ -47,10 +92,27 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
       this.workspace.addNewTab();
     }
     this.registerShortcuts();
+
+    // Auto trigger tour on first browser visit
+    setTimeout(() => {
+      const tourCompleted = localStorage.getItem('codeclique_ide_tour_completed');
+      if (!tourCompleted) {
+        this.startTour();
+      }
+    }, 1200);
   }
 
   ngOnDestroy() {
     this.shortcutUnregister.forEach(unreg => unreg());
+  }
+
+  startTour() {
+    this.showTour.set(true);
+  }
+
+  closeTour() {
+    this.showTour.set(false);
+    localStorage.setItem('codeclique_ide_tour_completed', 'true');
   }
 
   runActive() {

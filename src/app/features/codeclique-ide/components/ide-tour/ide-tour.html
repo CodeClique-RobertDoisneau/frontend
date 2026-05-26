@@ -1,0 +1,36 @@
+<div class="tour-overlay">
+  <!-- Spotlight dimming backdrop (Zero blur) -->
+  <div class="tour-backdrop" (click)="finishTour()"></div>
+  
+  @if (spotlightStyle(); as style) {
+    <div class="tour-spotlight" [ngStyle]="style"></div>
+  }
+
+  <!-- Interactive popup using mat-card -->
+  @if (currentStep(); as step) {
+    <mat-card class="tour-card mat-elevation-z8" [ngStyle]="cardStyle()">
+      <mat-card-header>
+        <mat-card-title>{{ step.title }}</mat-card-title>
+        <button mat-icon-button class="tour-close-btn" (click)="finishTour()" aria-label="Fermer la visite">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-card-header>
+
+      <mat-card-content>
+        <p>{{ step.content }}</p>
+      </mat-card-content>
+
+      <mat-card-actions class="tour-actions-footer">
+        <span class="tour-step-counter">{{ tourStep() + 1 }} / {{ steps().length }}</span>
+        <div class="tour-buttons">
+          @if (tourStep() > 0) {
+            <button mat-button (click)="prevStep()">Précédent</button>
+          }
+          <button mat-flat-button color="primary" (click)="nextStep()">
+            {{ tourStep() === steps().length - 1 ? 'Terminer' : 'Suivant' }}
+          </button>
+        </div>
+      </mat-card-actions>
+    </mat-card>
+  }
+</div>

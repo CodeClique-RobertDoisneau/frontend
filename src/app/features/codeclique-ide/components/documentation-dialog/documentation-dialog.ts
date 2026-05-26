@@ -24,6 +24,37 @@ export class DocumentationDialog {
   dialogRef = inject(MatDialogRef<DocumentationDialog>);
 
   documentation = `
+## Guide de démarrage rapide
+
+Bienvenue dans l'environnement de programmation **CodeClique** ! 
+
+Que vous soyez débutant ou développeur expérimenté, cet IDE complet vous permet d'écrire, d'exécuter et de tester du code Python directement depuis votre navigateur. Voici comment il fonctionne en 3 étapes simples :
+
+1. **Écrire votre code**  
+   Dans la zone de gauche, vous trouverez l'**Éditeur**. C'est ici que vous tapez vos scripts Python. Vous pouvez ouvrir plusieurs fichiers en utilisant les onglets en haut de l'éditeur (comme dans un navigateur web).
+
+2. **Exécuter le script**  
+   Cliquez sur le bouton **Play (Exécuter)** vert en haut à droite (ou appuyez sur la touche **F5** de votre clavier). Votre code sera immédiatement exécuté en arrière-plan grâce à notre moteur Python embarqué.
+
+3. **Interagir avec la Console (REPL)**  
+   À droite se trouve la **Console**. C'est ici que s'affichent les résultats de vos scripts (comme les \`print()\`).  
+   En bas de la console, vous pouvez saisir des commandes Python interactives (REPL) en direct pour tester rapidement des variables ou des fonctions !
+
+---
+
+### Vos premières lignes de code
+
+Essayez de copier-coller ceci dans l'éditeur et d'appuyer sur **F5** :
+\`\`\`python
+nom = "Apprenti Développeur"
+print(f"Bonjour {nom} ! Bienvenue sur CodeClique.")
+
+for i in range(3):
+    print(f"Étape {i+1} : Prêt à coder !")
+\`\`\`
+
+---
+
 ## Fonctionnalités
 - **Console REPL** : Exécutez des commandes Python en direct.
 - **Gestion des packages** : Chargez des bibliothèques comme \`numpy\`, \`pandas\`, etc. via le menu dédié.
