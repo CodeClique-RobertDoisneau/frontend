@@ -4,14 +4,23 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { WorkspaceService } from '../../services/workspace';
 import { TabHandler } from '../../services/tab-handler';
 import { IdeTabView } from '../ide-tab-view/ide-tab-view';
 
 @Component({
   selector: 'app-repl',
-  standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, MatTooltipModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatFormFieldModule,
+    MatInputModule
+  ],
   templateUrl: './repl.html',
   styleUrl: './repl.scss'
 })
@@ -27,12 +36,9 @@ export class Repl {
 
   constructor() {
     effect(() => {
-      // Trigger effect on history or state changes
       this.tab().replHistory();
       this.tab().waitingForInput();
 
-      // Schedule DOM operations for after the next render cycle
-      // We pass the injector explicitly to satisfy the injection context requirement
       afterNextRender(() => {
         this.scrollToBottom();
         this.focus();
