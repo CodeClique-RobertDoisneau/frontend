@@ -11,7 +11,7 @@
               </app-tag>
             }
             @if (subjectLabel()) {
-              <app-tag color="secondary" icon="menu_book">
+              <app-tag color="secondary" [icon]="d.subject === 'MA' ? 'calculate' : (d.subject === 'PH' ? 'science' : (d.subject === 'CO' ? 'code' : 'menu_book'))">
                 {{ subjectLabel() }}
               </app-tag>
             }

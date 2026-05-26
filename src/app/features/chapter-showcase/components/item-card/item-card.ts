@@ -31,12 +31,12 @@ export class ItemCard {
 
   typeIcon = computed(() => {
     const node = this.itemInfo.value();
-    if (!node) return 'article';
+    if (!node) return 'menu_book';
     switch (node.type) {
-      case 'LE': case 'lesson': return 'article';
+      case 'LE': case 'lesson': return 'menu_book';
       case 'QU': case 'quiz': return 'quiz';
-      case 'EX': case 'exercise': return 'play_lesson';
-      default: return 'article';
+      case 'EX': case 'exercise': return 'assignment';
+      default: return 'menu_book';
     }
   });
 

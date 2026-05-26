@@ -22,7 +22,7 @@
           </app-tag>
         }
         @if (chapterData.subject) {
-          <app-tag color="secondary" icon="menu_book">
+          <app-tag color="secondary" [icon]="chapterData.subject === 'MA' ? 'calculate' : (chapterData.subject === 'PH' ? 'science' : (chapterData.subject === 'CO' ? 'code' : 'menu_book'))">
             {{ SUBJECT_LABELS[chapterData.subject] || chapterData.subject }}
           </app-tag>
         }
