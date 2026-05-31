@@ -16,24 +16,19 @@
       <h1 class="chapter-title">{{ chapterData.title }}</h1>
 
       <div class="meta-chips">
-        <mat-chip-set>
-          @if (chapterData.grade_level) {
-          <mat-chip class="grade-chip">
-            <mat-icon matChipAvatar>school</mat-icon>
+        @if (chapterData.grade_level) {
+          <app-tag color="tertiary" icon="school">
             {{ GRADE_LABELS[chapterData.grade_level] || chapterData.grade_level }}
-          </mat-chip>
-          }
-          @if (chapterData.subject) {
-          <mat-chip class="subject-chip">
-            <mat-icon matChipAvatar>menu_book</mat-icon>
+          </app-tag>
+        }
+        @if (chapterData.subject) {
+          <app-tag color="secondary" [icon]="chapterData.subject === 'MA' ? 'calculate' : (chapterData.subject === 'PH' ? 'science' : (chapterData.subject === 'CO' ? 'code' : 'menu_book'))">
             {{ SUBJECT_LABELS[chapterData.subject] || chapterData.subject }}
-          </mat-chip>
-          }
-          <mat-chip class="sections-chip">
-            <mat-icon matChipAvatar>list</mat-icon>
-            {{ sectionIds().length }} sections
-          </mat-chip>
-        </mat-chip-set>
+          </app-tag>
+        }
+        <app-tag color="primary" icon="list">
+          {{ sectionIds().length }} sections
+        </app-tag>
       </div>
     </div>
   </div>

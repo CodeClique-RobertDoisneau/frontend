@@ -1,0 +1,115 @@
+.tour-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+}
+
+.tour-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: transparent; 
+  pointer-events: auto;
+  transition: opacity 0.3s ease;
+}
+
+.tour-spotlight {
+  position: fixed;
+  border-radius: 6px;
+  box-sizing: border-box;
+  box-shadow: 0 0 0 9999px rgba(13, 17, 23, 0.72); 
+  border: 2px solid var(--mat-sys-primary);
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tour-card {
+  position: fixed;
+  width: 340px;
+  max-width: 90vw;
+  border-radius: 20px !important;
+  background: var(--mat-sys-surface-container-high) !important;
+  border: 1px solid var(--mat-sys-outline-variant);
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 16px 20px 12px 20px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.no-spotlight {
+    box-shadow: 0 0 0 9999px rgba(13, 17, 23, 0.72) !important;
+  }
+
+  mat-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 0 !important;
+
+    .tour-icon {
+      margin-right: 8px;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+
+    mat-card-title {
+      font-size: 1.1rem !important;
+      font-weight: 600 !important;
+      color: var(--mat-sys-primary) !important;
+      margin: 0 !important;
+      line-height: 1.2;
+    }
+
+    .tour-close-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--mat-sys-on-surface-variant);
+    }
+  }
+
+  mat-card-content {
+    padding: 0 !important;
+    margin-bottom: 16px;
+
+    p {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: var(--mat-sys-on-surface-variant);
+    }
+  }
+
+  .tour-actions-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--mat-sys-outline-variant);
+    padding: 12px 0 0 0 !important;
+    margin: 0 !important;
+
+    .tour-step-counter {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--mat-sys-outline);
+    }
+
+    .tour-buttons {
+      display: flex;
+      gap: 8px;
+    }
+  }
+}

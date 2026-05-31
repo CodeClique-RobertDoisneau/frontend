@@ -124,6 +124,38 @@ $_palettes: (
     99: #fffbff,
     100: #ffffff,
   ),
+  success: (
+    0: #000000,
+    10: #002114,
+    20: #003825,
+    30: #005138,
+    40: #006c4c,
+    50: #008961,
+    60: #00a676,
+    70: #0ec48d,
+    80: #4ce1a7,
+    90: #8bf8c6,
+    95: #caffeb,
+    98: #e6fff4,
+    99: #f3fff9,
+    100: #ffffff,
+  ),
+  caution: (
+    0: #000000,
+    10: #2b1700,
+    20: #482900,
+    30: #663d00,
+    40: #865200,
+    50: #a76800,
+    60: #c97e00,
+    70: #eb9500,
+    80: #ffb86f,
+    90: #ffdcbe,
+    95: #ffeee0,
+    98: #fff8f4,
+    99: #fffbff,
+    100: #ffffff,
+  ),
 );
 
 $_rest: (
@@ -131,6 +163,8 @@ $_rest: (
   neutral: map.get($_palettes, neutral),
   neutral-variant: map.get($_palettes,  neutral-variant),
   error: map.get($_palettes, error),
+  success: map.get($_palettes, success),
+  caution: map.get($_palettes, caution),
 );
 
 $primary-palette: map.merge(map.get($_palettes, primary), $_rest);
@@ -199,6 +233,14 @@ $tertiary-palette: map.merge(map.get($_palettes, tertiary), $_rest);
     on-error: _high-contrast-value(#ffffff, #000000, $theme-type),
     error-container: _high-contrast-value(#98000a, #ffaea4, $theme-type),
     on-error-container: _high-contrast-value(#ffffff, #220001, $theme-type),
+    success: _high-contrast-value(#005138, #8bf8c6, $theme-type),
+    on-success: _high-contrast-value(#ffffff, #000000, $theme-type),
+    success-container: _high-contrast-value(#006c4c, #4ce1a7, $theme-type),
+    on-success-container: _high-contrast-value(#ffffff, #002114, $theme-type),
+    caution: _high-contrast-value(#663d00, #ffdcbe, $theme-type),
+    on-caution: _high-contrast-value(#ffffff, #000000, $theme-type),
+    caution-container: _high-contrast-value(#865200, #ffb86f, $theme-type),
+    on-caution-container: _high-contrast-value(#ffffff, #2b1700, $theme-type),
     surface-variant: _high-contrast-value(#dee3ed, #42474f, $theme-type),
     on-surface-variant: _high-contrast-value(#000000, #ffffff, $theme-type),
   ))

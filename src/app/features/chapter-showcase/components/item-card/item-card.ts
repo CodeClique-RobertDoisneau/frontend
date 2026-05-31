@@ -1,29 +1,28 @@
-import { Component, input, computed, inject } from '@angular/core';
-import { httpResource } from '@angular/common/http';
+import { Component, input, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDividerModule } from '@angular/material/divider';
-import { RouterLink, Router } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
+import { Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Tag } from '@shared/components/tag/tag';
 
 
-import { NodeInfo, TYPE_LABELS } from '@shared/services/node/node';
+import { NodeInfo, TYPE_LABELS, Node } from '@shared/services/node/node';
 
 
 @Component({
   selector: 'app-item-card',
-  imports: [MatIconModule, MatChipsModule, MatDividerModule, MatButtonModule, MatProgressSpinnerModule, MatTooltipModule],
+  imports: [MatIconModule, MatProgressSpinnerModule, MatTooltipModule, Tag],
   templateUrl: './item-card.html',
   styleUrl: './item-card.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 
 export class ItemCard {
   readonly id = input.required<string>();
   private router = inject(Router);
+  private nodeService = inject(Node);
 
-  itemInfo = httpResource<NodeInfo>(() => `/api/nodes/${this.id()}/`);
+  itemInfo = this.nodeService.getNode(() => this.id());
 
   onCardClick(event: Event, id: string | number) {
     this.router.navigate(['/course', id]);
@@ -31,12 +30,12 @@ export class ItemCard {
 
   typeIcon = computed(() => {
     const node = this.itemInfo.value();
-    if (!node) return 'article';
+    if (!node) return 'menu_book';
     switch (node.type) {
-      case 'LE': case 'lesson': return 'article';
+      case 'LE': case 'lesson': return 'menu_book';
       case 'QU': case 'quiz': return 'quiz';
-      case 'EX': case 'exercise': return 'play_lesson';
-      default: return 'article';
+      case 'EX': case 'exercise': return 'assignment';
+      default: return 'menu_book';
     }
   });
 
@@ -47,9 +46,19 @@ export class ItemCard {
     return TYPE_LABELS[node.type] || node.type;
   });
 
+  difficultyLabel = computed(() => {
+    const node = this.itemInfo.value();
+    const diff = node?.difficulty;
+    if (!diff) return null;
+    if (diff <= 1) return 'Facile';
+    if (diff === 2) return 'Moyen';
+    return 'Difficile';
+  });
+
   isDone = computed(() => {
     const node = this.itemInfo.value();
-    return !!node?.user_progress?.done;
+    if (!node) return false;
+    return node.progress?.status === 'CO' || !!node.user_progress?.done;
   });
 
 }

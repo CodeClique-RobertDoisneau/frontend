@@ -39,53 +39,12 @@
   margin-bottom: 24px;
 }
 
-.tags-container {
+.meta-chips {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
-  align-items: center;
-}
-
-.tag-badge {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 4px 10px;
-  border-radius: 12px;
-  line-height: 1.4;
-  display: inline-flex;
-  align-items: center;
-
-  &.type-tag {
-    background-color: var(--mat-sys-primary-container);
-    color: var(--mat-sys-on-primary-container);
-  }
-
-  &.subject-tag {
-    background-color: var(--mat-sys-secondary-container);
-    color: var(--mat-sys-on-secondary-container);
-  }
-
-  &.grade-tag {
-    background-color: var(--mat-sys-tertiary-container);
-    color: var(--mat-sys-on-tertiary-container);
-  }
-
-  &.difficulty-tag {
-    &.difficulty-1 {
-      background-color: rgba(46, 125, 50, 0.12);
-      color: #2e7d32;
-    }
-    &.difficulty-2 {
-      background-color: rgba(239, 108, 0, 0.12);
-      color: #ef6c00;
-    }
-    &.difficulty-3 {
-      background-color: rgba(198, 40, 40, 0.12);
-      color: #c62828;
-    }
-  }
+  width: 100%;
 }
 
 .markdown-wrapper {
@@ -163,7 +122,7 @@
   font-size: 48px;
   width: 48px;
   height: 48px;
-  color: #4caf50;
+  color: var(--mat-sys-success);
   margin-bottom: 1rem;
 }
 

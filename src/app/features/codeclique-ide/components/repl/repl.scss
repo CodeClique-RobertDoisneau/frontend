@@ -50,53 +50,35 @@
   padding: 8px 16px;
   background: var(--mat-sys-surface-container-low);
   border-top: 1px solid var(--mat-sys-outline-variant);
+  display: flex;
+  align-items: center;
+}
 
-  .repl-input-area {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.repl-form-field {
+  width: 100%;
 
-    .prompt {
-      color: var(--mat-sys-primary);
-      font-weight: bold;
-    }
-
-    .inline-input {
-      flex: 1;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-
-      input {
-        flex: 1;
-        background: transparent;
-        border: none;
-        outline: none;
-        color: var(--mat-sys-on-surface);
-        font-family: 'Roboto Mono', monospace;
-        font-size: 0.9rem;
-        padding: 4px 0;
-
-        &:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-      }
-    }
+  .prompt {
+    font-family: 'Roboto Mono', monospace;
+    font-weight: bold;
+    color: var(--mat-sys-primary);
+    margin-right: 8px;
+    user-select: none;
   }
 
-  .mini-send {
-    width: 32px;
-    height: 32px;
-    line-height: 32px;
+  input {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--mat-sys-on-surface);
+  }
+}
 
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+.waiting-input-container {
+  width: 100%;
+  margin-top: 4px;
+  
+  .repl-form-field {
+    .prompt {
+      color: var(--mat-sys-error);
     }
   }
 }

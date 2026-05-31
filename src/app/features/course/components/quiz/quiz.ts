@@ -1,14 +1,14 @@
 import { Component, signal, computed, ChangeDetectionStrategy, effect, untracked, input, output, inject } from '@angular/core';
-import { httpResource } from '@angular/common/http';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatIconModule } from '@angular/material/icon';
-import { HttpResourceRequest } from '@angular/common/http';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { map } from 'rxjs';
+import { map, firstValueFrom } from 'rxjs';
+import { Api } from '@shared/services/api/api';
+import { Node } from '@shared/services/node/node';
 
 
 export interface QuizItem {
@@ -44,7 +44,9 @@ export type QuizResult = [boolean[], string][];
 
 export class QuizComponent {
   quizId = input<string | number | undefined>(undefined);
+  mode = input<'practice' | 'graded'>('graded');
   private route = inject(ActivatedRoute);
+  private api = inject(Api);
   forceRestart = toSignal(
     this.route.queryParams.pipe(
       map(params => params['restart'] === 'true')
@@ -57,21 +59,17 @@ export class QuizComponent {
 
   userAnswers = signal<boolean[][]>([]);
   quizSubmitted = signal(false);
-  submissionTrigger = signal(0);
   _internalRestart = signal(false);
-
   submitted = output<void>();
+  isSubmitting = signal(false);
+  submissionError = signal<unknown | null>(null);
 
+  private nodeService = inject(Node);
+  quizResource = this.nodeService.getNode(() => this.previewData() ? undefined : this.quizId());
 
-  quizResource = httpResource<any>(() => {
-    if (this.previewData()) return undefined; // Pas besoin d'appeler l'API si previewData est là
-    const id = this.quizId();
-    if (!id) return undefined;
-
-    return {
-      url: `/api/nodes/${id}/`,
-      method: 'GET'
-    } as HttpResourceRequest;
+  attemptsResource = this.nodeService.getAttempts(() => {
+    if (this.previewData() || this.mode() === 'practice') return undefined;
+    return this.quizId();
   });
 
 
@@ -83,17 +81,51 @@ export class QuizComponent {
   });
 
   isAlreadyFinished = computed(() => {
-    return !!this.quizResource.value()?.user_progress?.done && !this.forceRestart() && !this._internalRestart();
+    if (this.mode() === 'practice') return false;
+    const progress = this.quizResource.value()?.progress;
+    const attempts = this.attemptsResource.value();
+    const hasAttempts = attempts && attempts.length > 0;
+    const isCompleted = progress?.status === 'CO' || hasAttempts;
+    return !!isCompleted && !this.forceRestart() && !this._internalRestart();
   });
 
-  score = computed(() => this.quizResource.value()?.user_progress?.score);
-  maxScore = computed(() => this.quizResource.value()?.user_progress?.max_score);
+  score = computed(() => {
+    if (this.mode() === 'practice') return null;
+    const attempts = this.attemptsResource.value();
+    if (!attempts || attempts.length === 0) return null;
+
+    // Get latest attempt sorted by date descending
+    const sorted = [...attempts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const latest = sorted[0];
+    if (!latest || !latest.attempt) return null;
+
+    const userAnswers = latest.attempt.answer || [];
+    const data = this.parsedQuizData();
+    if (!data || data.length === 0) return null;
+
+    // Calculate score
+    let s = 0;
+    const correctAnswers = data.map(q => q.answers || []);
+    for (let i = 0; i < data.length; i++) {
+      const uAns = userAnswers[i];
+      const cAns = correctAnswers[i];
+      if (uAns && cAns && JSON.stringify(uAns) === JSON.stringify(cAns)) {
+        s++;
+      }
+    }
+    return s;
+  });
+
+  maxScore = computed(() => {
+    const data = this.parsedQuizData();
+    return data ? data.length : null;
+  });
 
   isRestart = computed(() => this.forceRestart() || this._internalRestart());
 
   // 1. On parse la donnée UNE SEULE FOIS de manière centralisée
   parsedQuizData = computed<QuizItem[] | null>(() => {
-    let rawContent: any = null;
+    let rawContent: unknown = null;
     const preview = this.previewData();
 
     if (preview) {
@@ -118,15 +150,16 @@ export class QuizComponent {
 
     try {
       // Fonction helper pour extraire les items d'un objet donné de manière récursive (profondeur limitée)
-      const extractItems = (obj: any, depth = 0): any[] | null => {
+      const extractItems = (obj: unknown, depth = 0): unknown[] | null => {
         if (depth > 3) return null;
         if (Array.isArray(obj)) return obj;
         if (!obj || typeof obj !== 'object') return null;
 
+        const record = obj as Record<string, unknown>;
         // On check les propriétés classiques : .quiz, .content
         const keys = ['quiz', 'content'];
         for (const key of keys) {
-          const val = obj[key];
+          const val = record[key];
           if (!val) continue;
 
           if (Array.isArray(val)) return val;
@@ -149,10 +182,22 @@ export class QuizComponent {
       if (items === null) return null;
       if (items.length === 0) return [];
 
-      return items.map(item => ({
-        ...item,
-        multiple_answers: item.multiple_answers ?? (item.answers ? item.answers.filter((a: any) => a).length > 1 : false)
-      })) as QuizItem[];
+      return (items as Record<string, unknown>[]).map(item => {
+        const question = String(item['question'] || '');
+        const options = Array.isArray(item['options']) ? (item['options'] as string[]) : [];
+        const answers = Array.isArray(item['answers']) ? (item['answers'] as boolean[]) : undefined;
+        const multiple_answers = typeof item['multiple_answers'] === 'boolean'
+          ? item['multiple_answers']
+          : (answers ? answers.filter((a: boolean) => a).length > 1 : false);
+        return {
+          question,
+          options,
+          multiple_answers,
+          instruction: item['instruction'] ? String(item['instruction']) : undefined,
+          explanation: item['explanation'] ? String(item['explanation']) : undefined,
+          answers
+        } as QuizItem;
+      });
     } catch (e) {
       console.error("Failed to parse quiz content", e);
       return null;
@@ -168,6 +213,7 @@ export class QuizComponent {
 
       const fRestart = this.isRestart();
       const fValidated = this.showCorrectionOnly();
+      const attempts = this.attemptsResource.value(); // Track attempts resource
 
       untracked(() => {
         // Cas 0: Mode edit forcé — on pré-coche les bonnes réponses
@@ -179,11 +225,15 @@ export class QuizComponent {
         }
 
         // Cas 1: Restauration — l'utilisateur a déjà fait le quiz ET on ne force pas le restart
-        const resp = this.quizResource.value();
-        if (resp?.user_progress?.done && !fRestart) {
+        const isFinished = this.isAlreadyFinished();
+        if (isFinished && !fRestart) {
           this.quizSubmitted.set(true);
-          if (resp.user_progress.submission && Array.isArray(resp.user_progress.submission) && resp.user_progress.submission.length === data.length) {
-            this.userAnswers.set(resp.user_progress.submission);
+          const latest = attempts && attempts.length > 0
+            ? [...attempts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
+            : null;
+          const submission = latest?.attempt?.answer;
+          if (submission && Array.isArray(submission) && submission.length === data.length) {
+            this.userAnswers.set(submission);
           } else {
             // Fallback si pas de submission ou taille incohérente
             const initialState = data.map((q: QuizItem) => new Array(q.options.length).fill(false));
@@ -202,22 +252,6 @@ export class QuizComponent {
       });
     });
 
-    // 2.5. Effect to handle submitResource resolution or error
-    effect(() => {
-      const status = this.submitResource.status();
-      const error = this.submitResource.error();
-
-      if (this.submissionTrigger() === 0) return;
-
-      untracked(() => {
-        if (status === 'resolved') {
-          this.quizSubmitted.set(true);
-          this.submitted.emit();
-        } else if (status === 'error') {
-          console.error("Quiz submission failed:", error);
-        }
-      });
-    });
   }
 
 
@@ -239,32 +273,52 @@ export class QuizComponent {
     return `Réponse : ${indices.join('), ')}${indices.length > 0 ? ')' : ''}`;
   }
 
-  // Elle s'active UNIQUEMENT quand l'utilisateur clique sur "Vérifier mes réponses"
-  submitResource = httpResource<any>(() => {
-    if (this.submissionTrigger() === 0) return undefined;
-    if (this.previewData()) return undefined; // Pas de POST en mode éditeur
-    if (this.showCorrectionOnly()) return undefined; // Pas de POST en mode forcé
+  async submit() {
+    if (this.mode() === 'practice') {
+      this.quizSubmitted.set(true);
+      this.submitted.emit();
+      return;
+    }
+
     const id = this.quizId();
-    if (!id) return undefined;
+    if (!id || this.previewData() || this.showCorrectionOnly()) return;
 
-    const node = this.quizResource.value();
-    const modified_at = node?.modified_at;
+    this.isSubmitting.set(true);
+    this.submissionError.set(null);
 
-    return {
-      url: `/api/nodes/${id}/answer/`,
-      method: 'POST',
-      body: { answer: this.userAnswers(), modified_at }
-    } as HttpResourceRequest;
-  });
+    try {
+      const node = this.quizResource.value();
+      const modified_at = node?.modified_at || '';
+      const answer = this.userAnswers();
 
-  submit() {
-    this.submissionTrigger.update(v => v + 1);
+      await this.nodeService.submitAnswer(id, answer, modified_at);
+
+      this.quizSubmitted.set(true);
+      this._internalRestart.set(false);
+
+      if (this.mode() === 'graded') {
+        try {
+          await this.nodeService.updateProgress(id, 'completed');
+        } catch (err) {
+          console.error("Failed to update progress status:", err);
+        }
+      }
+
+      this.quizResource.reload();
+      this.attemptsResource.reload();
+      this.submitted.emit();
+    } catch (error) {
+      console.error("Quiz submission failed:", error);
+      this.submissionError.set(error);
+    } finally {
+      this.isSubmitting.set(false);
+    }
   }
 
   doRestart() {
     this._internalRestart.set(true);
     this.quizSubmitted.set(false);
-    this.submissionTrigger.set(0);
+    this.submissionError.set(null);
   }
 
 
@@ -279,7 +333,7 @@ export class QuizComponent {
         newAnswers[qIdx][oIdx] = !newAnswers[qIdx][oIdx];
       } else {
         // Mode Radio : on décoche tout pour cette question, puis on coche l'index
-        newAnswers[qIdx] = newAnswers[qIdx].fill(false);
+        newAnswers[qIdx] = new Array(newAnswers[qIdx].length).fill(false);
         newAnswers[qIdx][oIdx] = true;
       }
       return newAnswers;

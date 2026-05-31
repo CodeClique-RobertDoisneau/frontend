@@ -3,6 +3,7 @@
 // components according to the Material 3 design spec.
 // Learn more about theming and how to use it for your application's
 // custom components at https://material.angular.dev/guide/theming
+@use 'sass:map';
 @use '@angular/material' as mat;
 @use '_theme-colors' as codeclique-palette;
 
@@ -78,6 +79,20 @@ html {
     density: 0,
   ));
   @include mat.system-classes();
+
+  // Custom Success and Caution variables mapped from Material 3 design palettes
+  $success-map: map.get(codeclique-palette.$primary-palette, success);
+  $caution-map: map.get(codeclique-palette.$primary-palette, caution);
+
+  --mat-sys-success: #{light-dark(map.get($success-map, 40), map.get($success-map, 80))};
+  --mat-sys-on-success: #{light-dark(map.get($success-map, 100), map.get($success-map, 20))};
+  --mat-sys-success-container: #{light-dark(map.get($success-map, 90), map.get($success-map, 30))};
+  --mat-sys-on-success-container: #{light-dark(map.get($success-map, 10), map.get($success-map, 90))};
+
+  --mat-sys-caution: #{light-dark(map.get($caution-map, 40), map.get($caution-map, 80))};
+  --mat-sys-on-caution: #{light-dark(map.get($caution-map, 100), map.get($caution-map, 20))};
+  --mat-sys-caution-container: #{light-dark(map.get($caution-map, 90), map.get($caution-map, 30))};
+  --mat-sys-on-caution-container: #{light-dark(map.get($caution-map, 10), map.get($caution-map, 90))};
 }
 
 body {

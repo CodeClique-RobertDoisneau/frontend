@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, input, inject, computed, effect } f
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { Tag } from '@shared/components/tag/tag';
 
 
 import { Node, NodeInfo, SUBJECT_LABELS, GRADE_LABELS, TYPE_LABELS } from '@shared/services/node/node';
@@ -21,6 +22,7 @@ import { Exercise } from './components/exercise/exercise';
     QuizComponent,
     Lesson,
     Exercise,
+    Tag,
   ],
   templateUrl: './course.html',
   styleUrl: './course.scss',

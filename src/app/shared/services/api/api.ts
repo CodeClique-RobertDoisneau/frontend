@@ -3,6 +3,14 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { httpResource, HttpResourceOptions, HttpResourceRef } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
+export interface HttpOptions {
+  headers?: HttpHeaders | { [header: string]: string | string[] };
+  params?: HttpParams | { [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean> };
+  reportProgress?: boolean;
+  responseType?: 'json' | 'text';
+  withCredentials?: boolean;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -24,9 +32,7 @@ export class Api {
   post<T>(
     url: string,
     body?: unknown,
-    options?: {
-      headers?: HttpHeaders | { [header: string]: string | string[] };
-    }
+    options?: HttpOptions
   ): Promise<T> {
     let requestBody = body;
     let requestHeaders = options?.headers;
@@ -42,7 +48,13 @@ export class Api {
       requestHeaders = headersMap;
     }
 
-    return firstValueFrom(this.http.post<T>(url, requestBody, { ...options, headers: requestHeaders }));
+    return firstValueFrom(
+      this.http.post<T>(
+        url,
+        requestBody,
+        { ...options, headers: requestHeaders } as { responseType?: 'json' }
+      )
+    );
   }
 
   /**
@@ -51,11 +63,15 @@ export class Api {
   put<T>(
     url: string,
     body?: unknown,
-    options?: {
-      headers?: HttpHeaders | { [header: string]: string | string[] };
-    }
+    options?: HttpOptions
   ): Promise<T> {
-    return firstValueFrom(this.http.put<T>(url, body, options));
+    return firstValueFrom(
+      this.http.put<T>(
+        url,
+        body,
+        options as { responseType?: 'json' }
+      )
+    );
   }
 
   /**
@@ -64,11 +80,15 @@ export class Api {
   patch<T>(
     url: string,
     body?: unknown,
-    options?: {
-      headers?: HttpHeaders | { [header: string]: string | string[] };
-    }
+    options?: HttpOptions
   ): Promise<T> {
-    return firstValueFrom(this.http.patch<T>(url, body, options));
+    return firstValueFrom(
+      this.http.patch<T>(
+        url,
+        body,
+        options as { responseType?: 'json' }
+      )
+    );
   }
 
   /**
@@ -76,10 +96,13 @@ export class Api {
    */
   delete<T>(
     url: string,
-    options?: {
-      headers?: HttpHeaders | { [header: string]: string | string[] };
-    }
+    options?: HttpOptions
   ): Promise<T> {
-    return firstValueFrom(this.http.delete<T>(url, options));
+    return firstValueFrom(
+      this.http.delete<T>(
+        url,
+        options as { responseType?: 'json' }
+      )
+    );
   }
 }

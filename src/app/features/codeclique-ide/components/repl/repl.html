@@ -9,7 +9,7 @@
   </div>
   <div class="repl-output" #replScrollContainer>
     @for (line of tab().replHistory(); track $index) {
-    <div class="repl-line" [ngClass]="line.type">
+    <div class="repl-line" [class]="line.type">
       @if (line.type === 'input') {
       <span class="prompt">>>></span>
       }
@@ -18,15 +18,14 @@
     }
 
     @if (tab().waitingForInput()) {
-    <div class="repl-line input">
-      <span class="prompt">?</span>
-      <div class="inline-input">
-        <input #waitingInput type="text" [(ngModel)]="tab().userInput" (keyup.enter)="submitInput()"
-          placeholder="Entrée attendue...">
-        <button mat-icon-button (click)="submitInput()" class="mini-send" matTooltip="Envoyer">
+    <div class="repl-line input waiting-input-container">
+      <mat-form-field class="repl-form-field" appearance="outline" subscriptSizing="dynamic">
+        <span matTextPrefix class="prompt">?&nbsp;</span>
+        <input matInput #waitingInput type="text" [(ngModel)]="tab().userInput" (keyup.enter)="submitInput()" placeholder="Entrée attendue...">
+        <button matSuffix mat-icon-button (click)="submitInput()" class="mini-send" matTooltip="Envoyer">
           <mat-icon>send</mat-icon>
         </button>
-      </div>
+      </mat-form-field>
     </div>
     }
 
@@ -38,16 +37,14 @@
   </div>
 
   <div class="repl-footer">
-    <div class="repl-input-area">
-      <span class="prompt">>>></span>
-      <div class="inline-input">
-        <input #replInput type="text" [(ngModel)]="tab().replCommand" (keyup.enter)="handleExecute()" placeholder="Taper du code ici..."
-          [disabled]="!tabView.pyodide.isReady() || tabView.isRunning()">
-        <button mat-icon-button (click)="handleExecute()" class="mini-send" matTooltip="Exécuter"
-          [disabled]="!tabView.pyodide.isReady() || tabView.isRunning()">
-          <mat-icon>send</mat-icon>
-        </button>
-      </div>
-    </div>
+    <mat-form-field class="repl-form-field" appearance="outline" subscriptSizing="dynamic">
+      <span matTextPrefix class="prompt">&gt;&gt;&gt;&nbsp;</span>
+      <input matInput #replInput type="text" [(ngModel)]="tab().replCommand" (keyup.enter)="handleExecute()" placeholder="Taper du code ici..."
+        [disabled]="!tabView.pyodide.isReady() || tabView.isRunning()">
+      <button matSuffix mat-icon-button (click)="handleExecute()" class="mini-send" matTooltip="Exécuter"
+        [disabled]="!tabView.pyodide.isReady() || tabView.isRunning()">
+        <mat-icon>send</mat-icon>
+      </button>
+    </mat-form-field>
   </div>
 </div>

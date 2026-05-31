@@ -18,14 +18,14 @@ export class Auth {
     await fetch(`${this.apiUrl}/auth/login/`);
 
     const body = new URLSearchParams({ username, password });
-    await this.api.post<string>(`${this.apiUrl}/auth/login/`, body);
+    await this.api.post<string>(`${this.apiUrl}/auth/login/`, body, { responseType: 'text' });
 
     return this.getMe();
   }
 
   async logout(): Promise<void> {
     try {
-      await this.api.post<string>(`${this.apiUrl}/auth/logout/`);
+      await this.api.post<string>(`${this.apiUrl}/auth/logout/`, null, { responseType: 'text' });
     } finally {
       this.currentUser.set(null);
       this.router.navigate(['/']);

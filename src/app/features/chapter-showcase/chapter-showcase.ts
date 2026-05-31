@@ -2,18 +2,17 @@ import { Component, ChangeDetectionStrategy, input, computed, inject, effect } f
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
-import { NodeInfo, GRADE_LABELS, SUBJECT_LABELS } from '@shared/services/node/node';
-import { httpResource } from '@angular/common/http';
+import { NodeInfo, GRADE_LABELS, SUBJECT_LABELS, Node, NodeLinkInfo } from '@shared/services/node/node';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { SectionCard } from './components/section-card/section-card';
 import { MatListModule } from '@angular/material/list';
 import { BreadcrumbService } from '@shared/services/breadcrumb.service';
+import { Tag } from '@shared/components/tag/tag';
 
 @Component({
   selector: 'app-chapter-showcase',
-  imports: [MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatChipsModule, MatDividerModule, MatExpansionModule, SectionCard, MatListModule],
+  imports: [MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatDividerModule, MatExpansionModule, SectionCard, MatListModule, Tag],
   templateUrl: './chapter-showcase.html',
   styleUrl: './chapter-showcase.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,23 +20,21 @@ import { BreadcrumbService } from '@shared/services/breadcrumb.service';
 export class ChapterShowcase {
   readonly id = input.required<string>();
   private breadcrumbService = inject(BreadcrumbService);
+  private nodeService = inject(Node);
 
   //Necessaire pour pouvoir l'utiliser dans le .html
   GRADE_LABELS = GRADE_LABELS;
   SUBJECT_LABELS = SUBJECT_LABELS;
 
-  chapterInfo = httpResource<NodeInfo>(() => `/api/nodes/${this.id()}/`);
+  chapterInfo = this.nodeService.getNode(() => this.id());
 
   sectionIds = computed(
     () => {
       const node = this.chapterInfo.value();
       if (!node || !node.children) return [];
       return node.children.map(
-        (child: any) => {
-          if (typeof child === 'object') {
-            return (child.child && child.child.id) ? child.child.id : child.id;
-          }
-          return child;
+        (child: NodeLinkInfo) => {
+          return child.child?.id ? child.child.id.toString() : child.id.toString();
         }
       );
     }

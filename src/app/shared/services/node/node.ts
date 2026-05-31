@@ -1,7 +1,7 @@
 import { Injectable, inject, resource, ResourceRef } from '@angular/core';
 import { Api } from '../api/api';
 import { HttpResourceRef } from '@angular/common/http';
-import { NodeInfo, UserInfo, ClassGroupInfo, ClassGroupSyllabusInfo, CatalogValue, GroupSyllabi } from './node.types';
+import { NodeInfo, UserInfo, ClassGroupInfo, ClassGroupSyllabusInfo, CatalogValue, GroupSyllabi, QuizAttempt } from './node.types';
 import { firstValueFrom } from 'rxjs';
 
 export * from './node.types';
@@ -30,9 +30,10 @@ export const TYPE_LABELS: Record<string, string> = {
 export class Node {
   private api = inject(Api);
 
-  getNode(id: string | number | (() => string | number)): HttpResourceRef<NodeInfo | undefined> {
+  getNode(id: string | number | (() => string | number | undefined)): HttpResourceRef<NodeInfo | undefined> {
     return this.api.get<NodeInfo>(() => {
       const resolvedId = typeof id === 'function' ? id() : id;
+      if (!resolvedId) return undefined;
       return `/api/nodes/${resolvedId}/`;
     });
   }
@@ -47,6 +48,22 @@ export class Node {
     modified_at: string = ''
   ): Promise<Record<string, unknown>> {
     return this.api.post<Record<string, unknown>>(`/api/nodes/${id}/answer/`, { answer: submission, modified_at });
+  }
+
+  getAttempts(id: string | number | (() => string | number | undefined)): HttpResourceRef<QuizAttempt[] | undefined> {
+    return this.api.get<QuizAttempt[]>(() => {
+      const resolvedId = typeof id === 'function' ? id() : id;
+      if (!resolvedId) return undefined;
+      return `/api/nodes/${resolvedId}/answer/`;
+    });
+  }
+
+  submitAnswer(id: string | number, answer: boolean[][], modified_at: string): Promise<unknown> {
+    return this.api.post(`/api/nodes/${id}/answer/`, { answer, modified_at });
+  }
+
+  updateProgress(id: string | number, action: string = 'completed'): Promise<unknown> {
+    return this.api.post(`/api/nodes/${id}/progress/`, { action_performed: action });
   }
 
   getUser(): HttpResourceRef<UserInfo | undefined> {

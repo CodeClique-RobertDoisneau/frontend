@@ -36,15 +36,24 @@
 }
 
 .slider-wrapper {
-  position: relative;
   display: flex;
   align-items: center;
   width: 100%;
+  gap: 1.5rem;
+}
+
+.slider-content-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
 
   .nav-btn {
     position: absolute;
     background-color: var(--mat-sys-surface-container-highest);
     transition: opacity 0.3s ease;
+    z-index: 2;
 
     &.left {
       left: 10px;
@@ -66,6 +75,7 @@
   grid-auto-flow: column;
   grid-auto-columns: 280px;
   grid-template-rows: auto 1fr auto;
+  width: 100%;
 
   gap: 1.5rem;
   overflow-x: auto;
