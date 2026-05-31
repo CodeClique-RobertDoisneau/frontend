@@ -14,6 +14,23 @@
     gap: 2rem;
   }
 }
+.wip-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: var(--mat-sys-tertiary-container, #fff0c6);
+  color: var(--mat-sys-on-tertiary-container, #231b00);
+  border-radius: 16px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-top: 1.5rem;
+
+  .wip-icon {
+    color: var(--mat-sys-tertiary, #715d00);
+    flex-shrink: 0;
+  }
+}
 
 .dashboard-header {
   display: flex;
