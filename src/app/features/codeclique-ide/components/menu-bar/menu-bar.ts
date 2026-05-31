@@ -1,5 +1,4 @@
-import { Component, inject, ElementRef, viewChild, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, ElementRef, viewChild, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -16,9 +15,7 @@ import { AboutDialog } from '../about-dialog/about-dialog';
 
 @Component({
   selector: 'app-menu-bar',
-  standalone: true,
   imports: [
-    CommonModule,
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
@@ -28,7 +25,8 @@ import { AboutDialog } from '../about-dialog/about-dialog';
     MatDialogModule
   ],
   templateUrl: './menu-bar.html',
-  styleUrl: './menu-bar.scss'
+  styleUrl: './menu-bar.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MenuBar {
   workspace = inject(WorkspaceService);

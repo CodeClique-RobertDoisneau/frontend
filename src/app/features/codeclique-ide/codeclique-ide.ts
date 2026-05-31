@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, ElementRef, viewChild, OnDestroy, viewChildren, computed } from '@angular/core';
+import { Component, inject, signal, OnInit, ElementRef, viewChild, OnDestroy, viewChildren, computed, ChangeDetectionStrategy } from '@angular/core';
 import { fromEvent } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { WorkspaceService } from './services/workspace';
@@ -15,7 +15,8 @@ import { IdeTour, TourStep } from './components/ide-tour/ide-tour';
     IdeTour
   ],
   templateUrl: './codeclique-ide.html',
-  styleUrl: './codeclique-ide.scss'
+  styleUrl: './codeclique-ide.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodeCliqueIde implements OnInit, OnDestroy {
   workspace = inject(WorkspaceService);

@@ -1,4 +1,4 @@
-import { Component, input, computed, inject } from '@angular/core';
+import { Component, input, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { NodeInfo, Node, NodeLinkInfo } from '@shared/services/node/node';
@@ -13,6 +13,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
   imports: [MatIconModule, MatChipsModule, MatDividerModule, MatButtonModule, MatProgressSpinnerModule, ItemCard, MatExpansionModule],
   templateUrl: './section-card.html',
   styleUrl: './section-card.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SectionCard {
   readonly id = input.required<string>();

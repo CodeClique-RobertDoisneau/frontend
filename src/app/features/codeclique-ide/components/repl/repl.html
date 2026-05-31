@@ -9,7 +9,7 @@
   </div>
   <div class="repl-output" #replScrollContainer>
     @for (line of tab().replHistory(); track $index) {
-    <div class="repl-line" [ngClass]="line.type">
+    <div class="repl-line" [class]="line.type">
       @if (line.type === 'input') {
       <span class="prompt">>>></span>
       }

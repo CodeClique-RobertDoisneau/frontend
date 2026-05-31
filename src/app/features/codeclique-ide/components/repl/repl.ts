@@ -1,5 +1,4 @@
-import { Component, effect, ElementRef, viewChild, inject, afterNextRender, input, forwardRef, Injector } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, effect, ElementRef, viewChild, inject, afterNextRender, input, forwardRef, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,7 +12,6 @@ import { IdeTabView } from '../ide-tab-view/ide-tab-view';
 @Component({
   selector: 'app-repl',
   imports: [
-    CommonModule,
     FormsModule,
     MatButtonModule,
     MatIconModule,
@@ -22,7 +20,8 @@ import { IdeTabView } from '../ide-tab-view/ide-tab-view';
     MatInputModule
   ],
   templateUrl: './repl.html',
-  styleUrl: './repl.scss'
+  styleUrl: './repl.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Repl {
   tab = input.required<TabHandler>();

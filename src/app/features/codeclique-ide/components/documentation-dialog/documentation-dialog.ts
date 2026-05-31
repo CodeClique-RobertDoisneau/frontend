@@ -1,5 +1,4 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,9 +7,7 @@ import { DialogLayout } from '../../../../shared/components/dialog-layout/dialog
 
 @Component({
   selector: 'app-documentation-dialog',
-  standalone: true,
   imports: [
-    CommonModule,
     MatDialogModule,
     MatButtonModule,
     MatIconModule,
@@ -19,6 +16,7 @@ import { DialogLayout } from '../../../../shared/components/dialog-layout/dialog
   ],
   templateUrl: './documentation-dialog.html',
   styleUrl: './documentation-dialog.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DocumentationDialog {
   dialogRef = inject(MatDialogRef<DocumentationDialog>);
