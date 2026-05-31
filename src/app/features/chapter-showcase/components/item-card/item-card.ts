@@ -1,8 +1,6 @@
-import { Component, input, computed, inject } from '@angular/core';
+import { Component, input, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
-import { RouterLink, Router } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
+import { Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Tag } from '@shared/components/tag/tag';
@@ -13,9 +11,10 @@ import { NodeInfo, TYPE_LABELS, Node } from '@shared/services/node/node';
 
 @Component({
   selector: 'app-item-card',
-  imports: [MatIconModule, MatDividerModule, MatButtonModule, MatProgressSpinnerModule, MatTooltipModule, Tag],
+  imports: [MatIconModule, MatProgressSpinnerModule, MatTooltipModule, Tag],
   templateUrl: './item-card.html',
   styleUrl: './item-card.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 
 export class ItemCard {

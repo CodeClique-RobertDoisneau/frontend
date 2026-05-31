@@ -19,7 +19,7 @@
     }
 
     <div class="slider-content" #sliderContent (scroll)="onScroll($event)">
-      @for (child of chapters(); track child) {
+      @for (child of chapters(); track (child.child?.id || child.id)) {
       <app-chapter-card [chapter]="child.child || child" class="slider-item" />
       }
     </div>

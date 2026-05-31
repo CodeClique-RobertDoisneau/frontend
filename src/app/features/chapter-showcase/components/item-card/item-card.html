@@ -5,7 +5,12 @@
 </div>
 } @else if (itemInfo.value(); as item) {
 <div class="item-card-container">
-    <div class="item-card-inner" (click)="onCardClick($event, item.id)">
+    <div class="item-card-inner" 
+         role="button" 
+         tabindex="0" 
+         (click)="onCardClick($event, item.id)"
+         (keydown.enter)="onCardClick($event, item.id)"
+         (keydown.space)="$event.preventDefault(); onCardClick($event, item.id)">
         <mat-icon class="item-icon">{{ typeIcon() }}</mat-icon>
         <div class="item-title" [title]="item.title">{{ item.title }}</div>
         <div class="item-status-group">
