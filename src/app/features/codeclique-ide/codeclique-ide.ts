@@ -33,12 +33,12 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
   tourSteps: TourStep[] = [
     {
       title: "Bienvenue sur CodeClique IDE",
-      content: "Nous sommes ravis de vous accueillir ! Suivez ce guide interactif pour prendre en main votre environnement de programmation Python en quelques secondes.",
+      content: "Nous sommes ravis de vous accueillir ! Suivez ce guide interactif pour exécuter vos programmes Python en quelques secondes. Vous pouvez retrouver ce guide à tout moment via le menu Aide > Visite guidée.",
       position: 'center'
     },
     {
       title: "L'Éditeur de Code",
-      content: "C'est ici, sur la gauche, que vous rédigez vos scripts Python. Profitez de l'auto-complétion intelligente et de la coloration syntaxique pour coder rapidement.",
+      content: "C'est ici, sur la gauche, que vous rédigez vos scripts Python. Codez en toute liberté, vous pouvez écrire tout ce que vous voulez!",
       selector: '.editor-section',
       position: 'right'
     },
@@ -46,17 +46,17 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
       title: "Gestion des Onglets",
       content: "Gérez plusieurs fichiers en parallèle. Cliquez sur '+' pour ouvrir un nouvel onglet, ou double-cliquez sur le nom d'un onglet pour le renommer !",
       selector: 'app-tab-bar',
-      position: 'right'
+      position: 'bottom'
     },
     {
       title: "Exécution Instantanée",
-      content: "Cliquez sur ce bouton Play (ou utilisez F5 / Ctrl + Enter) pour exécuter immédiatement votre script Python grâce à notre moteur embarqué.",
+      content: "Cliquez sur ce bouton Play (ou utilisez Ctrl + Enter) pour exécuter immédiatement votre script Python. Tout tourne dans votre navigateur, pas de danger.",
       selector: '.execution-controls',
       position: 'bottom'
     },
     {
       title: "La Console REPL",
-      content: "À droite s'affichent les sorties de vos scripts. Utilisez l'invite interactive en bas pour exécuter des commandes en direct !",
+      content: "Dans cette console s'affichent les sorties de vos scripts. Utilisez l'invite interactive en bas pour exécuter des commandes en direct !",
       selector: '.repl-panel',
       position: 'left'
     },
@@ -68,7 +68,7 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
     },
     {
       title: "C'est parti",
-      content: "La visite est terminée. Vous pouvez re-déclencher ce guide à tout moment via le menu Aide > Visite guidée. Excellent code à vous !",
+      content: "La visite est terminée. Vous pouvez retrouver ce guide à tout moment via le menu Aide > Visite guidée. Excellent code à vous !",
       position: 'center'
     }
   ];
@@ -134,10 +134,6 @@ export class CodeCliqueIde implements OnInit, OnDestroy {
 
   private registerShortcuts() {
     this.shortcutUnregister.push(
-      this.shortcutService.register({ 
-        key: 'F5', 
-        action: () => this.runActive()
-      }),
       this.shortcutService.register({ 
         key: 'Enter', 
         ctrl: true, 

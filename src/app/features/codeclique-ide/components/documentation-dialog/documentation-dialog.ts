@@ -34,7 +34,7 @@ Que vous soyez débutant ou développeur expérimenté, cet IDE complet vous per
    Dans la zone de gauche, vous trouverez l'**Éditeur**. C'est ici que vous tapez vos scripts Python. Vous pouvez ouvrir plusieurs fichiers en utilisant les onglets en haut de l'éditeur (comme dans un navigateur web).
 
 2. **Exécuter le script**  
-   Cliquez sur le bouton **Play (Exécuter)** vert en haut à droite (ou appuyez sur la touche **F5** de votre clavier). Votre code sera immédiatement exécuté en arrière-plan grâce à notre moteur Python embarqué.
+   Cliquez sur le bouton **Play (Exécuter)** vert en haut à droite (ou appuyez sur la combinaison **Ctrl + Enter** de votre clavier). Votre code sera immédiatement exécuté en arrière-plan grâce à notre moteur Python embarqué.
 
 3. **Interagir avec la Console (REPL)**  
    À droite se trouve la **Console**. C'est ici que s'affichent les résultats de vos scripts (comme les \`print()\`).  
@@ -44,7 +44,7 @@ Que vous soyez débutant ou développeur expérimenté, cet IDE complet vous per
 
 ### Vos premières lignes de code
 
-Essayez de copier-coller ceci dans l'éditeur et d'appuyer sur **F5** :
+Essayez de copier-coller ceci dans l'éditeur et d'appuyer sur **Ctrl + Enter** :
 \`\`\`python
 nom = "Apprenti Développeur"
 print(f"Bonjour {nom} ! Bienvenue sur CodeClique.")
@@ -60,7 +60,7 @@ for i in range(3):
 - **Gestion des packages** : Chargez des bibliothèques comme \`numpy\`, \`pandas\`, etc. via le menu dédié.
 
 ## Exécution
-- **F5** ou **Ctrl + Enter** : Exécuter le code de l'onglet actif.
+- **Ctrl + Enter** : Exécuter le code de l'onglet actif.
 - **Ctrl + B** : Afficher/Masquer la console.
 - **Ctrl + L** : Effacer l'historique de la console.
 

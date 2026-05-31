@@ -31,24 +31,42 @@ export class IdeTour {
   close = output<void>();
 
   private trigger = signal<number>(0);
+  private pollInterval: any = null;
 
   constructor() {
-    effect(() => {
+    effect((onCleanup) => {
       this.tourStep();
       this.steps();
 
-      let count = 0;
-      const interval = setInterval(() => {
-        this.trigger.update(v => v + 1);
-        count++;
-        if (count >= 5) clearInterval(interval);
-      }, 100);
+      this.startPolling();
+
+      onCleanup(() => {
+        if (this.pollInterval) {
+          clearInterval(this.pollInterval);
+          this.pollInterval = null;
+        }
+      });
     });
+  }
+
+  private startPolling() {
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+    }
+    let count = 0;
+    this.pollInterval = setInterval(() => {
+      this.trigger.update(v => v + 1);
+      count++;
+      if (count >= 5) {
+        clearInterval(this.pollInterval);
+        this.pollInterval = null;
+      }
+    }, 100);
   }
 
   @HostListener('window:resize')
   onResize() {
-    this.trigger.update(v => v + 1);
+    this.startPolling();
   }
 
   currentStep = computed(() => {
@@ -84,7 +102,7 @@ export class IdeTour {
 
     if (viewportWidth <= 768) {
       return {
-        bottom: '24px',
+        bottom: '96px',
         left: '50%',
         transform: 'translateX(-50%)',
         position: 'fixed'
