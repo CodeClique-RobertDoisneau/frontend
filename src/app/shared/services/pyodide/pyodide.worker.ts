@@ -200,6 +200,8 @@ async function handleRun(data: Extract<PyodideRequest, { type: 'RUN' }>) {
 
   if (interruptBuffer) interruptBuffer[0] = 0;
 
+  const stdoutDecoder = new TextDecoder('utf-8');
+  const stderrDecoder = new TextDecoder('utf-8');
   let stdoutBuffer = '';
   let stderrBuffer = '';
 
@@ -260,22 +262,26 @@ async function handleRun(data: Extract<PyodideRequest, { type: 'RUN' }>) {
 
   pyodide.setStdout({
     raw: (code) => {
-      const char = String.fromCodePoint(code);
-      stdoutBuffer += char;
-      if (char === '\n') {
-        respond({ type: 'RUN_STDOUT', id, text: stdoutBuffer });
-        stdoutBuffer = '';
+      const char = stdoutDecoder.decode(new Uint8Array([code]), { stream: true });
+      if (char) {
+        stdoutBuffer += char;
+        if (char === '\n') {
+          respond({ type: 'RUN_STDOUT', id, text: stdoutBuffer });
+          stdoutBuffer = '';
+        }
       }
     },
   });
 
   pyodide.setStderr({
     raw: (code) => {
-      const char = String.fromCodePoint(code);
-      stderrBuffer += char;
-      if (char === '\n') {
-        respond({ type: 'RUN_STDERR', id, text: stderrBuffer });
-        stderrBuffer = '';
+      const char = stderrDecoder.decode(new Uint8Array([code]), { stream: true });
+      if (char) {
+        stderrBuffer += char;
+        if (char === '\n') {
+          respond({ type: 'RUN_STDERR', id, text: stderrBuffer });
+          stderrBuffer = '';
+        }
       }
     },
   });
@@ -302,6 +308,12 @@ async function handleRun(data: Extract<PyodideRequest, { type: 'RUN' }>) {
     const errorMsg = err instanceof Error ? err.stack || err.message : String(err);
     respond({ type: 'RUN_ERROR', id, error: errorMsg });
   } finally {
+    const finalStdout = stdoutDecoder.decode();
+    if (finalStdout) stdoutBuffer += finalStdout;
+
+    const finalStderr = stderrDecoder.decode();
+    if (finalStderr) stderrBuffer += finalStderr;
+
     if (stdoutBuffer) {
       respond({ type: 'RUN_STDOUT', id, text: stdoutBuffer });
     }
