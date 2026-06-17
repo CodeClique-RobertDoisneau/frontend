@@ -1,15 +1,151 @@
-<header class="hero-section">
-  <div class="hero-content">
-    <h1>Bienvenue dans ton dashboard</h1>
+<div class="dashboard-container">
+  <div class="wip-banner">
+    <mat-icon class="wip-icon">warning</mat-icon>
+    <div class="wip-content">
+      <strong>Interface en cours de développement :</strong> Ce tableau de bord est une maquette d'illustration avec des données fictives.
+    </div>
   </div>
-</header>
 
-<section class="chart-section">
-  <section class="bar-chart-section">
-    <app-bar-chart></app-bar-chart>
-  </section>
+  <header class="dashboard-header">
+    <div class="header-welcome">
+      <h1>Salut !</h1>
+    </div>
+  </header>
 
-  <section class="area-chart-section">
-    <app-area-chart></app-area-chart>
-  </section>
-</section>
+  <div class="stats-grid">
+    @for (stat of stats; track stat.label) {
+      <mat-card appearance="outlined" class="stat-card">
+        <mat-card-content>
+          <div class="stat-header">
+            <span class="stat-label">{{ stat.label }}</span>
+            <div class="stat-icon-wrapper">
+              <mat-icon>{{ stat.icon }}</mat-icon>
+            </div>
+          </div>
+          <div class="stat-value">{{ stat.value }}</div>
+          <div class="stat-trend" [class]="stat.trendClass">
+            <mat-icon>trending_up</mat-icon>
+            <span>{{ stat.trend }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+
+  <div class="dashboard-content-layout">
+    <div class="main-column">
+      <mat-card appearance="outlined" class="section-card horizontal-course-card">
+        <div class="horizontal-card-layout">
+          <div class="horizontal-card-image-box">
+            <img src="https://images.pexels.com/photos/4976710/pexels-photo-4976710.jpeg?auto=compress&cs=tinysrgb&w=400" alt="Course visual" class="horizontal-course-image" />
+            <span class="category-badge">{{ relevantCourse.category }}</span>
+          </div>
+          <div class="horizontal-card-details">
+            <div class="horizontal-card-header">
+              <h2>{{ relevantCourse.title }}</h2>
+              <p class="horizontal-card-desc">{{ relevantCourse.description }}</p>
+            </div>
+            <div class="horizontal-card-meta">
+              <div class="meta-item">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ relevantCourse.duration }}</span>
+              </div>
+              <div class="meta-item">
+                <mat-icon>menu_book</mat-icon>
+                <span>{{ relevantCourse.lessons }}</span>
+              </div>
+              <div class="meta-item">
+                <mat-icon>stars</mat-icon>
+                <span class="xp-text">{{ relevantCourse.xp }}</span>
+              </div>
+            </div>
+            <div class="horizontal-card-footer">
+              <button mat-flat-button color="primary" routerLink="/courses">
+                Découvrir le cours
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card appearance="outlined" class="section-card">
+        <mat-card-header>
+          <mat-card-title>Mes cours actifs</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="course-list">
+            @for (course of courses; track course.title) {
+              <div class="course-row">
+                <div class="course-info">
+                  <div class="course-header-row">
+                    <h3 class="course-title">{{ course.title }}</h3>
+                    <span class="course-meta">{{ course.lessonsCompleted }}/{{ course.totalLessons }} leçons</span>
+                  </div>
+                  <div class="progress-container">
+                    <mat-progress-bar mode="determinate" [value]="course.progress"></mat-progress-bar>
+                    <span class="progress-percentage">{{ course.progress }}%</span>
+                  </div>
+                  <div class="course-footer">
+                    <span class="course-last-active">Dernière activité : {{ course.lastActive }}</span>
+                    <button mat-button color="primary" class="resume-btn" routerLink="/courses">
+                      Continuer
+                      <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="sidebar-column">
+      <mat-card appearance="outlined" class="section-card">
+        <mat-card-header>
+          <mat-card-title>Défis & Activités</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="challenge-list">
+            @for (ach of achievements; track ach.title) {
+              <div class="challenge-item">
+                <div class="challenge-icon-box">
+                  <mat-icon>{{ ach.icon }}</mat-icon>
+                </div>
+                <div class="challenge-details">
+                  <h4 class="challenge-title">{{ ach.title }}</h4>
+                  <p class="challenge-desc">{{ ach.desc }}</p>
+                  <div class="challenge-footer">
+                    <span class="challenge-reward">{{ ach.points }}</span>
+                    <button mat-stroked-button color="primary" size="small" class="challenge-action-btn">
+                      {{ ach.actionLabel }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card appearance="outlined" class="section-card">
+        <mat-card-header>
+          <mat-card-title>Derniers badges gagnés</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="badges-grid">
+            @for (badge of badges; track badge.name) {
+              <div class="badge-item" [matTooltip]="badge.desc">
+                <div class="badge-icon-shield" [class]="badge.color">
+                  <mat-icon>{{ badge.icon }}</mat-icon>
+                </div>
+                <div class="badge-name">{{ badge.name }}</div>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

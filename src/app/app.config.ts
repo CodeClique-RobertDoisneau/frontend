@@ -8,7 +8,6 @@ import { provideRouter, TitleStrategy, withComponentInputBinding } from '@angula
 import { AppTitleStrategy } from './app.title-strategy';
 
 import { MAT_ICON_DEFAULT_OPTIONS } from "@angular/material/icon";
-import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -18,6 +17,6 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch(), withXsrfConfiguration({ cookieName: 'csrftoken', headerName: 'X-CSRFToken' })),
     provideClientHydration(withEventReplay()),
     {provide: TitleStrategy, useClass: AppTitleStrategy},
-    {provide: MAT_ICON_DEFAULT_OPTIONS, useValue: {fontSet: 'material-symbols-outlined'}}, provideCharts(withDefaultRegisterables())
+    {provide: MAT_ICON_DEFAULT_OPTIONS, useValue: {fontSet: 'material-symbols-outlined'}}
   ]
 };
